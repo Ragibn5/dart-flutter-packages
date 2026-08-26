@@ -55,6 +55,7 @@ analyzer:
     always_declare_return_types: error
     lines_longer_than_80_chars: warning
     avoid_unused_constructor_parameters: warning
+    inference_failure_on_uninitialized_variable: error
 
 
 linter:
