@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/infinity_radio_group
 
 # Library version
-version: 1.0.0
+version: 2.0.1
 
 # Range of compatible SDK versions
 environment:

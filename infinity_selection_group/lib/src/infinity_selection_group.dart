@@ -5,7 +5,8 @@ import 'package:infinity_selection_group/src/widgets/selection_groups/grid_selec
 import 'package:infinity_selection_group/src/widgets/selection_groups/list_selection_group.dart';
 import 'package:infinity_selection_group/src/widgets/selection_groups/wrap_selection_group.dart';
 
-class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
+class InfinitySelectionGroup<T extends SelectionItemUiModel>
+    extends StatelessWidget {
   final List<T> uiModels;
   final SelectionGroupLayoutConfig layoutConfig;
   final int? maxSelectionCount;
@@ -16,7 +17,7 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
   final List<Widget> trailingWidgets;
   final Widget Function(T model, {required bool selected}) cellBuilder;
 
-  const SelectionGroup({
+  const InfinitySelectionGroup({
     super.key,
     required this.uiModels,
     required this.layoutConfig,

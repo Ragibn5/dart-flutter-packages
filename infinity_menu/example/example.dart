@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_lambdas
+
 import 'package:flutter/material.dart';
 import 'package:infinity_menu/infinity_menu.dart';
 
@@ -56,7 +58,7 @@ void _openMenu(
   showModalBottomSheet<void>(
     context: context,
     builder: (_) => SafeArea(
-      child: Menu<String>(
+      child: InfinityMenu<String>(
         parent: parent,
         menuData: menuData,
         menuItemBuilder: (_, __, item) => Padding(

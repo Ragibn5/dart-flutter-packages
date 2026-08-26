@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  infinity_selection_group: ^1.0.0
+  infinity_selection_group: ^2.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: infinity_selection_group
-      ref: infinity_selection_group-1.0.0
+      ref: infinity_selection_group-2.0.1
 ```
 
 ## ✨ Features
@@ -87,10 +87,10 @@ See the [API](#-api) section for the full parameter list of each config.
 
 ### 3. Render the selection group
 
-Use the [SelectionGroup] widget to render your options using the supplied layout.
+Use the [InfinitySelectionGroup] widget to render your options using the supplied layout.
 
 ```
-SelectionGroup<PlanOption>(
+InfinitySelectionGroup<PlanOption>(
   uiModels: plans,
   layoutConfig: listLayout,
   maxSelectionCount: 3,
@@ -119,16 +119,16 @@ That's it — the selected cells are highlighted through the `selected` flag you
 
 All exported components from `package:infinity_selection_group/infinity_selection_group.dart`:
 
-| Component                | Description                                                                                                |
-|--------------------------|------------------------------------------------------------------------------------------------------------|
-| `SelectionGroup<T>`      | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.                   |
-| `SelectionItemUiModel`   | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection.      |
-| `ListLayoutConfig`       | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                            |
-| `GridLayoutConfig`       | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                       |
-| `WrapLayoutConfig`       | Layout options for a wrap (chip-like) layout — spacing and run spacing.                                    |
-| `ListSelectionGroup<T>`  | The list implementation directly, if you want to skip the dispatch.                                        |
-| `GridSelectionGroup<T>`  | The grid implementation directly.                                                                          |
-| `WrapSelectionGroup<T>`  | The wrap implementation directly.                                                                          |
+| Component                   | Description                                                                                           |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+| `InfinitySelectionGroup<T>` | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.              |
+| `SelectionItemUiModel`      | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection. |
+| `ListLayoutConfig`          | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                       |
+| `GridLayoutConfig`          | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                  |
+| `WrapLayoutConfig`          | Layout options for a wrap (chip-like) layout — spacing and run spacing.                               |
+| `ListSelectionGroup<T>`     | The list implementation directly, if you want to skip the dispatch.                                   |
+| `GridSelectionGroup<T>`     | The grid implementation directly.                                                                     |
+| `WrapSelectionGroup<T>`     | The wrap implementation directly.                                                                     |
 
 ## 🧪 Example
 

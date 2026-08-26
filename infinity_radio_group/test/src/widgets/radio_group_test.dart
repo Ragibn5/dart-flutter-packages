@@ -22,12 +22,12 @@ void main() {
   }
 
   testWidgets(
-      'RadioGroup delegates to ListRadioGroup when layout config is a ListLayoutConfig',
+      'InfinityRadioGroup delegates to ListRadioGroup when layout config is a ListLayoutConfig',
       (tester) async {
     const layoutConfig = ListLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        RadioGroup<_TestModel>(
+        InfinityRadioGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -42,12 +42,12 @@ void main() {
   });
 
   testWidgets(
-      'RadioGroup delegates to GridRadioGroup when layout config is a GridLayoutConfig',
+      'InfinityRadioGroup delegates to GridRadioGroup when layout config is a GridLayoutConfig',
       (tester) async {
     const layoutConfig = GridLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        RadioGroup<_TestModel>(
+        InfinityRadioGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -62,12 +62,12 @@ void main() {
   });
 
   testWidgets(
-      'RadioGroup delegates to WrapRadioGroup when layout config is a WrapLayoutConfig',
+      'InfinityRadioGroup delegates to WrapRadioGroup when layout config is a WrapLayoutConfig',
       (tester) async {
     const layoutConfig = WrapLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        RadioGroup<_TestModel>(
+        InfinityRadioGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -82,7 +82,7 @@ void main() {
   });
 
   testWidgets(
-    'RadioGroup passes leading, trailing, and initial selection correctly to ListRadioGroup',
+    'InfinityRadioGroup passes leading, trailing, and initial selection correctly to ListRadioGroup',
     (tester) async {
       const layoutConfig = ListLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -93,7 +93,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          RadioGroup<_TestModel>(
+          InfinityRadioGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndex: initialIndex,
@@ -119,7 +119,7 @@ void main() {
   );
 
   testWidgets(
-    'RadioGroup passes leading, trailing, and initial selection correctly to GridRadioGroup',
+    'InfinityRadioGroup passes leading, trailing, and initial selection correctly to GridRadioGroup',
     (tester) async {
       const layoutConfig = GridLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -130,7 +130,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          RadioGroup<_TestModel>(
+          InfinityRadioGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndex: initialIndex,
@@ -156,7 +156,7 @@ void main() {
   );
 
   testWidgets(
-    'RadioGroup passes leading, trailing, and initial selection correctly to WrapRadioGroup',
+    'InfinityRadioGroup passes leading, trailing, and initial selection correctly to WrapRadioGroup',
     (tester) async {
       const layoutConfig = WrapLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -167,7 +167,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          RadioGroup<_TestModel>(
+          InfinityRadioGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndex: initialIndex,

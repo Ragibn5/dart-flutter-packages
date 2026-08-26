@@ -9,7 +9,7 @@ import 'package:infinity_menu/src/ui/feedback/click_feedback_container.dart';
 /// This widget delegates item/header/separator UI construction to the
 /// provided builders. The widget itself handles tap feedback, dismissal,
 /// and submenu dispatch.
-class Menu<D> extends StatelessWidget {
+class InfinityMenu<D> extends StatelessWidget {
   /// The parent menu item, if this is a submenu.
   ///
   /// In case of a root menu, this should be `null`.
@@ -21,7 +21,7 @@ class Menu<D> extends StatelessWidget {
   /// Builds the visible content for a single menu item.
   ///
   /// Do not wrap the returned widget in gesture handlers such as [InkWell] or
-  /// [GestureDetector]. [Menu] already handles pointer interaction and
+  /// [GestureDetector]. [InfinityMenu] already handles pointer interaction and
   /// selection feedback for each item.
   ///
   /// To customize tap feedback, use [MenuData.menuLayoutConfig] and
@@ -75,8 +75,8 @@ class Menu<D> extends StatelessWidget {
   /// If omitted, [Navigator.pop] is used.
   final void Function(BuildContext menuContext)? onPop;
 
-  /// Creates a [Menu].
-  const Menu({
+  /// Creates a [InfinityMenu].
+  const InfinityMenu({
     super.key,
     this.parent,
     required this.menuData,

@@ -6,7 +6,7 @@ import 'package:infinity_menu/src/configs/menu_layout_config.dart';
 import 'package:infinity_menu/src/models/menu_data.dart';
 import 'package:infinity_menu/src/models/menu_item_data.dart';
 import 'package:infinity_menu/src/ui/feedback/click_feedback_container.dart';
-import 'package:infinity_menu/src/ui/menu.dart';
+import 'package:infinity_menu/src/ui/infinity_menu.dart';
 
 void main() {
   Widget wrap(Widget child) {
@@ -54,7 +54,7 @@ void main() {
     testWidgets('ListView receives correct item count', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(
               items: [buildItem(), buildItem(), buildItem()],
             ),
@@ -76,7 +76,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(
                 config: const MenuLayoutConfig(
                   shrinkWrap: false,
@@ -103,7 +103,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(items: []),
               menuItemBuilder: (index, size, item) => const Text('Item'),
               menuHeaderBuilder: (context, _) => const Text('Header'),
@@ -119,7 +119,7 @@ void main() {
     testWidgets('Renders menu items using menuItemBuilder', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: [
               buildItem(title: 'Item 1'),
               buildItem(title: 'Item 2'),
@@ -143,7 +143,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(items: items),
               menuItemBuilder: (index, hostMenuSize, itemData) {
                 captured.add((index, hostMenuSize, itemData));
@@ -161,7 +161,7 @@ void main() {
     testWidgets('Renders no items when menuItems is empty', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: []),
             menuItemBuilder: (index, hostMenuSize, itemData) {
               return const Text('Item');
@@ -176,7 +176,7 @@ void main() {
     testWidgets('Wraps each item with ClickFeedbackContainer', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(
               items: [buildItem(), buildItem(), buildItem()],
             ),
@@ -195,7 +195,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(),
               menuItemBuilder: textItemBuilder,
               menuHeaderBuilder: (context, _) => const Text('Header'),
@@ -212,7 +212,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(),
               menuItemBuilder: textItemBuilder,
             ),
@@ -233,7 +233,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(),
               menuItemBuilder: textItemBuilder,
               menuHeaderBuilder: (context, parent) {
@@ -254,7 +254,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             parent: parentItem,
             menuData: buildMenuData(),
             menuItemBuilder: textItemBuilder,
@@ -275,7 +275,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: [buildItem()]),
             menuItemBuilder: (index, size, item) => const Text('Item'),
             menuHeaderBuilder: (context, _) => const Text('Header'),
@@ -295,7 +295,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(
               items: [buildItem(), buildItem(), buildItem()],
             ),
@@ -313,7 +313,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: [buildItem(), buildItem()]),
             menuItemBuilder: textItemBuilder,
           ),
@@ -326,7 +326,7 @@ void main() {
     testWidgets('Does not render separator before first item', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: [buildItem(), buildItem()]),
             menuItemBuilder: (index, size, item) => Text('Item $index'),
             separatorBuilder: (index, size, item) => const Text('Separator'),
@@ -350,7 +350,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: items),
             menuItemBuilder: textItemBuilder,
             separatorBuilder: (index, hostMenuSize, itemData) {
@@ -369,7 +369,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: []),
             menuItemBuilder: textItemBuilder,
             separatorBuilder: (index, size, item) => const Text('Separator'),
@@ -387,7 +387,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(
               items: [buildItem(onItemAction: (_) => actionCalled = true)],
             ),
@@ -404,7 +404,7 @@ void main() {
     testWidgets('Does not throw when onItemAction is null', (tester) async {
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(items: [buildItem(onItemAction: null)]),
             menuItemBuilder: (index, size, item) => buildItemWidget(),
             onPop: (_) {},
@@ -431,7 +431,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(
                 items: [item],
               ),
@@ -466,7 +466,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(
                 items: [item],
               ),
@@ -493,7 +493,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(
               items: [buildItem(subMenuData: buildMenuData(items: []))],
             ),
@@ -519,7 +519,7 @@ void main() {
 
         await tester.pumpWidget(
           wrap(
-            Menu<String>(
+            InfinityMenu<String>(
               menuData: buildMenuData(
                 items: [buildItem(subMenuData: submenuData)],
               ),
@@ -543,7 +543,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          Menu<String>(
+          InfinityMenu<String>(
             menuData: buildMenuData(),
             menuItemBuilder: (index, size, item) => buildItemWidget(),
             onPop: (context) => popCalled = true,
@@ -568,7 +568,7 @@ void main() {
                     context,
                     MaterialPageRoute<dynamic>(
                       builder: (_) => Scaffold(
-                        body: Menu<String>(
+                        body: InfinityMenu<String>(
                           menuData: buildMenuData(),
                           menuItemBuilder: (index, size, item) =>
                               buildItemWidget(),
@@ -586,12 +586,12 @@ void main() {
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(Menu<String>), findsOneWidget);
+        expect(find.byType(InfinityMenu<String>), findsOneWidget);
 
         await tester.tap(find.byType(ClickFeedbackContainer).first);
         await tester.pumpAndSettle();
 
-        expect(find.byType(Menu<String>), findsNothing);
+        expect(find.byType(InfinityMenu<String>), findsNothing);
       },
     );
   });

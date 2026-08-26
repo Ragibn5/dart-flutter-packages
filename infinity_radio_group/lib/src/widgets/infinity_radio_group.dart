@@ -5,7 +5,7 @@ import 'package:infinity_radio_group/src/widgets/radio_groups/grid_radio_group.d
 import 'package:infinity_radio_group/src/widgets/radio_groups/list_radio_group.dart';
 import 'package:infinity_radio_group/src/widgets/radio_groups/wrap_radio_group.dart';
 
-class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
+class InfinityRadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
   final List<T> uiModels;
   final RadioGroupLayoutConfig layoutConfig;
   final int? initialSelectionIndex;
@@ -14,7 +14,7 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
   final List<Widget> trailingWidgets;
   final Widget Function(T model, {required bool selected}) cellBuilder;
 
-  const RadioGroup({
+  const InfinityRadioGroup({
     super.key,
     required this.uiModels,
     required this.layoutConfig,

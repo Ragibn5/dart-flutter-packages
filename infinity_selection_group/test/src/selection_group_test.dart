@@ -22,12 +22,12 @@ void main() {
   }
 
   testWidgets(
-      'SelectionGroup delegates to ListSelectionGroup when layout config is a ListLayoutConfig',
+      'InfinitySelectionGroup delegates to ListSelectionGroup when layout config is a ListLayoutConfig',
       (tester) async {
     const layoutConfig = ListLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        SelectionGroup<_TestModel>(
+        InfinitySelectionGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -42,12 +42,12 @@ void main() {
   });
 
   testWidgets(
-      'SelectionGroup delegates to GridSelectionGroup when layout config is a GridLayoutConfig',
+      'InfinitySelectionGroup delegates to GridSelectionGroup when layout config is a GridLayoutConfig',
       (tester) async {
     const layoutConfig = GridLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        SelectionGroup<_TestModel>(
+        InfinitySelectionGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -62,12 +62,12 @@ void main() {
   });
 
   testWidgets(
-      'SelectionGroup delegates to WrapSelectionGroup when layout config is a WrapLayoutConfig',
+      'InfinitySelectionGroup delegates to WrapSelectionGroup when layout config is a WrapLayoutConfig',
       (tester) async {
     const layoutConfig = WrapLayoutConfig();
     await tester.pumpWidget(
       wrap(
-        SelectionGroup<_TestModel>(
+        InfinitySelectionGroup<_TestModel>(
           uiModels: testModels,
           layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
@@ -82,7 +82,7 @@ void main() {
   });
 
   testWidgets(
-    'SelectionGroup passes parameters correctly to ListSelectionGroup',
+    'InfinitySelectionGroup passes parameters correctly to ListSelectionGroup',
     (tester) async {
       const layoutConfig = ListLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -95,7 +95,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          SelectionGroup<_TestModel>(
+          InfinitySelectionGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndices: initialIndices,
@@ -126,7 +126,7 @@ void main() {
   );
 
   testWidgets(
-    'SelectionGroup passes parameters correctly to GridSelectionGroup',
+    'InfinitySelectionGroup passes parameters correctly to GridSelectionGroup',
     (tester) async {
       const layoutConfig = GridLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -139,7 +139,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          SelectionGroup<_TestModel>(
+          InfinitySelectionGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndices: initialIndices,
@@ -170,7 +170,7 @@ void main() {
   );
 
   testWidgets(
-    'SelectionGroup passes parameters correctly to WrapSelectionGroup',
+    'InfinitySelectionGroup passes parameters correctly to WrapSelectionGroup',
     (tester) async {
       const layoutConfig = WrapLayoutConfig();
       final leading = [const SizedBox(key: Key('leading'))];
@@ -183,7 +183,7 @@ void main() {
 
       await tester.pumpWidget(
         wrap(
-          SelectionGroup<_TestModel>(
+          InfinitySelectionGroup<_TestModel>(
             uiModels: testModels,
             layoutConfig: layoutConfig,
             initialSelectionIndices: initialIndices,

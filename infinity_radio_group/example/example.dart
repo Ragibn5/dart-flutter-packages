@@ -37,7 +37,7 @@ class _LayoutPickerState extends State<_LayoutPicker> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: RadioGroup<PlanOption>(
+      child: InfinityRadioGroup<PlanOption>(
         uiModels: _plans,
         layoutConfig: const ListLayoutConfig(spacing: 8),
         initialSelectionIndex: 0,

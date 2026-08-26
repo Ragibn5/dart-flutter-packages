@@ -32,7 +32,7 @@ class LayoutDemo extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       children: [
-        selection_group.SelectionGroup<DemoOption>(
+        selection_group.InfinitySelectionGroup<DemoOption>(
           key: ValueKey(selectedIndices.join(',')),
           uiModels: demoOptions,
           layoutConfig: layoutConfig,

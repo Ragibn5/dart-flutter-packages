@@ -51,7 +51,7 @@ class _LayoutPickerState extends State<_LayoutPicker> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
-          SelectionGroup<PlanOption>(
+          InfinitySelectionGroup<PlanOption>(
             uiModels: _plans,
             layoutConfig: const ListLayoutConfig(spacing: 8),
             maxSelectionCount: _maxSelectionCount,

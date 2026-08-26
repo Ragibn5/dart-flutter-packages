@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  infinity_radio_group: ^1.0.0
+  infinity_radio_group: ^2.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: infinity_radio_group
-      ref: infinity_radio_group-1.0.0
+      ref: infinity_radio_group-2.0.1
 ```
 
 ## ✨ Features
@@ -86,10 +86,10 @@ See the [API](#-api) section for the full parameter list of each config.
 
 ### 3. Render the radio group
 
-Use the [RadioGroup] widget to render your options using the supplied layout.
+Use the [InfinityRadioGroup] widget to render your options using the supplied layout.
 
 ```
-RadioGroup<PlanOption>(
+InfinityRadioGroup<PlanOption>(
   uiModels: plans,
   layoutConfig: listLayout,
   initialSelectionIndex: 0,
@@ -112,16 +112,16 @@ That's it — the selected cell is highlighted through the `selected` flag your 
 
 All exported components from `package:infinity_radio_group/infinity_radio_group.dart`:
 
-| Component           | Description                                                                                           |
-|---------------------|-------------------------------------------------------------------------------------------------------|
-| `RadioGroup<T>`     | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.              |
-| `RadioItemUiModel`  | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection. |
-| `ListLayoutConfig`  | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                       |
-| `GridLayoutConfig`  | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                  |
-| `WrapLayoutConfig`  | Layout options for a wrap (chip-like) layout — spacing and run spacing.                               |
-| `ListRadioGroup<T>` | The list implementation directly, if you want to skip the dispatch.                                   |
-| `GridRadioGroup<T>` | The grid implementation directly.                                                                     |
-| `WrapRadioGroup<T>` | The wrap implementation directly.                                                                     |
+| Component               | Description                                                                                           |
+|-------------------------|-------------------------------------------------------------------------------------------------------|
+| `InfinityRadioGroup<T>` | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.              |
+| `RadioItemUiModel`      | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection. |
+| `ListLayoutConfig`      | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                       |
+| `GridLayoutConfig`      | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                  |
+| `WrapLayoutConfig`      | Layout options for a wrap (chip-like) layout — spacing and run spacing.                               |
+| `ListRadioGroup<T>`     | The list implementation directly, if you want to skip the dispatch.                                   |
+| `GridRadioGroup<T>`     | The grid implementation directly.                                                                     |
+| `WrapRadioGroup<T>`     | The wrap implementation directly.                                                                     |
 
 ## 🧪 Example
 

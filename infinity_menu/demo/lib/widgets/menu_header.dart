@@ -12,22 +12,25 @@ class MenuHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final title = parentItemData?.itemTitle ?? rootTitle ?? 'Menu';
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: const BoxDecoration(),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: cs.primary,
-              letterSpacing: 0.3,
-            ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: cs.primary,
+            letterSpacing: 0.3,
           ),
-        ],
+        ),
       ),
     );
   }

@@ -31,7 +31,7 @@ class LayoutDemo extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       children: [
-        radio_group.RadioGroup<DemoOption>(
+        radio_group.InfinityRadioGroup<DemoOption>(
           key: ValueKey(selectedIndex),
           uiModels: demoOptions,
           layoutConfig: layoutConfig,

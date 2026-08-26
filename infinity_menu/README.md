@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  infinity_menu: ^1.0.2
+  infinity_menu: ^2.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: infinity_menu
-      ref: infinity_menu-1.0.2
+      ref: infinity_menu-2.0.1
 ```
 
 ## ✨ Features
@@ -77,12 +77,12 @@ final menuData = MenuData<String>(
 
 ### 2. Present the menu
 
-Drop a `Menu` into any widget — bottom sheet, popup, dialog, wherever. You control how each item looks via `menuItemBuilder`.
+Drop an `InfinityMenu` into any widget — bottom sheet, popup, dialog, wherever. You control how each item looks via `menuItemBuilder`.
 
 ```
 showModalBottomSheet(
   context: context,
-  builder: (_) => Menu<String>(
+  builder: (_) => InfinityMenu<String>(
     menuData: menuData,
     menuItemBuilder: (index, size, item) => ListTile(
       title: Text(item.itemTitle),
@@ -106,7 +106,7 @@ When a user taps an item with a submenu, `onSubmenuRequest` fires. Just call you
 void _openMenu(BuildContext context, MenuData<String> submenu) {
   showModalBottomSheet(
     context: context,
-    builder: (_) => Menu<String>(
+    builder: (_) => InfinityMenu<String>(
       menuData: submenu,
       menuItemBuilder: (index, size, item) => ListTile(title: Text(item.itemTitle)),
       onSubmenuRequest: (ctx, sub, parent) => _openMenu(ctx, sub),
@@ -121,7 +121,7 @@ All exported components from `package:infinity_menu/infinity_menu.dart`:
 
 | Component               | Description                                                                                                    |
 |-------------------------|----------------------------------------------------------------------------------------------------------------|
-| `Menu<D>`               | The main widget. Renders a `MenuData<D>` as a list, handling tap feedback, item actions, and submenu dispatch. |
+| `InfinityMenu<D>`       | The main widget. Renders a `MenuData<D>` as a list, handling tap feedback, item actions, and submenu dispatch. |
 | `MenuData<D>`           | Holds a list of `MenuItemData<D>` items and a `MenuLayoutConfig`.                                              |
 | `MenuItemData<D>`       | A single menu item — title, optional icon, optional payload `D`, optional submenu, optional tap callback.      |
 | `IconFromIconData`      | Icon variant — wraps a Flutter `IconData`.                                                                     |
