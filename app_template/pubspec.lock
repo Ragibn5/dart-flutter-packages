@@ -249,10 +249,10 @@ packages:
   common_widgets:
     dependency: "direct main"
     description:
-      path: "../common_widgets"
+      path: "packages/common_widgets"
       relative: true
     source: path
-    version: "1.0.0"
+    version: "0.0.0"
   convert:
     dependency: transitive
     description:
