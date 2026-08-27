@@ -36,7 +36,7 @@ abstract class AuthModule {
     return LocalAuthDataSourceImpl(preferenceStore);
   }
 
-  @singleton
+  @Singleton(dispose: disposeAuthDataRepository)
   AuthDataRepository getAuthDataRepository(
     AuthDataMapper authDataMapper,
     AuthRefreshErrorMapper authRefreshErrorMapper,
@@ -69,4 +69,8 @@ abstract class AuthModule {
   ) {
     return RefreshAuthDataUseCase(repository);
   }
+}
+
+FutureOr<void> disposeAuthDataRepository(AuthDataRepository repository) {
+  return repository.dispose();
 }

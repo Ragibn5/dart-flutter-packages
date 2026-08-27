@@ -9,7 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:alerty/alerty.dart' as _i103;
+import 'package:alerty/alerty.dart' as _i69;
 import 'package:analytics/analytics.dart' as _i548;
 import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
@@ -99,10 +99,10 @@ import 'package:app_template/features/user_data/domain/services/user_data_servic
     as _i84;
 import 'package:crashlytics/crashlytics.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
-import 'package:loghub/loghub.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:loghub/loghub.dart' as _i642;
 import 'package:nav_router/nav_router.dart' as _i251;
 import 'package:net_kit/net_kit.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
@@ -163,7 +163,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(
       () => appModule.getGlobalScaffoldMessengerState(),
     );
-    gh.singleton<_i975.LogPolicyController>(
+    gh.singleton<_i642.LogPolicyController>(
       () => appModule.getLogPolicyController(),
     );
     gh.singleton<_i300.PreferenceStore>(
@@ -177,12 +177,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getDevFlavorConfig(),
       registerFor: {_dev},
     );
-    gh.singleton<_i519.AppLogger>(
-      () => appModule.getLogger(
-        gh<_i527.AppDirectories>(),
-        gh<_i975.LogPolicyController>(),
-      ),
-    );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getExpFlavorConfig(),
       registerFor: {_exp},
@@ -193,7 +187,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i291.FallbackLocaleSelector>(),
       ),
     );
-    gh.factory<_i103.Alerty>(
+    gh.singleton<_i519.AppLogger>(
+      () => appModule.getLogger(
+        gh<_i527.AppDirectories>(),
+        gh<_i642.LogPolicyController>(),
+      ),
+    );
+    gh.factory<_i69.Alerty>(
       () => appModule.getAlerty(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
     );
     gh.singleton<_i821.FlavorConfig>(
@@ -235,6 +235,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1003.DataDomainConverter<_i913.SettingsDTO, _i233.AppSettings>>(),
         gh<_i1014.SettingsDataSource>(),
       ),
+      dispose: _i384.disposeSettingsRepository,
     );
     gh.factory<_i625.WatchLocaleUseCase>(
       () => appModule.getWatchLocaleUseCase(
@@ -304,6 +305,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i30.LocalAuthDataSource>(),
         gh<_i156.RemoteAuthDataSource>(),
       ),
+      dispose: _i228.disposeAuthDataRepository,
     );
     gh.factory<_i969.GetAuthDataUseCase>(
       () => authModule.getGetAuthDataUseCase(gh<_i731.AuthDataRepository>()),

@@ -242,7 +242,7 @@ abstract class AppModule {
     return SettingsDataSourceImpl(preferenceStore);
   }
 
-  @singleton
+  @Singleton(dispose: disposeSettingsRepository)
   SettingsRepository getSettingsRepository(
     DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
     SettingsDataSource settingsDataSource,
@@ -487,4 +487,8 @@ abstract class AppModule {
       guards: [RouterLogger()],
     );
   }
+}
+
+FutureOr<void> disposeSettingsRepository(SettingsRepository repository) {
+  return repository.dispose();
 }
