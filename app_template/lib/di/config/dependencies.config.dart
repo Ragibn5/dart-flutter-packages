@@ -293,6 +293,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i519.AppLogger>(),
       ),
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
+      dispose: _i384.disposeNetClient,
     );
     gh.factory<_i156.RemoteAuthDataSource>(
       () => authModule.getRemoteAuthDataSource(
@@ -363,6 +364,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
+      dispose: _i384.disposeNetClient,
     );
     gh.singleton<_i251.NavRouter>(
       () => appModule.getAppRouter(

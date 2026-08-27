@@ -330,7 +330,7 @@ abstract class AppModule {
     return GetEffectiveThemeModeUseCase(settingsRepository);
   }
 
-  @singleton
+  @Singleton(dispose: disposeNetClient)
   @Named(APP_SERVER_PUBLIC_API_CLIENT)
   NetClient getAppServerPublicApiClient(
     FlavorConfig flavorConfig,
@@ -353,7 +353,7 @@ abstract class AppModule {
     return client;
   }
 
-  @singleton
+  @Singleton(dispose: disposeNetClient)
   @Named(APP_SERVER_PRIVATE_API_CLIENT)
   NetClient getAppServerPrivateApiClient(
     FlavorConfig flavorConfig,
@@ -495,4 +495,8 @@ FutureOr<void> disposeSettingsRepository(SettingsRepository repository) {
 
 FutureOr<void> disposeAppDatabase(SQLiteDb database) {
   return database.dispose();
+}
+
+void disposeNetClient(NetClient client) {
+  client.close();
 }
