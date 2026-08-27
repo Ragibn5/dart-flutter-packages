@@ -355,7 +355,7 @@ packages:
     source: hosted
     version: "2.2.1"
   disposable:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../disposable"
       relative: true
