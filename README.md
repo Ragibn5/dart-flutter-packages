@@ -52,7 +52,6 @@ generation utilities, and architectural support.
 - [`infinity_menu`](infinity_menu)
 - [`alerty`](alerty)
 - [`snacker`](snacker)
-- [`common_widgets`](common_widgets)
 - [`clean_arch_linter`](clean_arch_linter)
 
 ---
