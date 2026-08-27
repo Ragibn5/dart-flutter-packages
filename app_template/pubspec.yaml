@@ -67,6 +67,8 @@ dependencies:
     path: packages/shared_models
   app_logger:
     path: packages/app_logger
+  common_widgets:
+    path: packages/common_widgets
 
   # In-house packages (path-based dependency)
   initializable:
@@ -101,8 +103,6 @@ dependencies:
     path: ../nav_router
   snacker:
     path: ../snacker
-  common_widgets:
-    path: ../common_widgets
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

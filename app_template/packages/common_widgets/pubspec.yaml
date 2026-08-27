@@ -1,0 +1,15 @@
+name: common_widgets
+description: A collection of reusable Flutter widgets for the host app.
+
+publish_to: none
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

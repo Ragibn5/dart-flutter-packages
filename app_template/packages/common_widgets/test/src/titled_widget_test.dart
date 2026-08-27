@@ -1,6 +1,6 @@
+import 'package:common_widgets/src/titled_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:common_widgets/src/titled_widget.dart';
 
 Widget wrap(Widget child) {
   return MaterialApp(
