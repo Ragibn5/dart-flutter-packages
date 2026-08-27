@@ -66,8 +66,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  initializable:
-    path: ../initializable
   disposable:
     path: ../disposable
   net_models:
