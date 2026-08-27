@@ -36,20 +36,15 @@ dependencies:
   # Others (3rd party)
   path: ^1.9.1
   meta: ^1.12.0
-  recase: ^4.1.0
   equatable: ^2.0.8
   jwt_decoder: ^2.0.1
   json_annotation: ^4.9.0
-  json_parser_annotations: ^1.0.1
   path_provider: ^2.1.5
   package_info_plus: ^8.3.0
   bloc: ^9.2.0
   flutter_bloc: ^9.1.0
   get_it: ^8.0.3
   injectable: ^2.7.1+4
-  go_router: ^17.3.0
-  auto_route: 10.1.2
-  shared_preferences: ^2.5.4
   sqflite: ^2.4.2
   flutter_svg: ^2.1.0
   flutter_screenutil: ^5.9.3
@@ -77,20 +72,14 @@ dependencies:
     path: ../disposable
   net_models:
     path: ../net_models
-  mutex:
-    path: ../mutex
   data_domain_converters:
     path: ../data_domain_converters
   json_converters:
     path: ../json_converters
-  datetime_utils:
-    path: ../datetime_utils
   preference_store:
     path: ../preference_store
   sqlite_db:
     path: ../sqlite_db
-  file_store:
-    path: ../file_store
   analytics:
     path: ../analytics
   crashlytics:
