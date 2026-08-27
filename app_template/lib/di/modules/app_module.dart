@@ -185,7 +185,7 @@ abstract class AppModule {
     return const PreferenceStoreFactory().create();
   }
 
-  @singleton
+  @Singleton(dispose: disposeAppDatabase)
   SQLiteDb getAppDatabase(AppDirectories appDirectories) {
     const appDbVersion = 1;
     const appDbName = 'APP_DB';
@@ -491,4 +491,8 @@ abstract class AppModule {
 
 FutureOr<void> disposeSettingsRepository(SettingsRepository repository) {
   return repository.dispose();
+}
+
+FutureOr<void> disposeAppDatabase(SQLiteDb database) {
+  return database.dispose();
 }

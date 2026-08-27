@@ -208,6 +208,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i860.SQLiteDb>(
       () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
+      dispose: _i384.disposeAppDatabase,
     );
     gh.factory<_i1020.Snacker>(
       () => appModule.getSnacker(
