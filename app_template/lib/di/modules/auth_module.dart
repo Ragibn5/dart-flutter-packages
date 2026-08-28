@@ -71,6 +71,8 @@ abstract class AuthModule {
   }
 }
 
-FutureOr<dynamic> disposeAuthDataRepository(AuthDataRepository repository) {
-  repository.dispose();
+FutureOr<dynamic> disposeAuthDataRepository(
+  AuthDataRepository repository,
+) async {
+  await repository.dispose();
 }

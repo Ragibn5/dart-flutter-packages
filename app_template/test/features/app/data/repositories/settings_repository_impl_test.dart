@@ -122,7 +122,7 @@ void main() {
   );
 
   test('`dispose` should close the stream', () async {
-    sut.dispose();
+    await sut.dispose();
     verify(() => mockSettingsStreamController.close()).called(1);
   });
 }

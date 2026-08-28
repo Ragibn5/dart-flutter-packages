@@ -15,13 +15,8 @@ class InitializeAppUseCase {
   );
 
   Future<void> call() async {
-    final initializables = [
-      _crashlyticsService,
-      _analyticsService,
-      _appDatabase,
-    ];
-    for (final initializable in initializables) {
-      await initializable.initialize();
-    }
+    await _crashlyticsService.initialize();
+    await _analyticsService.initialize();
+    await _appDatabase.initialize();
   }
 }

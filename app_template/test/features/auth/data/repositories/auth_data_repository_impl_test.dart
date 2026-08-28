@@ -292,7 +292,7 @@ void main() {
   );
 
   test('`dispose` should close the auth data stream', () async {
-    sut.dispose();
+    await sut.dispose();
 
     verify(() => mockAuthDataStreamController.close()).called(1);
   });

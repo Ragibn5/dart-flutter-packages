@@ -45,7 +45,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  void dispose() {
-    _settingsStreamController.close();
+  Future<void> dispose() async {
+    await _settingsStreamController.close();
   }
 }

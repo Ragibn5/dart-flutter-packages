@@ -489,12 +489,14 @@ abstract class AppModule {
   }
 }
 
-FutureOr<dynamic> disposeSettingsRepository(SettingsRepository repository) {
-  repository.dispose();
+FutureOr<dynamic> disposeSettingsRepository(
+  SettingsRepository repository,
+) async {
+  await repository.dispose();
 }
 
-FutureOr<dynamic> disposeAppDatabase(SQLiteDb database) {
-  database.dispose();
+FutureOr<dynamic> disposeAppDatabase(SQLiteDb database) async {
+  await database.dispose();
 }
 
 FutureOr<dynamic> disposeNetClient(NetClient client) {

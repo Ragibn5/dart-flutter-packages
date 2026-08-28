@@ -20,5 +20,5 @@ abstract interface class AuthDataRepository {
   Stream<AuthData?> getAuthDataStream();
 
   /// Release any resources held by this repository.
-  void dispose();
+  Future<void> dispose();
 }
