@@ -1,14 +1,12 @@
-import 'package:initializable/initializable.dart';
 import 'package:meta/meta.dart';
 
-abstract class AnalyticsService implements Initializable {
+abstract class AnalyticsService {
   const AnalyticsService();
 
   /// Initializes the analytics service.
   ///
   /// Must be called before any other methods.
   @mustCallSuper
-  @override
   Future<void> initialize() async {}
 
   /// Associates analytics data with the given [userId]

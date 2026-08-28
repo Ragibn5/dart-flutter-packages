@@ -19,8 +19,6 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_analytics: ^11.4.5
-  initializable:
-    path: ../initializable
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
