@@ -499,6 +499,6 @@ FutureOr<dynamic> disposeAppDatabase(SQLiteDb database) async {
   await database.dispose();
 }
 
-FutureOr<dynamic> disposeNetClient(NetClient client) {
-  client.close();
+FutureOr<dynamic> disposeNetClient(NetClient client) async {
+  await client.close();
 }
