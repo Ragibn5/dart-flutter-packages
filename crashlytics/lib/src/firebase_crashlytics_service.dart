@@ -9,7 +9,7 @@ class FirebaseCrashlyticsService extends CrashlyticsService {
 
   @override
   Future<void> initialize() async {
-    super.initialize();
+    await super.initialize();
 
     FlutterError.onError = _crashlytics.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {

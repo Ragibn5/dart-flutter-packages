@@ -1,17 +1,15 @@
 import 'dart:async';
 
-import 'package:initializable/initializable.dart';
 import 'package:meta/meta.dart';
 
-abstract class CrashlyticsService implements Initializable {
+abstract class CrashlyticsService {
   const CrashlyticsService();
 
   /// Initializes the analytics service.
   ///
   /// Must be called before any other methods.
   @mustCallSuper
-  @override
-  FutureOr<void> initialize() {}
+  Future<void> initialize() async {}
 
   /// Associates crash reports with the given [userId]
   /// and optionally enables or disables crash reporting collection.
