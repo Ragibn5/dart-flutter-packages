@@ -13,5 +13,5 @@ abstract interface class SettingsRepository {
   Stream<AppSettings> getSettingsStream();
 
   /// Release any resources held by this repository.
-  FutureOr<void> dispose();
+  void dispose();
 }
