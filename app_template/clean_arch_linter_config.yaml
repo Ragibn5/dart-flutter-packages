@@ -52,6 +52,5 @@ rules:
     # Example: equatable, freezed, json_serializable
     excluded_library_packages:
       - equatable
-      - disposable
       - net_models
       - dart_functionals

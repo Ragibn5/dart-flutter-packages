@@ -19,8 +19,6 @@ the base layer and are intended to be reusable across all projects.
 - [`color_utils`](color_utils)
 - [`loghub`](loghub)
 - [`mutex`](mutex)
-- [`disposable`](disposable)
-- [`initializable`](initializable)
 - [`data_domain_converters`](data_domain_converters)
 - [`net_models`](net_models)
 - [`generator_core`](generator_core)
