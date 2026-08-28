@@ -57,7 +57,7 @@ class NetClientImpl implements NetClient {
   }
 
   @override
-  void close() => _requestAdapter.close();
+  Future<void> close() => _requestAdapter.close();
 
   @override
   InterceptorPipeline get interceptors => _interceptorPipeline;

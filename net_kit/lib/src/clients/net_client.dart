@@ -18,7 +18,7 @@ abstract interface class NetClient {
   });
 
   /// Closes the client and frees its resources.
-  void close();
+  Future<void> close();
 
   /// The pipeline of interceptors attached to this client.
   InterceptorPipeline get interceptors;

@@ -131,10 +131,10 @@ void main() {
               .having((p) => p.successOrThrow, 'successOrThrow', isNotNull)
               .having((p) => p.successOrThrow.statusCode, 'statusCode',
                   rawResponse.statusCode)
-              .having((p) => p.successOrThrow.responseHeaders, 'responseHeaders',
-                  rawResponse.headers.map)
-              .having((p) => p.successOrThrow.rawResponseBody, 'rawResponseBody',
-                  rawResponse.data)
+              .having((p) => p.successOrThrow.responseHeaders,
+                  'responseHeaders', rawResponse.headers.map)
+              .having((p) => p.successOrThrow.rawResponseBody,
+                  'rawResponseBody', rawResponse.data)
               .having((p) => p.successOrThrow.request, 'request', spec));
     },
   );
@@ -175,7 +175,8 @@ void main() {
             .having((p) => p.isFailure, 'isFailure', true)
             .having((p) => p.failureOrThrow, 'failureOrThrow', netKitException)
             .having((p) => p.failureOrThrow.cause, 'cause', errorCause)
-            .having((p) => p.failureOrThrow.stackTrace, 'stackTrace', stackTrace),
+            .having(
+                (p) => p.failureOrThrow.stackTrace, 'stackTrace', stackTrace),
       );
     },
   );
@@ -183,7 +184,7 @@ void main() {
   test(
     'close() closes Dio',
     () async {
-      sut.close();
+      await sut.close();
 
       verify(() => mockDio.close()).called(1);
     },

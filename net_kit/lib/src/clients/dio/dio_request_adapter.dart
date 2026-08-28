@@ -69,5 +69,5 @@ class DioRequestAdapter implements NetworkRequestAdapter {
   }
 
   @override
-  void close() => _dio.close();
+  Future<void> close() async => _dio.close();
 }

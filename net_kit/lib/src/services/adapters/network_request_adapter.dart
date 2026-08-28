@@ -15,5 +15,5 @@ abstract interface class NetworkRequestAdapter {
   });
 
   /// Closes the adapter and frees its resources.
-  void close();
+  Future<void> close();
 }

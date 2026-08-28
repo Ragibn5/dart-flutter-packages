@@ -440,10 +440,10 @@ void main() {
     expect(result.successOrThrow.statusCode, 404);
   });
 
-  test('close calls requestAdapter.close', () {
-    when(() => mockRequestAdapter.close()).thenAnswer((_) {});
+  test('close calls requestAdapter.close', () async {
+    when(() => mockRequestAdapter.close()).thenAnswer((_) async {});
 
-    sut.close();
+    await sut.close();
 
     verify(() => mockRequestAdapter.close()).called(1);
   });
