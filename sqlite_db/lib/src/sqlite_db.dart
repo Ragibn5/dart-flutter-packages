@@ -1,9 +1,22 @@
-import 'package:disposable/disposable.dart';
-import 'package:initializable/initializable.dart';
+import 'dart:async';
+
 import 'package:sqlite_db/src/enums/data_conflict_algorithm.dart';
 
 /// A SQLite database.
-abstract interface class SQLiteDb implements Initializable, Disposable {
+abstract interface class SQLiteDb {
+  /// Initializes the underlying database connection, running any
+  /// configured creation, upgrade, migration, or any other database
+  /// scripts.
+  ///
+  /// Must be called before any other method on this instance.
+  Future<void> initialize();
+
+  /// Closes the underlying database connection.
+  ///
+  /// No other operation on this database should be performed after
+  /// calling this method.
+  Future<void> dispose();
+
   /// Fetches rows by their IDs.
   ///
   /// Returns the rows whose [idColumnName] value is in [ids].
