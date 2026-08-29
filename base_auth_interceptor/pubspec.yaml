@@ -15,8 +15,7 @@ environment:
 # Regular dependencies
 dependencies:
   meta: ^1.12.0
-  net_client:
-    path: ../net_client
+  net_client: ^1.0.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

@@ -18,8 +18,7 @@ dependencies:
   equatable: ^2.0.8
   dart_functionals: ^1.0.1
   net_models: ^1.0.0
-  net_client:
-    path: ../net_client
+  net_client: ^1.0.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
