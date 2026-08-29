@@ -1,6 +1,6 @@
 # sqlite_db
 
-SQLite database.
+A SQLite database client.
 
 ## Installation
 
