@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:json_converters/json_converters.dart';
+import 'package:json_serializable_converters_collection/json_serializable_converters_collection.dart';
 
 part 'example.g.dart';
 

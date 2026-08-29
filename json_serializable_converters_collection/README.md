@@ -1,4 +1,4 @@
-# json_converters
+# json_serializable_converters_collection
 
 A collection of reusable JSON converter implementations for json_serializable based modules.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_converters: ^1.0.0
+  json_serializable_converters_collection: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  json_converters:
+  json_serializable_converters_collection:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: json_converters
-      ref: json_converters-1.0.0
+      path: json_serializable_converters_collection
+      ref: json_serializable_converters_collection-1.0.0
 ```
 
 ## Example
@@ -31,7 +31,7 @@ Annotate `DateTime` fields with `@Rfc3339UTCDateTimeJsonConverter()` and let
 
 ```dart
 import 'package:json_annotation/json_annotation.dart';
-import 'package:json_converters/json_converters.dart';
+import 'package:json_serializable_converters_collection/json_serializable_converters_collection.dart';
 
 part 'auth_data_dto.g.dart';
 

@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values, lines_longer_than_80_chars
 
-import 'package:json_converters/json_converters.dart';
+import 'package:json_serializable_converters_collection/json_serializable_converters_collection.dart';
 import 'package:test/test.dart';
 
 void main() {
