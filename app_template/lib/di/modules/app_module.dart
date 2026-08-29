@@ -34,6 +34,10 @@ import 'package:app_template/features/app/infrastructure/models/app_directories.
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_data_provider.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_refresh_policy.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_request_transformer.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_request_retrier.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_auth_info_use_case_impl.dart';
@@ -373,7 +377,12 @@ abstract class AppModule {
 
     client.interceptors.addAll([
       MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      AuthInterceptor(client, getAuthInfo, getRefreshedAuthInfo),
+      AuthInterceptor(
+        AppAuthDataProvider(getAuthInfo, getRefreshedAuthInfo),
+        const AppAuthRefreshPolicy(),
+        const AppAuthRequestTransformer(),
+        AppRequestRetrier(client),
+      ),
       LoggerInterceptor(logger),
     ]);
 

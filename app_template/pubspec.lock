@@ -890,9 +890,10 @@ packages:
   net_client:
     dependency: transitive
     description:
-      path: "../net_client"
-      relative: true
-    source: path
+      name: net_client
+      sha256: "5ce7d35f8d03cbcd0bc096e4a0a6ff0aa6396ab6dfc27168ba0b53c794469f8c"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   net_models:
     dependency: "direct main"

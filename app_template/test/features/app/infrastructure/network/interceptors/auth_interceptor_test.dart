@@ -6,6 +6,10 @@ import 'package:app_template/features/app/application/use_cases/get_auth_info_us
 import 'package:app_template/features/app/application/use_cases/get_refreshed_auth_info_use_case.dart';
 import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_data_provider.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_refresh_policy.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_request_transformer.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_request_retrier.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -29,6 +33,12 @@ void main() {
     accessTokenExpiry: DateTime.now().add(const Duration(days: 1)),
     refreshTokenExpiry: DateTime.now().add(const Duration(days: 2)),
   );
+  final newAuthInfo = AuthInfo(
+    accessToken: newAccessToken,
+    refreshToken: 'new-refresh',
+    accessTokenExpiry: DateTime.now().add(const Duration(days: 1)),
+    refreshTokenExpiry: DateTime.now().add(const Duration(days: 2)),
+  );
 
   late _MockNetClient mockClient;
   late _MockGetAuthInfoUseCase mockGetAuthInfo;
@@ -38,6 +48,14 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
+    registerFallbackValue(
+      RawResponse(
+        statusCode: HttpStatus.ok,
+        rawResponseBody: null,
+        responseHeaders: {},
+        request: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+      ),
+    );
   });
 
   setUp(() {
@@ -45,49 +63,61 @@ void main() {
     mockGetAuthInfo = _MockGetAuthInfoUseCase();
     mockGetRefreshedAuthInfo = _MockGetRefreshedAuthInfoUseCase();
     sut = AuthInterceptor(
-      mockClient,
-      mockGetAuthInfo,
-      mockGetRefreshedAuthInfo,
+      AppAuthDataProvider(mockGetAuthInfo, mockGetRefreshedAuthInfo),
+      const AppAuthRefreshPolicy(),
+      const AppAuthRequestTransformer(),
+      AppRequestRetrier(mockClient),
+    );
+    when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
+      (invocation) async => Success(
+        NetClientResponse(
+          isError: false,
+          statusCode: HttpStatus.ok,
+          data: null,
+          headers: {},
+          requestSpec: invocation.namedArguments[#spec] as RequestSpec,
+        ),
+      ),
     );
   });
 
-  group('transformRequestWithAuthData', () {
+  group('onRequest', () {
     test('Adds bearer token to authorization header', () async {
+      when(() => mockGetAuthInfo()).thenAnswer((_) async => authInfo);
+
       final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
+      final result = await sut.onRequest(request);
 
-      final result = await sut.transformRequestWithAuthData(request, authInfo);
-
+      expect(result, isA<ContinueWithRequest>());
       expect(
-        result.headers[HttpHeaders.authorizationHeader],
+        (result as ContinueWithRequest).request.headers[HttpHeaders
+            .authorizationHeader],
         'Bearer $accessToken',
       );
     });
+
+    test(
+      'Returns ShortRequestWithError when getAuthInfo returns null',
+      () async {
+        when(() => mockGetAuthInfo()).thenAnswer((_) async => null);
+
+        final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
+        final result = await sut.onRequest(request);
+
+        expect(result, isA<ShortRequestWithError>());
+      },
+    );
   });
 
-  group('didServerReportAuthError', () {
-    test('Returns true for 401 with access_token_expired', () {
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'access_token_expired'},
-        responseHeaders: {},
-        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
-      );
+  group('onResponse', () {
+    RawResponse unauthorizedResponse(RequestSpec request) => RawResponse(
+      statusCode: HttpStatus.unauthorized,
+      rawResponseBody: {'error_id': 'access_token_expired'},
+      responseHeaders: {},
+      request: request,
+    );
 
-      expect(sut.didServerReportAuthError(response), isTrue);
-    });
-
-    test('Returns false for 401 without access_token_expired', () {
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'other_error'},
-        responseHeaders: {},
-        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
-      );
-
-      expect(sut.didServerReportAuthError(response), isFalse);
-    });
-
-    test('Returns false for non-401 status code', () {
+    test('Passes through when status is not unauthorized', () async {
       final response = RawResponse(
         statusCode: HttpStatus.badRequest,
         rawResponseBody: {'error_id': 'access_token_expired'},
@@ -95,90 +125,76 @@ void main() {
         request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
       );
 
-      expect(sut.didServerReportAuthError(response), isFalse);
+      final result = await sut.onResponse(response);
+
+      expect(result, isA<ContinueWithResponse>());
+      verifyNever(() => mockClient.execute(spec: any(named: 'spec')));
     });
-  });
 
-  group('getAuthData', () {
-    test('Delegates to GetAuthInfoUseCase', () async {
-      when(() => mockGetAuthInfo()).thenAnswer((_) async => authInfo);
+    test('Passes through when error_id is not access_token_expired', () async {
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'other_error'},
+        responseHeaders: {},
+        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
+      );
 
-      final result = await sut.getAuthData();
+      final result = await sut.onResponse(response);
 
-      expect(result, same(authInfo));
+      expect(result, isA<ContinueWithResponse>());
+      verifyNever(() => mockClient.execute(spec: any(named: 'spec')));
     });
-  });
 
-  group('requestAuthDataRefresh', () {
     test(
-      'Delegates to GetRefreshedAuthInfoUseCase and returns result',
+      'Retries without refresh when request already has a newer token',
       () async {
-        when(
-          () => mockGetRefreshedAuthInfo(),
-        ).thenAnswer((_) async => authInfo);
+        when(() => mockGetAuthInfo()).thenAnswer((_) async => authInfo);
 
-        final result = await sut.requestAuthDataRefresh(authInfo);
+        final request = RequestSpec(
+          pathOrUrl: '/test',
+          method: HttpMethod.GET,
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $newAccessToken'},
+        );
+        final result = await sut.onResponse(unauthorizedResponse(request));
 
-        expect(result, same(authInfo));
+        expect(result, isA<ShortResponseWithFinalResponse>());
+        verify(() => mockClient.execute(spec: request)).called(1);
+        verifyNever(() => mockGetRefreshedAuthInfo());
       },
     );
 
-    test('Returns null when use case returns null', () async {
-      when(() => mockGetRefreshedAuthInfo()).thenAnswer((_) async => null);
+    test(
+      'Refreshes then retries when request uses the expired token',
+      () async {
+        when(() => mockGetAuthInfo()).thenAnswer((_) async => authInfo);
+        when(
+          () => mockGetRefreshedAuthInfo(),
+        ).thenAnswer((_) async => newAuthInfo);
 
-      final result = await sut.requestAuthDataRefresh(authInfo);
+        final request = RequestSpec(
+          pathOrUrl: '/test',
+          method: HttpMethod.GET,
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $accessToken'},
+        );
+        final result = await sut.onResponse(unauthorizedResponse(request));
 
-      expect(result, isNull);
-    });
-  });
+        expect(result, isA<ShortResponseWithFinalResponse>());
+        verify(() => mockGetRefreshedAuthInfo()).called(1);
+        verify(() => mockClient.execute(spec: request)).called(1);
+      },
+    );
 
-  group('retryRequest', () {
-    test('Executes on target client', () async {
-      final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
-      when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
-        (_) async => Success(
-          NetClientResponse(
-            isError: false,
-            statusCode: HttpStatus.ok,
-            data: null,
-            headers: {},
-            requestSpec: request,
-          ),
-        ),
+    test('Returns an error when auth data is unavailable', () async {
+      when(() => mockGetAuthInfo()).thenAnswer((_) async => null);
+
+      final response = unauthorizedResponse(
+        RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
       );
+      final result = await sut.onResponse(response);
 
-      final result = await sut.retryRequest(request, authInfo);
-
-      expect(result.isSuccess, isTrue);
-      verify(() => mockClient.execute(spec: request)).called(1);
-    });
-  });
-
-  group('shouldRefreshAuthData', () {
-    test('Returns true when request has no auth header', () {
-      final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
-
-      expect(sut.shouldRefreshAuthData(request, authInfo), isTrue);
-    });
-
-    test('Returns true when request has the same expired token', () {
-      final request = RequestSpec(
-        pathOrUrl: '/test',
-        method: HttpMethod.GET,
-        headers: {HttpHeaders.authorizationHeader: 'Bearer $accessToken'},
-      );
-
-      expect(sut.shouldRefreshAuthData(request, authInfo), isTrue);
-    });
-
-    test('Returns false when request already has a newer token', () {
-      final request = RequestSpec(
-        pathOrUrl: '/test',
-        method: HttpMethod.GET,
-        headers: {HttpHeaders.authorizationHeader: 'Bearer $newAccessToken'},
-      );
-
-      expect(sut.shouldRefreshAuthData(request, authInfo), isFalse);
+      expect(result, isA<ShortResponseWithError>());
+      verifyNever(() => mockClient.execute(spec: any(named: 'spec')));
+      verifyNever(() => mockGetRefreshedAuthInfo());
     });
   });
 }
