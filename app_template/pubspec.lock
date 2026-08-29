@@ -1314,9 +1314,10 @@ packages:
   sqlite_db:
     dependency: "direct main"
     description:
-      path: "../sqlite_db"
-      relative: true
-    source: path
+      name: sqlite_db
+      sha256: "06c7921dc33e882029ea1f5aaaea3034129f4e911119e238d505ad36d4c1b446"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   stack_trace:
     dependency: transitive
