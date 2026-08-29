@@ -4,7 +4,10 @@ import 'package:crashlykit/crashlykit.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() {
-  final crashlytics = FirebaseCrashlyticsService(FirebaseCrashlytics.instance);
+  // Create an impl from FirebaseCrashlytics
+  final CrashlyticsService crashlytics = FirebaseCrashlyticsService(
+    FirebaseCrashlytics.instance,
+  );
 
   crashlytics.setSessionData('user-123', collectionEnabled: true);
 
