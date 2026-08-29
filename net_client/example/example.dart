@@ -18,7 +18,6 @@ Future<void> main() async {
   );
 
   final result = await client.execute(spec: request);
-
   result.fold(
     onSuccess: (response) {
       print('Success: ${response.data}');

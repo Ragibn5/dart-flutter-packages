@@ -9,13 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of `net_client`.
-- `NetClient` interface and `NetClientImpl` implementation, exposing `execute`, `uploadMultipartData`, `uploadFormData`, `uploadRawData`, and `uploadFile` methods.
-- `NetClientFactory` for creating client instances.
-- `RequestSpec` model with content-type inference for `JsonBody`, `FormUrlEncodedBody`, `MultipartBody`, and explicit content types for `RawBody`.
-- Sealed `NetClientException` hierarchy: `TransportException`, `CancellationException`, and `UnexpectedException`, each carrying the originating `RequestSpec`.
-- `RawResponse` and `NetClientResponse` models supporting `Mappable`.
-- Interceptor pipeline with `NetClientInterceptor` and `QueuedNetClientInterceptor` abstractions.
-- `DioRequestAdapter`, `DioExceptionMapper`, `DioCancellationTokenBuilder`, and related Dio infrastructure.
-- Request cancellation support via `RequestCanceller`.
-- API result types via `ApiCallResult`.
+- Initial release.

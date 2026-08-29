@@ -1,5 +1,5 @@
 name: net_client
-description: An opinionated wrapper around dio that streamlines request/response transformation and error handling.
+description: An opinionated HTTP client.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
