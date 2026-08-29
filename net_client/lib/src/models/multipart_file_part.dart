@@ -1,7 +1,7 @@
 import 'package:net_client/src/contracts/mappable.dart';
 import 'package:net_client/src/models/file_source.dart';
 
-final class MultipartFilePart implements Mappable {
+class MultipartFilePart implements Mappable {
   final String fieldName;
 
   final String fileName;
