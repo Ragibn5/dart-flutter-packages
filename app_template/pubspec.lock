@@ -393,9 +393,10 @@ packages:
   feature_api_client:
     dependency: "direct main"
     description:
-      path: "../feature_api_client"
-      relative: true
-    source: path
+      name: feature_api_client
+      sha256: c7fb756352359c15aa1a82806e362dc2851b7bfb9c1136d9f8aff480170f4973
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   ffi:
     dependency: transitive
