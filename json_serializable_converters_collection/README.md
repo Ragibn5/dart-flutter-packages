@@ -24,10 +24,21 @@ dependencies:
       ref: json_serializable_converters_collection-1.0.0
 ```
 
-## Example
+## Usage
 
-Annotate `DateTime` fields with `@Rfc3339UTCDateTimeJsonConverter()` and let
-`json_serializable` handle the rest:
+Annotate a Dart class with `@JsonSerializable()` and apply the converter annotations you need. Run the build runner to generate the `toJson`/`fromJson` methods:
+
+```sh
+dart run build_runner build
+```
+
+See the [example](example/example.dart) for a complete runnable demonstration.
+
+## Converters
+
+### `Rfc3339UTCDateTimeJsonConverter`
+
+Serializes `DateTime` fields to and from RFC 3339 UTC strings:
 
 ```dart
 import 'package:json_annotation/json_annotation.dart';
@@ -56,8 +67,8 @@ class AuthDataDTO {
 }
 ```
 
-Run `dart run build_runner build` to generate the `toJson`/`fromJson`
-methods, which will serialize and deserialize the `DateTime` fields as
-RFC 3339 UTC strings.
+> Note: Run the build runner afterward for this to take effect.
+
+## Examples
 
 See the [example](example/example.dart) for a complete runnable demonstration.
