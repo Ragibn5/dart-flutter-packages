@@ -39,7 +39,7 @@ generation utilities, and architectural support.
 - [`json_parser_linter`](json_coder/json_parser_linter)
 - [`json_parser_generator`](json_coder/json_parser_generator)
 - [`file_store`](file_store)
-- [`json_converters`](json_converters)
+- [`json_serializable_converters_collection`](json_serializable_converters_collection)
 - [`preference_store`](preference_store)
 - [`sqlite_db`](sqlite_db)
 - [`base_auth_interceptor`](base_auth_interceptor)

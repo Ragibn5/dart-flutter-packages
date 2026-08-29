@@ -56,6 +56,7 @@ dependencies:
   alerty: ^1.0.0
   net_models: ^1.0.0
   data_domain_converters: ^1.0.0
+  json_serializable_converters_collection: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -68,8 +69,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  json_converters:
-    path: ../json_converters
   preference_store:
     path: ../preference_store
   sqlite_db:
