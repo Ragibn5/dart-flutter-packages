@@ -59,6 +59,8 @@ dependencies:
   json_serializable_converters_collection: ^1.0.0
   preference_store: ^1.0.0
   sqlite_db: ^1.0.0
+  analykit: ^1.0.0
+  crashlykit: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -71,10 +73,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  analykit:
-    path: ../analykit
-  crashlykit:
-    path: ../crashlykit
   base_auth_interceptor:
     path: ../base_auth_interceptor
   feature_api_client:

@@ -28,9 +28,10 @@ packages:
   analykit:
     dependency: "direct main"
     description:
-      path: "../analykit"
-      relative: true
-    source: path
+      name: analykit
+      sha256: "87513e53a9ab1b600e8374f53eb667f4514b1a683f2efa0818e16e9ced925c00"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   analyzer:
     dependency: transitive
@@ -272,9 +273,10 @@ packages:
   crashlykit:
     dependency: "direct main"
     description:
-      path: "../crashlykit"
-      relative: true
-    source: path
+      name: crashlykit
+      sha256: "72d9a5a910ff638c2559e32fbcafe5341fab412a142fc0c2ffcb85f26080f49e"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   crypto:
     dependency: transitive
