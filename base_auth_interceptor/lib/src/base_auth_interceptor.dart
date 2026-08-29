@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
-abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
+abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor {
   /// Returns the current auth data, or `null` if none is available.
   @visibleForOverriding
   Future<AuthData?> getAuthData();

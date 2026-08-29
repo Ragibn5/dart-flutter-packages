@@ -887,10 +887,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
-  net_kit:
+  net_client:
     dependency: transitive
     description:
-      path: "../net_kit"
+      path: "../net_client"
       relative: true
     source: path
     version: "1.0.0"

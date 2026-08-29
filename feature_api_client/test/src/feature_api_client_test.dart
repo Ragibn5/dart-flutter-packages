@@ -1,7 +1,7 @@
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:test/test.dart';
 
@@ -16,7 +16,7 @@ class _TestApiClient extends FeatureApiClient<String, int, String> {
   }
 
   @override
-  ApiResponse<String, int> decodeResponse(NetKitResponse response) {
+  ApiResponse<String, int> decodeResponse(NetClientResponse response) {
     return SuccessResponse(
       data: response.statusCode,
       statusCode: response.statusCode,
@@ -44,7 +44,7 @@ void main() {
 
   test('Should return Right with decoded response on success', () async {
     const statusCode = 200;
-    final netKitResponse = NetKitResponse(
+    final netKitResponse = NetClientResponse(
       isError: false,
       statusCode: statusCode,
       data: null,

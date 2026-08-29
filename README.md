@@ -32,7 +32,7 @@ the base layer and are intended to be reusable across all projects.
 Built on top of the core layer. These packages provide higher-level tooling, UI components, code
 generation utilities, and architectural support.
 
-- [`net_kit`](net_kit)
+- [`net_client`](net_client)
 - [`parser_core`](parser_core)
 - [`json_coder`](json_coder)
 - [`json_parser_annotations`](json_coder/json_parser_annotations)
@@ -98,7 +98,7 @@ git clone git@github.com:Ragibn5/dart-flutter-packages.git
 
 #### 2. Open desired package in IDE
 
-Open the package you want to work on (for example `net_kit`) with your IDE.
+Open the package you want to work on (for example `net_client`) with your IDE.
 
 #### 3. Install dependencies for desired package:
 

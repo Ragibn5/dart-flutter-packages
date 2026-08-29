@@ -104,7 +104,7 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:loghub/loghub.dart' as _i642;
 import 'package:nav_router/nav_router.dart' as _i251;
-import 'package:net_kit/net_kit.dart' as _i535;
+import 'package:net_client/net_client.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:preference_store/preference_store.dart' as _i300;
 import 'package:snacker/snacker.dart' as _i1020;

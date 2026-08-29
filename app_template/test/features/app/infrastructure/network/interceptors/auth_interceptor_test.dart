@@ -9,7 +9,7 @@ import 'package:app_template/features/app/infrastructure/network/interceptors/au
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 class _MockNetClient extends Mock implements NetClient {}
 
@@ -137,7 +137,7 @@ void main() {
       final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
       when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
         (_) async => Success(
-          NetKitResponse(
+          NetClientResponse(
             isError: false,
             statusCode: HttpStatus.ok,
             data: null,

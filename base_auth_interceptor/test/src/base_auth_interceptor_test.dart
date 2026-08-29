@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:test/test.dart';
 
 class _TestAuthData {}
@@ -86,7 +86,7 @@ void main() {
         onShouldRefresh: (_, __) => false,
         onRefresh: (_) async => null,
         onRetry: (_, __) async => Success(
-          NetKitResponse(
+          NetClientResponse(
             isError: false,
             statusCode: HttpStatus.ok,
             data: null,
@@ -193,7 +193,7 @@ void main() {
           onRetry: (_, __) async {
             retryCalled = true;
             return Success(
-              NetKitResponse(
+              NetClientResponse(
                 isError: false,
                 statusCode: HttpStatus.ok,
                 data: null,
@@ -238,7 +238,7 @@ void main() {
           onRetry: (_, __) async {
             retryCalled = true;
             return Success(
-              NetKitResponse(
+              NetClientResponse(
                 isError: false,
                 statusCode: HttpStatus.ok,
                 data: null,

@@ -63,7 +63,7 @@ import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:loghub/loghub.dart' hide Logger;
 import 'package:nav_router/nav_router.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';

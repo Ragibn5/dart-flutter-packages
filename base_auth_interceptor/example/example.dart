@@ -1,6 +1,6 @@
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:dart_functionals/dart_functionals.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 class AppAuthInterceptor extends BaseAuthInterceptor<String> {
   @override
@@ -31,7 +31,7 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
     String refreshedAuthData,
   ) async =>
       Success(
-        NetKitResponse(
+        NetClientResponse(
           isError: false,
           statusCode: 200,
           data: '',

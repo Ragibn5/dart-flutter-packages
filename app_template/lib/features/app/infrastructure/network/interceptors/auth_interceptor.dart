@@ -5,7 +5,7 @@ import 'package:app_template/features/app/application/use_cases/get_refreshed_au
 import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 /// Interceptor to handle authentication request/response/error.
 class AuthInterceptor extends BaseAuthInterceptor<AuthInfo> {

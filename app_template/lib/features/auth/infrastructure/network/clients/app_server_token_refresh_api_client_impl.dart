@@ -2,7 +2,7 @@ import 'package:app_template/features/auth/data/clients/app_server_token_refresh
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -24,7 +24,7 @@ class AppServerTokenRefreshApiClientImpl
 
   @override
   ApiResponse<ServerMessage, AuthDataDTO> decodeResponse(
-    NetKitResponse response,
+    NetClientResponse response,
   ) {
     if (response.isError) {
       return FailureResponse(

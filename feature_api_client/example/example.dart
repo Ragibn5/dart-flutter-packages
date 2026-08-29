@@ -1,5 +1,5 @@
 import 'package:feature_api_client/feature_api_client.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 
 class MyRequest {
@@ -31,7 +31,7 @@ class MyClient extends FeatureApiClient<MyRequest, MyResponse, MyError> {
 
   @override
   ApiResponse<MyError, MyResponse> decodeResponse(
-    NetKitResponse response,
+    NetClientResponse response,
   ) =>
       SuccessResponse(
         data: MyResponse(response.data.toString()),

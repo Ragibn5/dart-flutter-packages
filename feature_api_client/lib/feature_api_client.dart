@@ -2,4 +2,4 @@
 library;
 
 export 'src/feature_api_client.dart';
-export 'src/services/net_kit_exception_transformer.dart';
+export 'src/services/net_client_exception_transformer.dart';
