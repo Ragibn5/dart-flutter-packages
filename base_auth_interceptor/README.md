@@ -109,6 +109,6 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
 }
 ```
 
-## Example
+## 🧪 Example
 
 See the [example](example/example.dart) for a complete demonstration.
