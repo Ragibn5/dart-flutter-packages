@@ -1,10 +1,12 @@
+import 'package:base_auth_interceptor/src/auth_data_provider.dart';
 import 'package:meta/meta.dart';
 import 'package:net_client/net_client.dart';
 
-abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor {
-  /// Returns the current auth data, or `null` if none is available.
-  @visibleForOverriding
-  Future<AuthData?> getAuthData();
+abstract class BaseAuthInterceptor<AuthData>
+    extends QueuedNetClientInterceptor {
+  final AuthDataProvider<AuthData> _authDataProvider;
+
+  BaseAuthInterceptor(this._authDataProvider);
 
   /// Transforms the outgoing [request] with the given [authData].
   ///
@@ -15,7 +17,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor 
   /// Params:
   /// - [request]: The input request.
   /// - [authData]: The currently available auth data
-  ///   obtained with [getAuthData].
+  ///   obtained from the [AuthDataProvider].
   ///
   /// Returns: A new transformed [RequestSpec] instance,
   /// possibly adapted with the given auth data, which is
@@ -40,15 +42,6 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor 
   @visibleForOverriding
   bool shouldRefreshAuthData(RequestSpec request, AuthData authData);
 
-  /// Attempts to refresh the auth data.
-  ///
-  /// Returns the new auth data on success, or `null` on failure.
-  ///
-  /// Note:
-  /// When `null` is returned the request is cancelled immediately.
-  @visibleForOverriding
-  Future<AuthData?> requestAuthDataRefresh(AuthData oldAuthData);
-
   /// Re-executes [request] with the (possibly refreshed) auth data.
   ///
   /// The returned [ApiCallResult] is remapped into a [RawResponse] by
@@ -62,7 +55,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor 
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
-    final authData = await getAuthData();
+    final authData = await _authDataProvider.getAuthData();
     if (authData == null) {
       return ShortRequestWithError(
         CancellationException(
@@ -90,7 +83,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor 
     final method = request.method;
     final uri = request.uri;
 
-    final currentAuthData = await getAuthData();
+    final currentAuthData = await _authDataProvider.getAuthData();
     if (currentAuthData == null) {
       return ShortResponseWithError(
         CancellationException(
@@ -124,7 +117,8 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetClientInterceptor 
       );
     }
 
-    final refreshedAuthData = await requestAuthDataRefresh(currentAuthData);
+    final refreshedAuthData =
+        await _authDataProvider.requestAuthDataRefresh(currentAuthData);
     if (refreshedAuthData == null) {
       return ShortResponseWithError(
         CancellationException(

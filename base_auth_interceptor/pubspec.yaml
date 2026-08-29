@@ -1,5 +1,5 @@
 name: base_auth_interceptor
-description: Base auth interceptor to create specific implementations.
+description: Base auth interceptor to create specific implementations. Based on net_client's interceptor.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

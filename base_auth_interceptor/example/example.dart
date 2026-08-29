@@ -2,9 +2,17 @@ import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:net_client/net_client.dart';
 
-class AppAuthInterceptor extends BaseAuthInterceptor<String> {
+class _AuthDataProvider implements AuthDataProvider<String> {
   @override
   Future<String?> getAuthData() async => 'my-token';
+
+  @override
+  Future<String?> requestAuthDataRefresh(String oldAuthData) async => null;
+}
+
+class AppAuthInterceptor extends BaseAuthInterceptor<String> {
+  AppAuthInterceptor()
+      : super(_AuthDataProvider());
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
@@ -21,9 +29,6 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
 
   @override
   bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
-
-  @override
-  Future<String?> requestAuthDataRefresh(String oldAuthData) async => null;
 
   @override
   Future<ApiCallResult> retryRequest(

@@ -1,6 +1,6 @@
 # base_auth_interceptor
 
-Base auth interceptor to create specific implementations.
+Base auth interceptor to create specific implementations. Based on [net_client](https://pub.dev/packages/net_client)'s interceptor.
 
 ## Installation
 
