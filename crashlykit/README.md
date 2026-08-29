@@ -1,6 +1,6 @@
-# crashlytics
+# crashlykit
 
-A reusable crashlytics service.
+A reusable crash reporting service.
 
 ## Supported providers
 
@@ -16,18 +16,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  crashlytics: ^1.0.0
+  crashlykit: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  crashlytics:
+  crashlykit:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: crashlytics
-      ref: crashlytics-1.0.0
+      path: crashlykit
+      ref: crashlykit-1.0.0
 ```
 
 ## Example

@@ -71,10 +71,10 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  analytics:
-    path: ../analytics
-  crashlytics:
-    path: ../crashlytics
+  analykit:
+    path: ../analykit
+  crashlykit:
+    path: ../crashlykit
   base_auth_interceptor:
     path: ../base_auth_interceptor
   feature_api_client:

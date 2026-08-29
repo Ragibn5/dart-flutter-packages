@@ -1,6 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:analytics/src/firebase_analytics_service.dart';
+import 'package:analykit/src/firebase_analytics_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

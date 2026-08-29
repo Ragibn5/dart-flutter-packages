@@ -8,7 +8,7 @@ import 'package:app_template/features/app/infrastructure/services/firebase_optio
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

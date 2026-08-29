@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alerty/alerty.dart';
-import 'package:analytics/analytics.dart';
+import 'package:analykit/analykit.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
@@ -54,7 +54,7 @@ import 'package:app_template/features/auth/application/use_cases/watch_auth_data
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';

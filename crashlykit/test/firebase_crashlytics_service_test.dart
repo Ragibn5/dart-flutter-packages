@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:crashlytics/src/firebase_crashlytics_service.dart';
+import 'package:crashlykit/src/firebase_crashlytics_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';

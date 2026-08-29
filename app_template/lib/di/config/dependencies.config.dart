@@ -10,7 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:alerty/alerty.dart' as _i69;
-import 'package:analytics/analytics.dart' as _i548;
+import 'package:analykit/analykit.dart' as _i548;
 import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
@@ -97,7 +97,7 @@ import 'package:app_template/features/user_data/domain/repositories/user_data_re
     as _i728;
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
     as _i84;
-import 'package:crashlytics/crashlytics.dart' as _i35;
+import 'package:crashlykit/crashlykit.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;

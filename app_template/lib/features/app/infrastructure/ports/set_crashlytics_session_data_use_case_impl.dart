@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/application/use_cases/set_crashlytics_session_data_use_case.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 
 class SetCrashlyticsSessionDataUseCaseImpl
     implements SetCrashlyticsSessionDataUseCase {

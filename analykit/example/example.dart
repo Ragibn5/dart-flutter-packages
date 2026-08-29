@@ -1,6 +1,6 @@
 // ignore_for_file: cascade_invocations
 
-import 'package:analytics/analytics.dart';
+import 'package:analykit/analykit.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 void main() {

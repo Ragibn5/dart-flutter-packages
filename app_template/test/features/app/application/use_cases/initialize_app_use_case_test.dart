@@ -1,6 +1,6 @@
-import 'package:analytics/analytics.dart';
+import 'package:analykit/analykit.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sqlite_db/sqlite_db.dart';

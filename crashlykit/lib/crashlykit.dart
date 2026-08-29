@@ -1,4 +1,4 @@
-/// A reusable crashlytics service.
+/// A reusable crash reporting service.
 library;
 
 export 'src/crashlytics_service.dart';

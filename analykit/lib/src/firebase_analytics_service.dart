@@ -1,4 +1,4 @@
-import 'package:analytics/src/analytics_service.dart';
+import 'package:analykit/src/analytics_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 class FirebaseAnalyticsService extends AnalyticsService {

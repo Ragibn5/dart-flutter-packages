@@ -1,9 +1,9 @@
-name: crashlytics
-description: A reusable crashlytics service.
+name: crashlykit
+description: A reusable crash reporting service.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/crashlytics
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/crashlykit
 
 # Library version
 version: 1.0.0

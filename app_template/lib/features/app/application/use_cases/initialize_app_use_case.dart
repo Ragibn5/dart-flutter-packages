@@ -1,5 +1,5 @@
-import 'package:analytics/analytics.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:analykit/analykit.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 
 /// Initializes the app.

@@ -1,9 +1,9 @@
-name: analytics
+name: analykit
 description: A reusable analytics service.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analytics
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analykit
 
 # Library version
 version: 1.0.0

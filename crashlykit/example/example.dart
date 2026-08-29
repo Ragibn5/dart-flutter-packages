@@ -1,6 +1,6 @@
 // ignore_for_file: cascade_invocations
 
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() {

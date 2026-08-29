@@ -60,8 +60,8 @@ Top-level integration or reference implementation packages that may depend on mu
 intermediate packages.
 
 - [`app_template`](app_template)
-- [`analytics`](analytics)
-- [`crashlytics`](crashlytics)
+- [`analykit`](analykit)
+- [`crashlykit`](crashlykit)
 
 ---
 

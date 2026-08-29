@@ -1,4 +1,4 @@
-# analytics
+# analykit
 
 A reusable analytics service.
 
@@ -16,18 +16,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analytics: ^1.0.0
+  analykit: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  analytics:
+  analykit:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: analytics
-      ref: analytics-1.0.0
+      path: analykit
+      ref: analykit-1.0.0
 ```
 
 ## Example

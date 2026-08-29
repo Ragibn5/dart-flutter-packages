@@ -1,4 +1,4 @@
-import 'package:analytics/analytics.dart';
+import 'package:analykit/analykit.dart';
 import 'package:app_template/features/app/application/use_cases/set_analytics_session_data_use_case.dart';
 
 class SetAnalyticsSessionDataUseCaseImpl

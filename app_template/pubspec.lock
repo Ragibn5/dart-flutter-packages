@@ -25,10 +25,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
-  analytics:
+  analykit:
     dependency: "direct main"
     description:
-      path: "../analytics"
+      path: "../analykit"
       relative: true
     source: path
     version: "1.0.0"
@@ -269,10 +269,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.1"
-  crashlytics:
+  crashlykit:
     dependency: "direct main"
     description:
-      path: "../crashlytics"
+      path: "../crashlykit"
       relative: true
     source: path
     version: "1.0.0"
