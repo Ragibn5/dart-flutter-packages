@@ -1,12 +1,14 @@
 import 'package:base_auth_interceptor/src/auth_data_provider.dart';
+import 'package:base_auth_interceptor/src/request_retrier.dart';
 import 'package:meta/meta.dart';
 import 'package:net_client/net_client.dart';
 
 abstract class BaseAuthInterceptor<AuthData>
     extends QueuedNetClientInterceptor {
   final AuthDataProvider<AuthData> _authDataProvider;
+  final RequestRetrier<AuthData> _requestRetrier;
 
-  BaseAuthInterceptor(this._authDataProvider);
+  BaseAuthInterceptor(this._authDataProvider, this._requestRetrier);
 
   /// Transforms the outgoing [request] with the given [authData].
   ///
@@ -41,17 +43,6 @@ abstract class BaseAuthInterceptor<AuthData>
   /// to perform the auth data refresh.
   @visibleForOverriding
   bool shouldRefreshAuthData(RequestSpec request, AuthData authData);
-
-  /// Re-executes [request] with the (possibly refreshed) auth data.
-  ///
-  /// The returned [ApiCallResult] is remapped into a [RawResponse] by
-  /// the template so downstream interceptors see a normal response.
-  /// Throw/cancel semantics should be avoided — use the result type.
-  @visibleForOverriding
-  Future<ApiCallResult> retryRequest(
-    RequestSpec request,
-    AuthData refreshedAuthData,
-  );
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
@@ -96,7 +87,10 @@ abstract class BaseAuthInterceptor<AuthData>
     }
 
     if (!shouldRefreshAuthData(request, currentAuthData)) {
-      final response = await retryRequest(request, currentAuthData);
+      final response = await _requestRetrier.retryRequest(
+        request,
+        currentAuthData,
+      );
       return response.fold(
         onFailure: (e) => ShortResponseWithError(
           CancellationException(
@@ -130,7 +124,10 @@ abstract class BaseAuthInterceptor<AuthData>
       );
     }
 
-    final retryResponse = await retryRequest(request, refreshedAuthData);
+    final retryResponse = await _requestRetrier.retryRequest(
+      request,
+      refreshedAuthData,
+    );
     return retryResponse.fold(
       onFailure: (e) => ShortResponseWithError(
         CancellationException(

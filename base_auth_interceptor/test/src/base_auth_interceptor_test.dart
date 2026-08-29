@@ -13,19 +13,21 @@ class _TestAuthData {}
 class _MockAuthDataProvider extends Mock
     implements AuthDataProvider<_TestAuthData> {}
 
+class _MockRequestRetrier extends Mock
+    implements RequestRetrier<_TestAuthData> {}
+
 class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
   final Future<RequestSpec> Function(RequestSpec, _TestAuthData) onTransform;
   final bool Function(RawResponse) onAuthError;
   final bool Function(RequestSpec, _TestAuthData) onShouldRefresh;
-  final Future<ApiCallResult> Function(RequestSpec, _TestAuthData) onRetry;
 
   _TestAuthInterceptor({
     required AuthDataProvider<_TestAuthData> provider,
+    required RequestRetrier<_TestAuthData> retrier,
     required this.onTransform,
     required this.onAuthError,
     required this.onShouldRefresh,
-    required this.onRetry,
-  }) : super(provider);
+  }) : super(provider, retrier);
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
@@ -43,13 +45,6 @@ class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
     _TestAuthData authData,
   ) =>
       onShouldRefresh(request, authData);
-
-  @override
-  Future<ApiCallResult> retryRequest(
-    RequestSpec request,
-    _TestAuthData authData,
-  ) =>
-      onRetry(request, authData);
 }
 
 void main() {
@@ -57,9 +52,13 @@ void main() {
   final newAuthData = _TestAuthData();
 
   late _MockAuthDataProvider provider;
+  late _MockRequestRetrier retrier;
 
   setUp(() {
     provider = _MockAuthDataProvider();
+    retrier = _MockRequestRetrier();
+    when(() => retrier.retryRequest(any(), any()))
+        .thenAnswer((_) async => throw UnimplementedError());
   });
 
   setUpAll(() {
@@ -89,17 +88,17 @@ void main() {
 
   _TestAuthInterceptor buildInterceptor(
     AuthDataProvider<_TestAuthData> provider, {
+    RequestRetrier<_TestAuthData>? retrierOverride,
     Future<RequestSpec> Function(RequestSpec, _TestAuthData)? onTransform,
     bool Function(RawResponse)? onAuthError,
     bool Function(RequestSpec, _TestAuthData)? onShouldRefresh,
-    Future<ApiCallResult> Function(RequestSpec, _TestAuthData)? onRetry,
   }) =>
       _TestAuthInterceptor(
         provider: provider,
+        retrier: retrierOverride ?? retrier,
         onTransform: onTransform ?? (request, _) async => request,
         onAuthError: onAuthError ?? (_) => false,
         onShouldRefresh: onShouldRefresh ?? (_, __) => false,
-        onRetry: onRetry ?? (_, __) async => throw UnimplementedError(),
       );
 
   group('onRequest', () {
@@ -116,7 +115,6 @@ void main() {
           expect(d, same(authData));
           return r;
         },
-        onRetry: (request, _) async => success(request),
       );
 
       final result = await sut.onRequest(request);
@@ -125,6 +123,7 @@ void main() {
       expect(transformCalled, isTrue);
       verify(() => provider.getAuthData()).called(1);
       verifyNever(() => provider.requestAuthDataRefresh(any()));
+      verifyNever(() => retrier.retryRequest(any(), any()));
     });
 
     test(
@@ -200,16 +199,12 @@ void main() {
       'Retries with retryRequest when shouldRefreshAuthData returns false',
       () async {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
-
-        var retryCalled = false;
+        when(() => retrier.retryRequest(any(), any())).thenAnswer((_) async =>
+            success(RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET)));
 
         final sut = buildInterceptor(
           provider,
           onAuthError: (_) => true,
-          onRetry: (request, _) async {
-            retryCalled = true;
-            return success(request);
-          },
         );
 
         final response = RawResponse(
@@ -221,7 +216,7 @@ void main() {
         final result = await sut.onResponse(response);
 
         expect(result, isA<ShortResponseWithFinalResponse>());
-        expect(retryCalled, isTrue);
+        verify(() => retrier.retryRequest(any(), authData)).called(1);
         verify(() => provider.getAuthData()).called(1);
         verifyNever(() => provider.requestAuthDataRefresh(any()));
       },
@@ -233,17 +228,13 @@ void main() {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
         when(() => provider.requestAuthDataRefresh(authData))
             .thenAnswer((_) async => newAuthData);
-
-        var retryCalled = false;
+        when(() => retrier.retryRequest(any(), any())).thenAnswer((_) async =>
+            success(RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET)));
 
         final sut = buildInterceptor(
           provider,
           onAuthError: (_) => true,
           onShouldRefresh: (_, __) => true,
-          onRetry: (request, _) async {
-            retryCalled = true;
-            return success(request);
-          },
         );
 
         final response = RawResponse(
@@ -255,7 +246,7 @@ void main() {
         final result = await sut.onResponse(response);
 
         expect(result, isA<ShortResponseWithFinalResponse>());
-        expect(retryCalled, isTrue);
+        verify(() => retrier.retryRequest(any(), newAuthData)).called(1);
         verify(() => provider.getAuthData()).called(1);
         verify(() => provider.requestAuthDataRefresh(authData)).called(1);
       },
@@ -296,11 +287,12 @@ void main() {
       'in already-refreshed path',
       () async {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
+        when(() => retrier.retryRequest(any(), any()))
+            .thenAnswer((_) async => failure());
 
         final sut = buildInterceptor(
           provider,
           onAuthError: (_) => true,
-          onRetry: (_, __) async => failure(),
         );
 
         final response = RawResponse(
@@ -327,12 +319,13 @@ void main() {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
         when(() => provider.requestAuthDataRefresh(authData))
             .thenAnswer((_) async => newAuthData);
+        when(() => retrier.retryRequest(any(), any()))
+            .thenAnswer((_) async => failure());
 
         final sut = buildInterceptor(
           provider,
           onAuthError: (_) => true,
           onShouldRefresh: (_, __) => true,
-          onRetry: (_, __) async => failure(),
         );
 
         final response = RawResponse(

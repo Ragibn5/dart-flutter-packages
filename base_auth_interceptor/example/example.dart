@@ -10,9 +10,25 @@ class _AuthDataProvider implements AuthDataProvider<String> {
   Future<String?> requestAuthDataRefresh(String oldAuthData) async => null;
 }
 
+class _RequestRetrier implements RequestRetrier<String> {
+  @override
+  Future<ApiCallResult> retryRequest(
+    RequestSpec request,
+    String refreshedAuthData,
+  ) async =>
+      Success(
+        NetClientResponse(
+          isError: false,
+          statusCode: 200,
+          data: '',
+          headers: {},
+          requestSpec: request,
+        ),
+      );
+}
+
 class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor()
-      : super(_AuthDataProvider());
+  AppAuthInterceptor() : super(_AuthDataProvider(), _RequestRetrier());
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
@@ -29,19 +45,4 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
 
   @override
   bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
-
-  @override
-  Future<ApiCallResult> retryRequest(
-    RequestSpec request,
-    String refreshedAuthData,
-  ) async =>
-      Success(
-        NetClientResponse(
-          isError: false,
-          statusCode: 200,
-          data: '',
-          headers: {},
-          requestSpec: request,
-        ),
-      );
 }
