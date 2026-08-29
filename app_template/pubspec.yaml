@@ -61,6 +61,7 @@ dependencies:
   sqlite_db: ^1.0.0
   analykit: ^1.0.0
   crashlykit: ^1.0.0
+  base_auth_interceptor: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -73,8 +74,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  base_auth_interceptor:
-    path: ../base_auth_interceptor
   feature_api_client:
     path: ../feature_api_client
   nav_router:

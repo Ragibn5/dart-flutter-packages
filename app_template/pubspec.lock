@@ -91,9 +91,10 @@ packages:
   base_auth_interceptor:
     dependency: "direct main"
     description:
-      path: "../base_auth_interceptor"
-      relative: true
-    source: path
+      name: base_auth_interceptor
+      sha256: b3e7e6abd29711d34dc07c98fbe071e2c108f27f4f00c20b76a44448b6288b0b
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   bloc:
     dependency: "direct main"
