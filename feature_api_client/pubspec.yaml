@@ -17,8 +17,7 @@ dependencies:
   meta: ^1.12.0
   equatable: ^2.0.8
   dart_functionals: ^1.0.1
-  net_models:
-    path: ../net_models
+  net_models: ^1.0.0
   net_kit:
     path: ../net_kit
 

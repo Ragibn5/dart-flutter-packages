@@ -54,6 +54,7 @@ dependencies:
   extended_string: ^1.0.0
   dart_functionals: ^1.0.1
   alerty: ^1.0.0
+  net_models: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -66,8 +67,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  net_models:
-    path: ../net_models
   data_domain_converters:
     path: ../data_domain_converters
   json_converters:
