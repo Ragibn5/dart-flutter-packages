@@ -1,4 +1,5 @@
 import 'package:base_auth_interceptor/src/auth_data_provider.dart';
+import 'package:base_auth_interceptor/src/auth_refresh_policy.dart';
 import 'package:base_auth_interceptor/src/request_retrier.dart';
 import 'package:meta/meta.dart';
 import 'package:net_client/net_client.dart';
@@ -6,9 +7,14 @@ import 'package:net_client/net_client.dart';
 abstract class BaseAuthInterceptor<AuthData>
     extends QueuedNetClientInterceptor {
   final AuthDataProvider<AuthData> _authDataProvider;
+  final AuthRefreshPolicy<AuthData> _refreshPolicy;
   final RequestRetrier<AuthData> _requestRetrier;
 
-  BaseAuthInterceptor(this._authDataProvider, this._requestRetrier);
+  BaseAuthInterceptor(
+    this._authDataProvider,
+    this._refreshPolicy,
+    this._requestRetrier,
+  );
 
   /// Transforms the outgoing [request] with the given [authData].
   ///
@@ -29,20 +35,6 @@ abstract class BaseAuthInterceptor<AuthData>
     RequestSpec request,
     AuthData authData,
   );
-
-  /// Returns `true` when the server response indicates that an
-  /// auth error occurred and it should be refreshed.
-  @visibleForOverriding
-  bool didServerReportAuthError(RawResponse response);
-
-  /// Returns `true` when given [authData] is stale and a refresh
-  /// should be attempted.
-  ///
-  /// This is used for situations like when another request in the
-  /// queue already refreshed the auth data, and we no longer need
-  /// to perform the auth data refresh.
-  @visibleForOverriding
-  bool shouldRefreshAuthData(RequestSpec request, AuthData authData);
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
@@ -66,7 +58,7 @@ abstract class BaseAuthInterceptor<AuthData>
 
   @override
   Future<ResponseInterceptorResult> onResponse(RawResponse response) async {
-    if (!didServerReportAuthError(response)) {
+    if (!_refreshPolicy.didServerReportAuthError(response)) {
       return ContinueWithResponse(response);
     }
 
@@ -86,7 +78,7 @@ abstract class BaseAuthInterceptor<AuthData>
       );
     }
 
-    if (!shouldRefreshAuthData(request, currentAuthData)) {
+    if (!_refreshPolicy.shouldRefreshAuthData(request, currentAuthData)) {
       final response = await _requestRetrier.retryRequest(
         request,
         currentAuthData,

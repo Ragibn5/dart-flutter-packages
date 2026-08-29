@@ -27,8 +27,18 @@ class _RequestRetrier implements RequestRetrier<String> {
       );
 }
 
+class _AuthRefreshPolicy implements AuthRefreshPolicy<String> {
+  @override
+  bool didServerReportAuthError(RawResponse response) =>
+      response.statusCode == 401;
+
+  @override
+  bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
+}
+
 class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor() : super(_AuthDataProvider(), _RequestRetrier());
+  AppAuthInterceptor()
+      : super(_AuthDataProvider(), _AuthRefreshPolicy(), _RequestRetrier());
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
@@ -38,11 +48,4 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
     request.headers.addAll({'Authorization': 'Bearer $authData'});
     return request;
   }
-
-  @override
-  bool didServerReportAuthError(RawResponse response) =>
-      response.statusCode == 401;
-
-  @override
-  bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
 }

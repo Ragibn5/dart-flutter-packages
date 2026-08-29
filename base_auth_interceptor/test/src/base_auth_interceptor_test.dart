@@ -16,18 +16,18 @@ class _MockAuthDataProvider extends Mock
 class _MockRequestRetrier extends Mock
     implements RequestRetrier<_TestAuthData> {}
 
+class _MockAuthRefreshPolicy extends Mock
+    implements AuthRefreshPolicy<_TestAuthData> {}
+
 class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
   final Future<RequestSpec> Function(RequestSpec, _TestAuthData) onTransform;
-  final bool Function(RawResponse) onAuthError;
-  final bool Function(RequestSpec, _TestAuthData) onShouldRefresh;
 
   _TestAuthInterceptor({
     required AuthDataProvider<_TestAuthData> provider,
+    required AuthRefreshPolicy<_TestAuthData> policy,
     required RequestRetrier<_TestAuthData> retrier,
     required this.onTransform,
-    required this.onAuthError,
-    required this.onShouldRefresh,
-  }) : super(provider, retrier);
+  }) : super(provider, policy, retrier);
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
@@ -35,16 +35,6 @@ class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
     _TestAuthData authData,
   ) =>
       onTransform(request, authData);
-
-  @override
-  bool didServerReportAuthError(RawResponse response) => onAuthError(response);
-
-  @override
-  bool shouldRefreshAuthData(
-    RequestSpec request,
-    _TestAuthData authData,
-  ) =>
-      onShouldRefresh(request, authData);
 }
 
 void main() {
@@ -53,16 +43,26 @@ void main() {
 
   late _MockAuthDataProvider provider;
   late _MockRequestRetrier retrier;
+  late _MockAuthRefreshPolicy policy;
 
   setUp(() {
     provider = _MockAuthDataProvider();
     retrier = _MockRequestRetrier();
+    policy = _MockAuthRefreshPolicy();
     when(() => retrier.retryRequest(any(), any()))
         .thenAnswer((_) async => throw UnimplementedError());
+    when(() => policy.didServerReportAuthError(any())).thenReturn(false);
+    when(() => policy.shouldRefreshAuthData(any(), any())).thenReturn(false);
   });
 
   setUpAll(() {
     registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
+    registerFallbackValue(RawResponse(
+      statusCode: HttpStatus.ok,
+      rawResponseBody: null,
+      responseHeaders: {},
+      request: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+    ));
     registerFallbackValue(_TestAuthData());
   });
 
@@ -89,16 +89,14 @@ void main() {
   _TestAuthInterceptor buildInterceptor(
     AuthDataProvider<_TestAuthData> provider, {
     RequestRetrier<_TestAuthData>? retrierOverride,
+    AuthRefreshPolicy<_TestAuthData>? policyOverride,
     Future<RequestSpec> Function(RequestSpec, _TestAuthData)? onTransform,
-    bool Function(RawResponse)? onAuthError,
-    bool Function(RequestSpec, _TestAuthData)? onShouldRefresh,
   }) =>
       _TestAuthInterceptor(
         provider: provider,
         retrier: retrierOverride ?? retrier,
+        policy: policyOverride ?? policy,
         onTransform: onTransform ?? (request, _) async => request,
-        onAuthError: onAuthError ?? (_) => false,
-        onShouldRefresh: onShouldRefresh ?? (_, __) => false,
       );
 
   group('onRequest', () {
@@ -172,11 +170,9 @@ void main() {
       'Returns ShortResponseWithError when auth data is unavailable',
       () async {
         when(() => provider.getAuthData()).thenAnswer((_) async => null);
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
@@ -201,11 +197,9 @@ void main() {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
         when(() => retrier.retryRequest(any(), any())).thenAnswer((_) async =>
             success(RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET)));
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
@@ -230,12 +224,10 @@ void main() {
             .thenAnswer((_) async => newAuthData);
         when(() => retrier.retryRequest(any(), any())).thenAnswer((_) async =>
             success(RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET)));
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
+        when(() => policy.shouldRefreshAuthData(any(), any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-          onShouldRefresh: (_, __) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
@@ -258,12 +250,10 @@ void main() {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
         when(() => provider.requestAuthDataRefresh(authData))
             .thenAnswer((_) async => null);
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
+        when(() => policy.shouldRefreshAuthData(any(), any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-          onShouldRefresh: (_, __) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
@@ -289,11 +279,9 @@ void main() {
         when(() => provider.getAuthData()).thenAnswer((_) async => authData);
         when(() => retrier.retryRequest(any(), any()))
             .thenAnswer((_) async => failure());
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
@@ -321,12 +309,10 @@ void main() {
             .thenAnswer((_) async => newAuthData);
         when(() => retrier.retryRequest(any(), any()))
             .thenAnswer((_) async => failure());
+        when(() => policy.didServerReportAuthError(any())).thenReturn(true);
+        when(() => policy.shouldRefreshAuthData(any(), any())).thenReturn(true);
 
-        final sut = buildInterceptor(
-          provider,
-          onAuthError: (_) => true,
-          onShouldRefresh: (_, __) => true,
-        );
+        final sut = buildInterceptor(provider);
 
         final response = RawResponse(
           statusCode: HttpStatus.unauthorized,
