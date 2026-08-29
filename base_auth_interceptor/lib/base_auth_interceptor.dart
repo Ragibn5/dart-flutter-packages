@@ -1,4 +1,4 @@
-/// Base auth interceptor to create specific implementations.
+/// A reusable auth interceptor base based on `net_client` package.
 library;
 
 export 'src/auth_data_provider.dart';
