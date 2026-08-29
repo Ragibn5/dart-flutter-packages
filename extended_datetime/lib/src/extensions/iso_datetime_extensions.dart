@@ -1,4 +1,4 @@
-import 'package:datetime_utils/src/extensions/zoned_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/zoned_datetime_extensions.dart';
 
 extension ISODateTimeExtensions on DateTime {
   /// Returns full ISO8601 string representation of this [DateTime] instance

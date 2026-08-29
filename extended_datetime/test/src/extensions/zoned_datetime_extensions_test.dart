@@ -1,4 +1,4 @@
-import 'package:datetime_utils/src/extensions/zoned_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/zoned_datetime_extensions.dart';
 import 'package:test/test.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;

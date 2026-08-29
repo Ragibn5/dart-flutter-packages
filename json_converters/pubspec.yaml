@@ -14,8 +14,7 @@ environment:
 
 # Regular dependencies
 dependencies:
-  datetime_utils:
-    path: ../datetime_utils
+  extended_datetime: ^1.0.0
   json_annotation: ^4.9.0
 
 # Dev dependencies

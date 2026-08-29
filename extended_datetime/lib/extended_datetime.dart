@@ -1,4 +1,4 @@
-/// The `datetime_utils` package.
+/// The `extended_datetime` package.
 /// Import this file to use the package in your project.
 library;
 

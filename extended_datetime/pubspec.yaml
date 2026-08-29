@@ -1,9 +1,9 @@
-name: datetime_utils
+name: extended_datetime
 description: Collection of extensions and utils specific to Date & Time manipulation.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/datetime_utils
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/extended_datetime
 
 # Library version
 version: 1.0.0

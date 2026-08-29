@@ -1,4 +1,4 @@
-import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/iso_datetime_extensions.dart';
 
 extension RFCDateTimeExtensions on DateTime {
   /// Returns full RFC3339 string representation of this [DateTime] instance.

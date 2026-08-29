@@ -1,5 +1,5 @@
-import 'package:datetime_utils/src/converters/iso_datetime_converters.dart';
-import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
+import 'package:extended_datetime/src/converters/iso_datetime_converters.dart';
+import 'package:extended_datetime/src/extensions/iso_datetime_extensions.dart';
 import 'package:test/test.dart';
 
 void main() {

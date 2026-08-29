@@ -1,4 +1,4 @@
-# datetime_utils
+# extended_datetime
 
 Collection of extensions and utils specific to Date & Time manipulation.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  datetime_utils: ^1.0.0
+  extended_datetime: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  datetime_utils:
+  extended_datetime:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: datetime_utils
-      ref: datetime_utils-1.0.0
+      path: extended_datetime
+      ref: extended_datetime-1.0.0
 ```
 
 ## Example

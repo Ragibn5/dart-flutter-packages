@@ -1,8 +1,4 @@
-import 'package:datetime_utils/src/converters/iso_datetime_converters.dart';
-import 'package:datetime_utils/src/converters/rfc_datetime_converters.dart';
-import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
-import 'package:datetime_utils/src/extensions/rfc_datetime_extensions.dart';
-import 'package:datetime_utils/src/extensions/zoned_datetime_extensions.dart';
+import 'package:extended_datetime/extended_datetime.dart';
 
 void main() {
   // Create a sample DateTime object

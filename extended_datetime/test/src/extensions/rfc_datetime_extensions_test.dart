@@ -1,5 +1,5 @@
-import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
-import 'package:datetime_utils/src/extensions/rfc_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/iso_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/rfc_datetime_extensions.dart';
 import 'package:test/test.dart';
 
 void main() {

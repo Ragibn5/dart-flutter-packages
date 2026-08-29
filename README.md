@@ -15,7 +15,7 @@ the base layer and are intended to be reusable across all projects.
 - [`dart_functionals`](dart_functionals)
 - [`extended_string`](extended_string)
 - [`collection_utils`](collection_utils)
-- [`datetime_utils`](datetime_utils)
+- [`extended_datetime`](extended_datetime)
 - [`color_utils`](color_utils)
 - [`loghub`](loghub)
 - [`mutex`](mutex)

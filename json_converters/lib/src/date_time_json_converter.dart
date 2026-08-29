@@ -1,4 +1,4 @@
-import 'package:datetime_utils/datetime_utils.dart';
+import 'package:extended_datetime/extended_datetime.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 class Rfc3339UTCDateTimeJsonConverter

@@ -1,4 +1,4 @@
-import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
+import 'package:extended_datetime/src/extensions/iso_datetime_extensions.dart';
 
 class ISODateTimeConverters {
   const ISODateTimeConverters();
