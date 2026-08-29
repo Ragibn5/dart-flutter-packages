@@ -50,9 +50,9 @@ void main() {
       await tester.pumpWidget(wrap(
         const TitledWidget(
           title: Text('Title'),
-          child: Text('Child'),
           titlePadding: EdgeInsets.all(16),
           childPadding: EdgeInsets.all(8),
+          child: Text('Child'),
         ),
       ));
 
