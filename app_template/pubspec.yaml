@@ -57,6 +57,7 @@ dependencies:
   net_models: ^1.0.0
   data_domain_converters: ^1.0.0
   json_serializable_converters_collection: ^1.0.0
+  preference_store: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -69,8 +70,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  preference_store:
-    path: ../preference_store
   sqlite_db:
     path: ../sqlite_db
   analytics:

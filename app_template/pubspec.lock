@@ -1055,9 +1055,10 @@ packages:
   preference_store:
     dependency: "direct main"
     description:
-      path: "../preference_store"
-      relative: true
-    source: path
+      name: preference_store
+      sha256: "76d297b7ff49b8c4b59e0cc1abc15100f84665373bc3fe0f3e0a21e620a3e4c8"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   provider:
     dependency: transitive
