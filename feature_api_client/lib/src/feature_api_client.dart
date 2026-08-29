@@ -7,7 +7,9 @@ import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 
 abstract class FeatureApiClient<Req, Res, Err>
-    implements NetClientRequestBuilder<Req>, NetClientResponseDecoder<Err, Res> {
+    implements
+        NetClientRequestBuilder<Req>,
+        NetClientResponseDecoder<Err, Res> {
   final NetClient _client;
   final NetClientExceptionTransformer _netKitExceptionTransformer;
 

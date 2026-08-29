@@ -1,5 +1,5 @@
 name: feature_api_client
-description: Reusable API client with typed request/response contracts and error handling.
+description: A feature-based type-safe network client over `net_client` package.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
