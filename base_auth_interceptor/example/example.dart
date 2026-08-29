@@ -36,10 +36,7 @@ class _AuthRefreshPolicy implements AuthRefreshPolicy<String> {
   bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
 }
 
-class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor()
-      : super(_AuthDataProvider(), _AuthRefreshPolicy(), _RequestRetrier());
-
+class _AuthRequestTransformer implements AuthRequestTransformer<String> {
   @override
   Future<RequestSpec> transformRequestWithAuthData(
     RequestSpec request,
@@ -48,4 +45,14 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
     request.headers.addAll({'Authorization': 'Bearer $authData'});
     return request;
   }
+}
+
+class AppAuthInterceptor extends BaseAuthInterceptor<String> {
+  AppAuthInterceptor()
+      : super(
+          _AuthDataProvider(),
+          _AuthRefreshPolicy(),
+          _AuthRequestTransformer(),
+          _RequestRetrier(),
+        );
 }

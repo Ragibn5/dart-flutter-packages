@@ -1,39 +1,21 @@
 import 'package:base_auth_interceptor/src/auth_data_provider.dart';
 import 'package:base_auth_interceptor/src/auth_refresh_policy.dart';
+import 'package:base_auth_interceptor/src/auth_request_transformer.dart';
 import 'package:base_auth_interceptor/src/request_retrier.dart';
-import 'package:meta/meta.dart';
 import 'package:net_client/net_client.dart';
 
 abstract class BaseAuthInterceptor<AuthData>
     extends QueuedNetClientInterceptor {
   final AuthDataProvider<AuthData> _authDataProvider;
   final AuthRefreshPolicy<AuthData> _refreshPolicy;
+  final AuthRequestTransformer<AuthData> _requestTransformer;
   final RequestRetrier<AuthData> _requestRetrier;
 
   BaseAuthInterceptor(
     this._authDataProvider,
     this._refreshPolicy,
+    this._requestTransformer,
     this._requestRetrier,
-  );
-
-  /// Transforms the outgoing [request] with the given [authData].
-  ///
-  /// Use this to attach any kind of auth data into the request,
-  /// such as adding bearer tokens, or any other auth specific
-  /// transformation.
-  ///
-  /// Params:
-  /// - [request]: The input request.
-  /// - [authData]: The currently available auth data
-  ///   obtained from the [AuthDataProvider].
-  ///
-  /// Returns: A new transformed [RequestSpec] instance,
-  /// possibly adapted with the given auth data, which is
-  /// sent to the network (or to next interceptor).
-  @visibleForOverriding
-  Future<RequestSpec> transformRequestWithAuthData(
-    RequestSpec request,
-    AuthData authData,
   );
 
   @override
@@ -51,8 +33,8 @@ abstract class BaseAuthInterceptor<AuthData>
       );
     }
 
-    final authorizedRequest =
-        await transformRequestWithAuthData(request, authData);
+    final authorizedRequest = await _requestTransformer
+        .transformRequestWithAuthData(request, authData);
     return ContinueWithRequest(authorizedRequest);
   }
 

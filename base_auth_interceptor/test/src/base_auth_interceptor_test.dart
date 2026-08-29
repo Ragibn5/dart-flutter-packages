@@ -13,28 +13,22 @@ class _TestAuthData {}
 class _MockAuthDataProvider extends Mock
     implements AuthDataProvider<_TestAuthData> {}
 
-class _MockRequestRetrier extends Mock
-    implements RequestRetrier<_TestAuthData> {}
-
 class _MockAuthRefreshPolicy extends Mock
     implements AuthRefreshPolicy<_TestAuthData> {}
 
-class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
-  final Future<RequestSpec> Function(RequestSpec, _TestAuthData) onTransform;
+class _MockRequestRetrier extends Mock
+    implements RequestRetrier<_TestAuthData> {}
 
+class _MockAuthRequestTransformer extends Mock
+    implements AuthRequestTransformer<_TestAuthData> {}
+
+class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
   _TestAuthInterceptor({
     required AuthDataProvider<_TestAuthData> provider,
     required AuthRefreshPolicy<_TestAuthData> policy,
+    required AuthRequestTransformer<_TestAuthData> transformer,
     required RequestRetrier<_TestAuthData> retrier,
-    required this.onTransform,
-  }) : super(provider, policy, retrier);
-
-  @override
-  Future<RequestSpec> transformRequestWithAuthData(
-    RequestSpec request,
-    _TestAuthData authData,
-  ) =>
-      onTransform(request, authData);
+  }) : super(provider, policy, transformer, retrier);
 }
 
 void main() {
@@ -42,13 +36,18 @@ void main() {
   final newAuthData = _TestAuthData();
 
   late _MockAuthDataProvider provider;
+  late _MockAuthRequestTransformer transformer;
   late _MockRequestRetrier retrier;
   late _MockAuthRefreshPolicy policy;
 
   setUp(() {
     provider = _MockAuthDataProvider();
+    transformer = _MockAuthRequestTransformer();
     retrier = _MockRequestRetrier();
     policy = _MockAuthRefreshPolicy();
+    when(() => transformer.transformRequestWithAuthData(any(), any()))
+        .thenAnswer((invocation) async =>
+            invocation.positionalArguments[0] as RequestSpec);
     when(() => retrier.retryRequest(any(), any()))
         .thenAnswer((_) async => throw UnimplementedError());
     when(() => policy.didServerReportAuthError(any())).thenReturn(false);
@@ -90,13 +89,12 @@ void main() {
     AuthDataProvider<_TestAuthData> provider, {
     RequestRetrier<_TestAuthData>? retrierOverride,
     AuthRefreshPolicy<_TestAuthData>? policyOverride,
-    Future<RequestSpec> Function(RequestSpec, _TestAuthData)? onTransform,
   }) =>
       _TestAuthInterceptor(
         provider: provider,
-        retrier: retrierOverride ?? retrier,
+        transformer: transformer,
         policy: policyOverride ?? policy,
-        onTransform: onTransform ?? (request, _) async => request,
+        retrier: retrierOverride ?? retrier,
       );
 
   group('onRequest', () {
@@ -105,23 +103,16 @@ void main() {
       when(() => provider.getAuthData()).thenAnswer((_) async => authData);
 
       final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
-      var transformCalled = false;
-      final sut = buildInterceptor(
-        provider,
-        onTransform: (r, d) async {
-          transformCalled = true;
-          expect(d, same(authData));
-          return r;
-        },
-      );
+      final sut = buildInterceptor(provider);
 
       final result = await sut.onRequest(request);
 
       expect(result, isA<ContinueWithRequest>());
-      expect(transformCalled, isTrue);
       verify(() => provider.getAuthData()).called(1);
       verifyNever(() => provider.requestAuthDataRefresh(any()));
       verifyNever(() => retrier.retryRequest(any(), any()));
+      verify(() => transformer.transformRequestWithAuthData(any(), authData))
+          .called(1);
     });
 
     test(
