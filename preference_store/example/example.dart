@@ -1,7 +1,7 @@
 import 'package:preference_store/preference_store.dart';
 
 void main() async {
-  final factory = PreferenceStoreFactory();
+  const factory = PreferenceStoreFactory();
   final store = factory.create();
 
   await store.setString('name', 'Alice');

@@ -9,9 +9,24 @@ class SharedPreferencesStore implements PreferenceStore {
 
   @visibleForTesting
   SharedPreferencesStore.test(SharedPreferencesAsync preferences)
-      : this._(preferences);
+    : this._(preferences);
 
   SharedPreferencesStore._(this._preferences);
+
+  @override
+  Future<bool> containsKey(String key) {
+    return _preferences.containsKey(key);
+  }
+
+  @override
+  Future<Set<String>> getKeys({Set<String>? allowList}) {
+    return _preferences.getKeys(allowList: allowList);
+  }
+
+  @override
+  Future<Map<String, Object?>> getAll({Set<String>? allowList}) {
+    return _preferences.getAll(allowList: allowList);
+  }
 
   @override
   Future<bool?> getBool(String key) {
@@ -45,16 +60,14 @@ class SharedPreferencesStore implements PreferenceStore {
   }
 
   @override
-  Future<Set<String>> getKeys({Set<String>? allowList}) {
-    return _preferences.getKeys(allowList: allowList);
+  Future<void> remove(String key) {
+    return _preferences.remove(key);
   }
 
   @override
-  Future<bool> containsKey(String key) {
-    return _preferences.containsKey(key);
+  Future<void> removeAll({Set<String>? allowList}) {
+    return _preferences.clear(allowList: allowList);
   }
-
-  //
 
   @override
   Future<void> setBool(String key, bool value) {
@@ -79,20 +92,5 @@ class SharedPreferencesStore implements PreferenceStore {
   @override
   Future<void> setStringList(String key, List<String> value) {
     return _preferences.setStringList(key, value);
-  }
-
-  @override
-  Future<void> setStringSet(String key, Set<String> value) {
-    return _preferences.setStringList(key, value.toList());
-  }
-
-  @override
-  Future<void> remove(String key) {
-    return _preferences.remove(key);
-  }
-
-  @override
-  Future<void> removeAll({Set<String>? allowList}) async {
-    return _preferences.clear(allowList: allowList);
   }
 }
