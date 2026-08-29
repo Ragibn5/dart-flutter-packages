@@ -2,5 +2,4 @@
 /// for json_serializable based modules.
 library;
 
-export 'src/date_time_json_converter.dart';
-export 'src/locale_json_converter.dart';
+export 'src/converters/datetime/rfc3339_utc_datetime_json_converter.dart';

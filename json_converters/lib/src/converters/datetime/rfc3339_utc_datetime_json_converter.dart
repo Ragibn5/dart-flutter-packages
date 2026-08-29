@@ -5,6 +5,8 @@ class Rfc3339UTCDateTimeJsonConverter
     implements JsonConverter<DateTime, String> {
   const Rfc3339UTCDateTimeJsonConverter();
 
+  RFCDateTimeConverters get _rfcConverter => const RFCDateTimeConverters();
+
   @override
   DateTime fromJson(String json) {
     return _rfcConverter.fromRFC3339StringToUtc(json);
@@ -14,6 +16,4 @@ class Rfc3339UTCDateTimeJsonConverter
   String toJson(DateTime dateTime) {
     return dateTime.toRFC3339UtcString();
   }
-
-  RFCDateTimeConverters get _rfcConverter => const RFCDateTimeConverters();
 }
