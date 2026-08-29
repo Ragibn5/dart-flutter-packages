@@ -1,5 +1,5 @@
 name: preference_store
-description: Key-value data store.
+description: A key-value data store.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

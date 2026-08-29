@@ -1,4 +1,4 @@
-/// Key-value data store.
+/// A key-value data store.
 library;
 
 export 'src/preference_reader.dart';
