@@ -1,6 +1,6 @@
 # snacker
 
-A top-level snack bar presenter.
+A simple and fully customizable snack bar presenter.
 
 ## Installation
 
