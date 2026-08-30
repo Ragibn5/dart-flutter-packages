@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 class MetadataHeaderKeys {
   static const APP_SCOPE = 'app-scope';
@@ -18,7 +18,7 @@ class MetadataHeaderKeys {
   static const APP_VERSION_CODE = 'app-version-code';
 }
 
-class MetadataAdderInterceptor extends NetKitInterceptor {
+class MetadataAdderInterceptor extends NetClientInterceptor {
   final BuildMetadata _buildMetadata;
   final GetEffectiveLocaleUseCase _getEffectiveLocale;
 

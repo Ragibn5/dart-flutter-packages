@@ -283,7 +283,7 @@ void main() {
   );
 
   test(
-    'getAuthDataStream should return the stream from the auth data stream',
+    '`getAuthDataStream` should return the stream from the auth data stream',
     () async {
       final result = sut.getAuthDataStream();
 
@@ -291,8 +291,8 @@ void main() {
     },
   );
 
-  test('Dispose should close the auth data stream', () async {
-    sut.dispose();
+  test('`dispose` should close the auth data stream', () async {
+    await sut.dispose();
 
     verify(() => mockAuthDataStreamController.close()).called(1);
   });

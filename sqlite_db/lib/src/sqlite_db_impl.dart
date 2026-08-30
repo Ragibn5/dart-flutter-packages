@@ -46,7 +46,7 @@ class SQLiteDbImpl implements SQLiteDb {
   }
 
   @override
-  FutureOr<void> initialize() async {
+  Future<void> initialize() async {
     final version = connectionData.version;
     final dbFilePath = path.join(
       connectionData.hostDirectoryPath,
@@ -83,8 +83,8 @@ class SQLiteDbImpl implements SQLiteDb {
   }
 
   @override
-  FutureOr<void> dispose() {
-    return _database?.close();
+  Future<void> dispose() async {
+    await _database?.close();
   }
 
   @override
@@ -156,9 +156,7 @@ class SQLiteDbImpl implements SQLiteDb {
         }
 
         if (r is! int) {
-          throw StateError(
-            'Unexpected insert result type: ${r.runtimeType}',
-          );
+          throw StateError('Unexpected insert result type: ${r.runtimeType}');
         }
 
         ++insertedCount;
@@ -210,9 +208,7 @@ class SQLiteDbImpl implements SQLiteDb {
         }
 
         if (r is! int) {
-          throw StateError(
-            'Unexpected delete result type: ${r.runtimeType}',
-          );
+          throw StateError('Unexpected delete result type: ${r.runtimeType}');
         }
 
         deletedCount += r;
@@ -279,8 +275,9 @@ class SQLiteDbImpl implements SQLiteDb {
     int version,
     List<SingleVersionedDbScript> scripts,
   ) async {
-    final sortedList =
-        scripts.where((e) => e.targetVersion == version).toList();
+    final sortedList = scripts
+        .where((e) => e.targetVersion == version)
+        .toList();
     for (final script in sortedList) {
       await database.execute(script.scriptText);
     }

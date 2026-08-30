@@ -9,7 +9,7 @@ import 'package:app_template/features/app/infrastructure/models/build_metadata.d
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 class _MockGetEffectiveLocaleUseCase extends Mock
     implements GetEffectiveLocaleUseCase {}

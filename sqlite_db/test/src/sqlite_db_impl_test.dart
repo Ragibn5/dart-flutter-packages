@@ -450,14 +450,14 @@ void main() {
       verify(() => mockDatabase.close()).called(1);
     });
 
-    test('Is safe to call when not initialized', () {
+    test('Is safe to call when not initialized', () async {
       final sut = SQLiteDbImpl.test(
         connectionData,
         mockDbInitializationScripts,
         mockDatabaseFactory,
       );
 
-      expect(sut.dispose(), isNull);
+      await expectLater(sut.dispose(), completes);
     });
   });
 }

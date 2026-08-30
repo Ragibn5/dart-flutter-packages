@@ -19,7 +19,9 @@ void main() async {
       ],
     ),
   );
+
   await db.initialize();
+
   await db.insert('users', [
     {'id': '1', 'name': 'Alice'},
   ]);

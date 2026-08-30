@@ -1,8 +1,8 @@
 import 'package:app_logger/app_logger.dart';
 import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
-class LoggerInterceptor extends NetKitInterceptor {
+class LoggerInterceptor extends NetClientInterceptor {
   @visibleForTesting
   static const TAG = 'LoggerInterceptor';
 
@@ -34,7 +34,7 @@ class LoggerInterceptor extends NetKitInterceptor {
   }
 
   @override
-  Future<ErrorInterceptorResult> onError(NetKitException error) {
+  Future<ErrorInterceptorResult> onError(NetClientException error) {
     final request = error.request;
     _logger.logError(
       tag: TAG,

@@ -7,7 +7,7 @@ import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 /// The root widget of the app.
 ///
@@ -17,7 +17,7 @@ class AppRoot extends StatefulWidget {
   final AppConfig appConfig;
 
   /// The router to use.
-  final NavRouter appRouter;
+  final Rover appRouter;
 
   /// Global scaffold messenger key.
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;

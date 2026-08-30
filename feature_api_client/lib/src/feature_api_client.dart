@@ -1,23 +1,25 @@
 import 'package:dart_functionals/dart_functionals.dart';
-import 'package:feature_api_client/src/services/net_kit_exception_transformer.dart';
-import 'package:feature_api_client/src/services/net_kit_request_builder.dart';
-import 'package:feature_api_client/src/services/net_kit_response_decoder.dart';
+import 'package:feature_api_client/src/services/net_client_exception_transformer.dart';
+import 'package:feature_api_client/src/services/net_client_request_builder.dart';
+import 'package:feature_api_client/src/services/net_client_response_decoder.dart';
 import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 
 abstract class FeatureApiClient<Req, Res, Err>
-    implements NetKitRequestBuilder<Req>, NetKitResponseDecoder<Err, Res> {
+    implements
+        NetClientRequestBuilder<Req>,
+        NetClientResponseDecoder<Err, Res> {
   final NetClient _client;
-  final NetKitExceptionTransformer _netKitExceptionTransformer;
+  final NetClientExceptionTransformer _netKitExceptionTransformer;
 
   FeatureApiClient(NetClient client)
-      : this._(client, const NetKitExceptionTransformer());
+      : this._(client, const NetClientExceptionTransformer());
 
   @visibleForTesting
   FeatureApiClient.test(
     NetClient client,
-    NetKitExceptionTransformer netKitExceptionTransformer,
+    NetClientExceptionTransformer netKitExceptionTransformer,
   ) : this._(client, netKitExceptionTransformer);
 
   FeatureApiClient._(this._client, this._netKitExceptionTransformer);

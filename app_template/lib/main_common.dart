@@ -8,12 +8,12 @@ import 'package:app_template/features/app/infrastructure/services/firebase_optio
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 Future<void> runFlavoredApp({required AppFlavor flavor}) async {
   await runZonedGuarded(
@@ -60,7 +60,7 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
           create: (context) =>
               di.get<AppRootBloc>()..add(AppInitializationRequested()),
           child: AppRoot(
-            appRouter: di.get<NavRouter>(),
+            appRouter: di.get<Rover>(),
             scaffoldMessengerKey: di.get<GlobalKey<ScaffoldMessengerState>>(),
             appConfig: di.get<AppConfigFactory>().create(platformDispatcher),
           ),

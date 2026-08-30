@@ -1,5 +1,5 @@
-/// Reusable API client with typed request/response contracts and error handling.
+/// API client with typed, feature-based request/response and error contracts.
 library;
 
 export 'src/feature_api_client.dart';
-export 'src/services/net_kit_exception_transformer.dart';
+export 'src/services/net_client_exception_transformer.dart';

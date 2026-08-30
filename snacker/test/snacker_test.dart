@@ -9,6 +9,9 @@ import 'package:snacker/snacker.dart';
 class _TestSnacker extends Snacker {
   BuildContext? _context;
 
+  _TestSnacker([SnackBarBuilder? snackBarBuilder])
+    : super(snackBarBuilder: snackBarBuilder ?? const DefaultSnackBarBuilder());
+
   // ignore: use_setters_to_change_properties
   void provideContext(BuildContext context) => _context = context;
 
@@ -20,7 +23,9 @@ class _TestSnacker extends Snacker {
   }
 }
 
-class _CustomContentSnacker extends _TestSnacker {
+class _CustomContentBuilder extends SnackBarBuilder {
+  const _CustomContentBuilder();
+
   @override
   Text buildSnackContent(SnackData data) {
     return Text(
@@ -31,7 +36,9 @@ class _CustomContentSnacker extends _TestSnacker {
   }
 }
 
-class _CustomColorSnacker extends _TestSnacker {
+class _CustomColorBuilder extends SnackBarBuilder {
+  const _CustomColorBuilder();
+
   @override
   Color getSnackBarBackgroundColor(SnackType type) => Colors.purple;
 }
@@ -100,8 +107,9 @@ void main() {
         child: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () {
-              snacker.showTextSnack(SnackData.info(message: 'First'));
-              snacker.showTextSnack(SnackData.info(message: 'Second'));
+              snacker
+                ..showTextSnack(SnackData.info(message: 'First'))
+                ..showTextSnack(SnackData.info(message: 'Second'));
             },
             child: const Text('Show'),
           ),
@@ -165,7 +173,7 @@ void main() {
     testWidgets('buildSnackContent override changes the displayed text', (
       tester,
     ) async {
-      final snacker = _CustomContentSnacker();
+      final snacker = _TestSnacker(const _CustomContentBuilder());
 
       await tester.pumpSnacker(
         snacker: snacker,
@@ -186,7 +194,7 @@ void main() {
     testWidgets('getSnackBarBackgroundColor override changes bar color', (
       tester,
     ) async {
-      final snacker = _CustomColorSnacker();
+      final snacker = _TestSnacker(const _CustomColorBuilder());
 
       await tester.pumpSnacker(
         snacker: snacker,

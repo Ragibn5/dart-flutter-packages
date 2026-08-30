@@ -75,7 +75,7 @@ class AuthDataRepositoryImpl implements AuthDataRepository {
   }
 
   @override
-  void dispose() {
-    _authDataStreamController.close();
+  Future<void> dispose() async {
+    await _authDataStreamController.close();
   }
 }

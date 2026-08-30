@@ -1,5 +1,3 @@
-import 'package:dart_functionals/dart_functionals.dart';
-
 sealed class ApiResponse<Err, Res> {
   final int statusCode;
   final Map<String, List<String>>? headers;
@@ -20,9 +18,6 @@ sealed class ApiResponse<Err, Res> {
         ),
     };
   }
-
-  Either<Err, Res> toEither() =>
-      fold(onFailure: Left.new, onSuccess: Right.new);
 }
 
 final class SuccessResponse<Res> extends ApiResponse<Never, Res> {

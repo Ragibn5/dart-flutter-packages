@@ -1,68 +1,26 @@
-import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:base_auth_interceptor/src/auth_data_provider.dart';
+import 'package:base_auth_interceptor/src/auth_refresh_policy.dart';
+import 'package:base_auth_interceptor/src/auth_request_transformer.dart';
+import 'package:base_auth_interceptor/src/request_retrier.dart';
+import 'package:net_client/net_client.dart';
 
-abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
-  /// Returns the current auth data, or `null` if none is available.
-  @visibleForOverriding
-  Future<AuthData?> getAuthData();
+abstract class BaseAuthInterceptor<AuthData>
+    extends QueuedNetClientInterceptor {
+  final AuthDataProvider<AuthData> _authDataProvider;
+  final AuthRefreshPolicy<AuthData> _refreshPolicy;
+  final AuthRequestTransformer<AuthData> _requestTransformer;
+  final RequestRetrier<AuthData> _requestRetrier;
 
-  /// Transforms the outgoing [request] with the given [authData].
-  ///
-  /// Use this to attach any kind of auth data into the request,
-  /// such as adding bearer tokens, or any other auth specific
-  /// transformation.
-  ///
-  /// Params:
-  /// - [request]: The input request.
-  /// - [authData]: The currently available auth data
-  ///   obtained with [getAuthData].
-  ///
-  /// Returns: A new transformed [RequestSpec] instance,
-  /// possibly adapted with the given auth data, which is
-  /// sent to the network (or to next interceptor).
-  @visibleForOverriding
-  Future<RequestSpec> transformRequestWithAuthData(
-    RequestSpec request,
-    AuthData authData,
-  );
-
-  /// Returns `true` when the server response indicates that an
-  /// auth error occurred and it should be refreshed.
-  @visibleForOverriding
-  bool didServerReportAuthError(RawResponse response);
-
-  /// Returns `true` when given [authData] is stale and a refresh
-  /// should be attempted.
-  ///
-  /// This is used for situations like when another request in the
-  /// queue already refreshed the auth data, and we no longer need
-  /// to perform the auth data refresh.
-  @visibleForOverriding
-  bool shouldRefreshAuthData(RequestSpec request, AuthData authData);
-
-  /// Attempts to refresh the auth data.
-  ///
-  /// Returns the new auth data on success, or `null` on failure.
-  ///
-  /// Note:
-  /// When `null` is returned the request is cancelled immediately.
-  @visibleForOverriding
-  Future<AuthData?> requestAuthDataRefresh(AuthData oldAuthData);
-
-  /// Re-executes [request] with the (possibly refreshed) auth data.
-  ///
-  /// The returned [ApiCallResult] is remapped into a [RawResponse] by
-  /// the template so downstream interceptors see a normal response.
-  /// Throw/cancel semantics should be avoided — use the result type.
-  @visibleForOverriding
-  Future<ApiCallResult> retryRequest(
-    RequestSpec request,
-    AuthData refreshedAuthData,
+  BaseAuthInterceptor(
+    this._authDataProvider,
+    this._refreshPolicy,
+    this._requestTransformer,
+    this._requestRetrier,
   );
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
-    final authData = await getAuthData();
+    final authData = await _authDataProvider.getAuthData();
     if (authData == null) {
       return ShortRequestWithError(
         CancellationException(
@@ -75,14 +33,14 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
       );
     }
 
-    final authorizedRequest =
-        await transformRequestWithAuthData(request, authData);
+    final authorizedRequest = await _requestTransformer
+        .transformRequestWithAuthData(request, authData);
     return ContinueWithRequest(authorizedRequest);
   }
 
   @override
   Future<ResponseInterceptorResult> onResponse(RawResponse response) async {
-    if (!didServerReportAuthError(response)) {
+    if (!_refreshPolicy.didServerReportAuthError(response)) {
       return ContinueWithResponse(response);
     }
 
@@ -90,7 +48,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
     final method = request.method;
     final uri = request.uri;
 
-    final currentAuthData = await getAuthData();
+    final currentAuthData = await _authDataProvider.getAuthData();
     if (currentAuthData == null) {
       return ShortResponseWithError(
         CancellationException(
@@ -102,8 +60,11 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
       );
     }
 
-    if (!shouldRefreshAuthData(request, currentAuthData)) {
-      final response = await retryRequest(request, currentAuthData);
+    if (!_refreshPolicy.shouldRefreshAuthData(request, currentAuthData)) {
+      final response = await _requestRetrier.retryRequest(
+        request,
+        currentAuthData,
+      );
       return response.fold(
         onFailure: (e) => ShortResponseWithError(
           CancellationException(
@@ -124,7 +85,8 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
       );
     }
 
-    final refreshedAuthData = await requestAuthDataRefresh(currentAuthData);
+    final refreshedAuthData =
+        await _authDataProvider.requestAuthDataRefresh(currentAuthData);
     if (refreshedAuthData == null) {
       return ShortResponseWithError(
         CancellationException(
@@ -136,7 +98,10 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
       );
     }
 
-    final retryResponse = await retryRequest(request, refreshedAuthData);
+    final retryResponse = await _requestRetrier.retryRequest(
+      request,
+      refreshedAuthData,
+    );
     return retryResponse.fold(
       onFailure: (e) => ShortResponseWithError(
         CancellationException(
