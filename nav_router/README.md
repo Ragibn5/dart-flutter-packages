@@ -1,8 +1,6 @@
 # nav_router
 
-A lightweight, interface-first navigation router for Flutter built on top of [go_router], with
-named-route navigation, typed route guards, and app code that never depends on a concrete routing
-implementation.
+A navigation router.
 
 ## Installation
 
