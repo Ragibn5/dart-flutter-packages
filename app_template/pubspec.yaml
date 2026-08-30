@@ -64,6 +64,7 @@ dependencies:
   base_auth_interceptor: ^1.0.0
   feature_api_client: ^1.0.0
   rover: ^1.0.0
+  snacker: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -74,10 +75,6 @@ dependencies:
     path: packages/app_logger
   common_widgets:
     path: packages/common_widgets
-
-  # In-house packages (path-based dependency)
-  snacker:
-    path: ../snacker
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

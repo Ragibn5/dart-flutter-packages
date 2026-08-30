@@ -84,10 +84,10 @@ packages:
     dependency: transitive
     description:
       name: auto_route
-      sha256: c820e918863a03544aac68eaf61e17c8a6126b663d7cad24a8fd3657a1e6be61
+      sha256: "6d3ccc11b520b6eff0ab5a2c3d1c43c46d1486249cc746c4bb14486d876e8b43"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "10.3.0"
   base_auth_interceptor:
     dependency: "direct main"
     description:
@@ -1217,9 +1217,10 @@ packages:
   snacker:
     dependency: "direct main"
     description:
-      path: "../snacker"
-      relative: true
-    source: path
+      name: snacker
+      sha256: "8ed2770c827ce5c3847cc5818f2053255664ed3bae036aa1330b0209d0149651"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   source_gen:
     dependency: transitive
