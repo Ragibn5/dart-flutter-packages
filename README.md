@@ -1,7 +1,6 @@
 # dart-flutter-packages
 
-A curated collection of Dart and Flutter packages designed to streamline development, promote code
-reuse, enforce architectural consistency, and standardize best practices across projects.
+A curated collection of Dart and Flutter packages designed to streamline development, promote code reuse, enforce architectural consistency, and standardize best practices across projects.
 
 ---
 
@@ -9,8 +8,7 @@ reuse, enforce architectural consistency, and standardize best practices across 
 
 ### Core Packages
 
-Foundational utilities and infrastructure packages with minimal dependencies. These packages form
-the base layer and are intended to be reusable across all projects.
+Foundational utilities and infrastructure packages with minimal dependencies. These packages form the base layer and are intended to be reusable across all projects.
 
 - [`dart_functionals`](dart_functionals)
 - [`extended_string`](extended_string)
@@ -29,8 +27,7 @@ the base layer and are intended to be reusable across all projects.
 
 ### Intermediate Packages
 
-Built on top of the core layer. These packages provide higher-level tooling, UI components, code
-generation utilities, and architectural support.
+Built on top of the core layer. These packages provide higher-level tooling, UI components, code generation utilities, and architectural support.
 
 - [`net_client`](net_client)
 - [`parser_core`](parser_core)
@@ -56,8 +53,7 @@ generation utilities, and architectural support.
 
 ### Application / Integration
 
-Top-level integration or reference implementation packages that may depend on multiple core and
-intermediate packages.
+Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
 
 - [`app_template`](app_template)
 - [`analykit`](analykit)
@@ -73,8 +69,7 @@ Refer to each package’s individual documentation for setup and usage instructi
 
 ### Public Usage
 
-Some packages may be available on pub.dev. Please check individual package documentation for
-availability and installation details.
+Some packages may be available on pub.dev. Please check individual package documentation for availability and installation details.
 
 ---
 
