@@ -4,13 +4,6 @@ A lightweight, interface-first navigation router for Flutter built on top of [go
 named-route navigation, typed route guards, and app code that never depends on a concrete routing
 implementation.
 
-## ✨ Features
-
-- 🗺️ Declarative route registration with `RouteInfo` (name + path) and `RouteDef`.
-- 🧭 Named navigation — push, replace, or go to a route without managing `MaterialPageRoute`s.
-- 🔐 Route guards (global and per-route) with continue / block / redirect outcomes.
-- 📦 Pass data to routes via `pathParameters`, `queryParameters`, and `extra`.
-
 ## Installation
 
 #### From pub.dev
@@ -32,6 +25,14 @@ dependencies:
       path: nav_router
       ref: nav_router-1.0.0
 ```
+
+## ✨ Features
+
+- 🗺️ Declarative route registration.
+- 🧭 Named navigation — push, replace, or go to a route with names.
+- 🔐 Route guards (global and per-route) with continue / block / redirect outcomes.
+- 📦 Pass relevant data to routes with path/query params, and extras.
+- 🔗 Deep link support — incoming URLs and platform deep links are automatically resolved.
 
 ## 🚀 Get started
 
