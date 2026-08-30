@@ -7,7 +7,7 @@ import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/features/auth/presentation/widgets/login/login_page.dart';
 import 'package:app_template/features/home/presentation/widgets/home_screen/home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 List<RouteDef> getAppRouteDefs(IsAuthedUseCase isAuthedUseCase) => [
   RouteDef(

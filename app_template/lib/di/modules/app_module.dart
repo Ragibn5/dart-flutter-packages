@@ -66,12 +66,12 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:loghub/loghub.dart' hide Logger;
-import 'package:nav_router/nav_router.dart';
 import 'package:net_client/net_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:preference_store/preference_store.dart';
+import 'package:rover/rover.dart';
 import 'package:snacker/snacker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db/sqlite_db.dart';
@@ -485,11 +485,11 @@ abstract class AppModule {
   }
 
   @singleton
-  NavRouter getAppRouter(
+  Rover getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
     IsAuthedUseCase isAuthedUseCase,
   ) {
-    return NavRouterFactory().create(
+    return RoverFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
       routes: getAppRouteDefs(isAuthedUseCase),

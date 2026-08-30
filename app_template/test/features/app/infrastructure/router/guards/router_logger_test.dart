@@ -1,7 +1,7 @@
 import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 class _FakeBuildContext extends Fake implements BuildContext {}
 

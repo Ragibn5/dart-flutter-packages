@@ -103,7 +103,7 @@ import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:loghub/loghub.dart' as _i642;
-import 'package:nav_router/nav_router.dart' as _i251;
+import 'package:rover/rover.dart' as _i251;
 import 'package:net_client/net_client.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:preference_store/preference_store.dart' as _i300;
@@ -366,7 +366,7 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
       dispose: _i384.disposeNetClient,
     );
-    gh.singleton<_i251.NavRouter>(
+    gh.singleton<_i251.Rover>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i97.IsAuthedUseCase>(),

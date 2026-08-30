@@ -44,7 +44,7 @@ generation utilities, and architectural support.
 - [`sqlite_db`](sqlite_db)
 - [`base_auth_interceptor`](base_auth_interceptor)
 - [`feature_api_client`](feature_api_client)
-- [`nav_router`](nav_router)
+- [`rover`](rover)
 - [`infinity_radio_group`](infinity_radio_group)
 - [`infinity_selection_group`](infinity_selection_group)
 - [`infinity_menu`](infinity_menu)

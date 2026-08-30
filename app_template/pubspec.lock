@@ -874,13 +874,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.2"
-  nav_router:
-    dependency: "direct main"
-    description:
-      path: "../nav_router"
-      relative: true
-    source: path
-    version: "1.0.0"
   nested:
     dependency: transitive
     description:
@@ -1113,6 +1106,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  rover:
+    dependency: "direct main"
+    description:
+      path: "../rover"
+      relative: true
+    source: path
+    version: "1.0.0"
   shared_models:
     dependency: "direct main"
     description:

@@ -75,8 +75,8 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  nav_router:
-    path: ../nav_router
+  rover:
+    path: ../rover
   snacker:
     path: ../snacker
 
