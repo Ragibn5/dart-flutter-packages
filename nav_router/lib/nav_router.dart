@@ -1,4 +1,4 @@
-/// Navigation router.
+/// A navigation router.
 library;
 
 export 'src/models/guard_result.dart';

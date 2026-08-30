@@ -1,6 +1,6 @@
 # nav_router
 
-Navigation router.
+A navigation router.
 
 ## Installation
 
