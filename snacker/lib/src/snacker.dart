@@ -21,11 +21,7 @@ abstract class Snacker {
     currentState
       ..clearSnackBars()
       ..showSnackBar(
-        SnackBar(
-          content: buildSnackContent(data),
-          duration: data.duration,
-          backgroundColor: getSnackBarBackgroundColor(data.snackType),
-        ),
+        buildSnackBar(data),
         snackBarAnimationStyle: snackBarAnimationStyle,
       );
   }
