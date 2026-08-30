@@ -63,6 +63,7 @@ dependencies:
   crashlykit: ^1.0.0
   base_auth_interceptor: ^1.0.0
   feature_api_client: ^1.0.0
+  rover: ^1.0.0
 
   # App-private packages
   enum_parser:
@@ -75,8 +76,6 @@ dependencies:
     path: packages/common_widgets
 
   # In-house packages (path-based dependency)
-  rover:
-    path: ../rover
   snacker:
     path: ../snacker
 

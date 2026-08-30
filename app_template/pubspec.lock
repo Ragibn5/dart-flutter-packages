@@ -1109,9 +1109,10 @@ packages:
   rover:
     dependency: "direct main"
     description:
-      path: "../rover"
-      relative: true
-    source: path
+      name: rover
+      sha256: "6a804fe07a0b89959e3eb021405c90d4c2620f269d2b0653e2a16296e2d24729"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   shared_models:
     dependency: "direct main"
