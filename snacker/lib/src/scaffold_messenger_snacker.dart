@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:snacker/src/snack_bar_builder.dart';
 import 'package:snacker/src/snacker.dart';
+import 'package:snacker/src/ui/default_snack_bar_builder.dart';
 
 /// A [Snacker] that shows snacks via a [ScaffoldMessenger] referenced by a
 /// [GlobalKey].

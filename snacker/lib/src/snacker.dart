@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:snacker/src/models/snack_data.dart';
-import 'package:snacker/src/snack_bar_builder.dart';
+import 'package:snacker/src/ui/default_snack_bar_builder.dart';
+import 'package:snacker/src/ui/snack_bar_builder.dart';
 
 /// Presents snacks on top of the app's [ScaffoldMessenger].
 abstract class Snacker {

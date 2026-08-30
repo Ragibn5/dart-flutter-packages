@@ -68,14 +68,16 @@ void showSnack() {
 
 | Component                  | Description                                                                                                                       |
 |----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `Snacker`                  | Abstract base class. Subclass it to customize snack appearance.                                                                   |
+| `Snacker`                  | Abstract presenter. Responsible for *how* a snack is shown. Subclass it to change the source of context.                          |
 | `ScaffoldMessengerSnacker` | Ready-to-use `Snacker` that shows snacks via a `ScaffoldMessenger`.                                                               |
+| `SnackBarBuilder`          | Decides the snack's *appearance*. Override its hooks to customize the look.                                                       |
+| `DefaultSnackBarBuilder`   | The default `SnackBarBuilder` with the standard styling.                                                                          |
 | `SnackData`                | Holds the snack's content and type. Create with `SnackData.info`, `SnackData.success`, `SnackData.warning`, or `SnackData.error`. |
 | `SnackType`                | Enum of snack styles: `INFO`, `SUCCESS`, `WARNING`, `ERROR`.                                                                      |
 
 > Notes:
-> - To Create a new implementation, implementing `Snacker`.
-> - To customize the looks on top of the `ScaffoldMessengerSnacker`, override its hooks (e.g., `buildSnackContent`, `getSnackBarBackgroundColor`).
+> - To customize the looks, extend `SnackBarBuilder` and override its hooks (e.g., `buildSnackContent`, `getSnackBarBackgroundColor`), then pass it to `ScaffoldMessengerSnacker`.
+> - To create a new implementation, implement `Snacker` and provide your own context.
 
 ## Example
 

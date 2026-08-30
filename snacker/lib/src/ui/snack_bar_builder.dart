@@ -47,8 +47,3 @@ abstract class SnackBarBuilder {
     }
   }
 }
-
-/// The default [SnackBarBuilder] with standard styling.
-class DefaultSnackBarBuilder extends SnackBarBuilder {
-  const DefaultSnackBarBuilder();
-}
