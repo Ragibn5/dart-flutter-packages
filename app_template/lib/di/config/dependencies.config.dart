@@ -9,8 +9,9 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+
 import 'package:alerty/alerty.dart' as _i69;
-import 'package:analykit/analykit.dart' as _i548;
+import 'package:analykit/analykit.dart' as _i852;
 import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
@@ -97,16 +98,16 @@ import 'package:app_template/features/user_data/domain/repositories/user_data_re
     as _i728;
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
     as _i84;
-import 'package:crashlykit/crashlykit.dart' as _i35;
+import 'package:crashlykit/crashlykit.dart' as _i1051;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:loghub/loghub.dart' as _i642;
-import 'package:rover/rover.dart' as _i251;
-import 'package:net_client/net_client.dart' as _i535;
+import 'package:net_client/net_client.dart' as _i465;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:preference_store/preference_store.dart' as _i300;
+import 'package:rover/rover.dart' as _i130;
 import 'package:snacker/snacker.dart' as _i1020;
 import 'package:sqlite_db/sqlite_db.dart' as _i860;
 
@@ -138,8 +139,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i846.GetPlatformLocaleUseCase>(
       () => appModule.getPlatformLocaleUseCase(),
     );
-    gh.factory<_i548.AnalyticsService>(() => appModule.getAnalyticsService());
-    gh.factory<_i35.CrashlyticsService>(
+    gh.factory<_i852.AnalyticsService>(() => appModule.getAnalyticsService());
+    gh.factory<_i1051.CrashlyticsService>(
       () => appModule.getCrashlyticsService(),
     );
     gh.factory<_i704.AuthDataMapper>(() => authModule.getAuthDataMapper());
@@ -217,8 +218,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.InitializeAppUseCase>(
       () => appModule.getAppInitializerUseCase(
-        gh<_i548.AnalyticsService>(),
-        gh<_i35.CrashlyticsService>(),
+        gh<_i852.AnalyticsService>(),
+        gh<_i1051.CrashlyticsService>(),
         gh<_i860.SQLiteDb>(),
       ),
     );
@@ -285,7 +286,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i999.GetEffectiveLocaleUseCase>(),
       ),
     );
-    gh.singleton<_i535.NetClient>(
+    gh.singleton<_i465.NetClient>(
       () => appModule.getAppServerPublicApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
@@ -353,7 +354,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1052.InitializeSessionUseCase>(),
       ),
     );
-    gh.singleton<_i535.NetClient>(
+    gh.singleton<_i465.NetClient>(
       () => appModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
@@ -366,9 +367,10 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
       dispose: _i384.disposeNetClient,
     );
-    gh.singleton<_i251.Rover>(
+    gh.singleton<_i130.Rover>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i519.AppLogger>(),
         gh<_i97.IsAuthedUseCase>(),
       ),
     );
