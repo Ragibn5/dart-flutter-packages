@@ -6,7 +6,7 @@ import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 
 class _MockAppLogger extends Mock implements AppLogger {}
 

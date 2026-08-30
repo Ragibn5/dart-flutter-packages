@@ -5,7 +5,7 @@ import 'package:app_template/features/auth/data/models/token_refresh_request.dar
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('decodeResponse returns AuthDataDTO from non-error response', () {
-    final response = NetKitResponse(
+    final response = NetClientResponse(
       isError: false,
       statusCode: 200,
       data: sampleAuthData.toJson(),
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('decodeResponse returns Failure from error response', () {
-    final response = NetKitResponse(
+    final response = NetClientResponse(
       isError: true,
       statusCode: 400,
       data: sampleServerMessage.toJson(),

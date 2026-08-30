@@ -1,7 +1,7 @@
 import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:flutter/material.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 class RootRedirectRouteGuard implements RouteGuard {
   final IsAuthedUseCase _isAuthed;

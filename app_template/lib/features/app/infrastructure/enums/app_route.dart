@@ -1,4 +1,4 @@
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 enum AppRoute {
   ROOT(RouteInfo('root', '/')),

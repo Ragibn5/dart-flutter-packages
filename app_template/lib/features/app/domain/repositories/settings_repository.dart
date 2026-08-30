@@ -1,7 +1,8 @@
-import 'package:app_template/features/app/domain/models/app_settings.dart';
-import 'package:disposable/disposable.dart';
+import 'dart:async';
 
-abstract interface class SettingsRepository implements Disposable {
+import 'package:app_template/features/app/domain/models/app_settings.dart';
+
+abstract interface class SettingsRepository {
   /// Get the current app settings.
   Future<AppSettings> getCurrentSettings();
 
@@ -10,4 +11,7 @@ abstract interface class SettingsRepository implements Disposable {
 
   /// Watch app settings change.
   Stream<AppSettings> getSettingsStream();
+
+  /// Release any resources held by this repository.
+  Future<void> dispose();
 }

@@ -1,0 +1,27 @@
+name: json_serializable_converters_collection
+description: A collection of reusable JSON converter implementations for json_serializable based modules.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_serializable_converters_collection
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.0.6
+
+# Regular dependencies
+dependencies:
+  extended_datetime: ^1.0.0
+  json_annotation: ^4.9.0
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.0
+  lints: ^3.0.0
+  test: ^1.25.5
+  very_good_analysis: ^5.1.0

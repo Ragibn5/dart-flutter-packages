@@ -1,7 +1,6 @@
 # dart-flutter-packages
 
-A curated collection of Dart and Flutter packages designed to streamline development, promote code
-reuse, enforce architectural consistency, and standardize best practices across projects.
+A curated collection of Dart and Flutter packages designed to streamline development, promote code reuse, enforce architectural consistency, and standardize best practices across projects.
 
 ---
 
@@ -9,18 +8,15 @@ reuse, enforce architectural consistency, and standardize best practices across 
 
 ### Core Packages
 
-Foundational utilities and infrastructure packages with minimal dependencies. These packages form
-the base layer and are intended to be reusable across all projects.
+Foundational utilities and infrastructure packages with minimal dependencies. These packages form the base layer and are intended to be reusable across all projects.
 
 - [`dart_functionals`](dart_functionals)
 - [`extended_string`](extended_string)
 - [`collection_utils`](collection_utils)
-- [`datetime_utils`](datetime_utils)
+- [`extended_datetime`](extended_datetime)
 - [`color_utils`](color_utils)
 - [`loghub`](loghub)
 - [`mutex`](mutex)
-- [`disposable`](disposable)
-- [`initializable`](initializable)
 - [`data_domain_converters`](data_domain_converters)
 - [`net_models`](net_models)
 - [`generator_core`](generator_core)
@@ -31,40 +27,37 @@ the base layer and are intended to be reusable across all projects.
 
 ### Intermediate Packages
 
-Built on top of the core layer. These packages provide higher-level tooling, UI components, code
-generation utilities, and architectural support.
+Built on top of the core layer. These packages provide higher-level tooling, UI components, code generation utilities, and architectural support.
 
-- [`net_kit`](net_kit)
+- [`net_client`](net_client)
 - [`parser_core`](parser_core)
 - [`json_coder`](json_coder)
 - [`json_parser_annotations`](json_coder/json_parser_annotations)
 - [`json_parser_linter`](json_coder/json_parser_linter)
 - [`json_parser_generator`](json_coder/json_parser_generator)
 - [`file_store`](file_store)
-- [`json_converters`](json_converters)
+- [`json_serializable_converters_collection`](json_serializable_converters_collection)
 - [`preference_store`](preference_store)
 - [`sqlite_db`](sqlite_db)
 - [`base_auth_interceptor`](base_auth_interceptor)
 - [`feature_api_client`](feature_api_client)
-- [`nav_router`](nav_router)
+- [`rover`](rover)
 - [`infinity_radio_group`](infinity_radio_group)
 - [`infinity_selection_group`](infinity_selection_group)
 - [`infinity_menu`](infinity_menu)
 - [`alerty`](alerty)
 - [`snacker`](snacker)
-- [`common_widgets`](common_widgets)
 - [`clean_arch_linter`](clean_arch_linter)
 
 ---
 
 ### Application / Integration
 
-Top-level integration or reference implementation packages that may depend on multiple core and
-intermediate packages.
+Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
 
 - [`app_template`](app_template)
-- [`analytics`](analytics)
-- [`crashlytics`](crashlytics)
+- [`analykit`](analykit)
+- [`crashlykit`](crashlykit)
 
 ---
 
@@ -76,8 +69,7 @@ Refer to each package’s individual documentation for setup and usage instructi
 
 ### Public Usage
 
-Some packages may be available on pub.dev. Please check individual package documentation for
-availability and installation details.
+Some packages may be available on pub.dev. Please check individual package documentation for availability and installation details.
 
 ---
 
@@ -101,7 +93,7 @@ git clone git@github.com:Ragibn5/dart-flutter-packages.git
 
 #### 2. Open desired package in IDE
 
-Open the package you want to work on (for example `net_kit`) with your IDE.
+Open the package you want to work on (for example `net_client`) with your IDE.
 
 #### 3. Install dependencies for desired package:
 

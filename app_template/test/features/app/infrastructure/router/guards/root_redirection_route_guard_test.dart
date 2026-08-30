@@ -4,7 +4,7 @@ import 'package:app_template/features/app/infrastructure/router/guards/root_redi
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 class _MockIsAuthedUseCase extends Mock implements IsAuthedUseCase {}
 

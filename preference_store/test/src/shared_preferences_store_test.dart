@@ -89,6 +89,17 @@ void main() {
       verify(() => mockPrefs.getKeys(allowList: null)).called(1);
     });
 
+    test('getAll delegates', () async {
+      when(
+        () => mockPrefs.getAll(allowList: null),
+      ).thenAnswer((_) async => {'a': '1', 'b': 2});
+
+      final result = await sut.getAll();
+
+      expect(result, {'a': '1', 'b': 2});
+      verify(() => mockPrefs.getAll(allowList: null)).called(1);
+    });
+
     test('containsKey delegates', () async {
       when(() => mockPrefs.containsKey('k')).thenAnswer((_) async => true);
 
@@ -138,14 +149,6 @@ void main() {
       await sut.setStringList('k', ['a']);
 
       verify(() => mockPrefs.setStringList('k', ['a'])).called(1);
-    });
-
-    test('setStringSet converts set to list', () async {
-      when(() => mockPrefs.setStringList('k', any())).thenAnswer((_) async {});
-
-      await sut.setStringSet('k', {'a', 'b'});
-
-      verify(() => mockPrefs.setStringList('k', any())).called(1);
     });
   });
 

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:nav_router/nav_router.dart';
+import 'package:rover/rover.dart';
 
 class RouterLogger implements RouteGuard {
   @override

@@ -1,8 +1,17 @@
-FLUTTER := $(shell command -v fvm 2>/dev/null && echo "fvm flutter" || echo "flutter")
+FLUTTER := $(shell bash -c 'source ../scripts/flutter_utils.sh && get_flutter_cmd')
+DART := $(shell bash -c 'source ../scripts/flutter_utils.sh && get_dart_cmd')
 
 .PHONY: test
 test:
 	$(FLUTTER) test --no-test-assets
+
+.PHONY: build-runner
+build-runner:
+	$(DART) run build_runner build --delete-conflicting-outputs
+
+.PHONY: generate-strings
+generate-strings:
+	$(DART) run intl_utils:generate
 
 .PHONY: run-tests-with-coverage
 run-tests-with-coverage:

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alerty/alerty.dart';
-import 'package:analytics/analytics.dart';
+import 'package:analykit/analykit.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
@@ -34,6 +34,10 @@ import 'package:app_template/features/app/infrastructure/models/app_directories.
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_data_provider.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_refresh_policy.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_request_transformer.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_request_retrier.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_auth_info_use_case_impl.dart';
@@ -54,7 +58,7 @@ import 'package:app_template/features/auth/application/use_cases/watch_auth_data
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:crashlykit/crashlykit.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -62,12 +66,12 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:loghub/loghub.dart' hide Logger;
-import 'package:nav_router/nav_router.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_client/net_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:preference_store/preference_store.dart';
+import 'package:rover/rover.dart';
 import 'package:snacker/snacker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db/sqlite_db.dart';
@@ -185,7 +189,7 @@ abstract class AppModule {
     return const PreferenceStoreFactory().create();
   }
 
-  @singleton
+  @Singleton(dispose: disposeAppDatabase)
   SQLiteDb getAppDatabase(AppDirectories appDirectories) {
     const appDbVersion = 1;
     const appDbName = 'APP_DB';
@@ -242,7 +246,7 @@ abstract class AppModule {
     return SettingsDataSourceImpl(preferenceStore);
   }
 
-  @singleton
+  @Singleton(dispose: disposeSettingsRepository)
   SettingsRepository getSettingsRepository(
     DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
     SettingsDataSource settingsDataSource,
@@ -330,7 +334,7 @@ abstract class AppModule {
     return GetEffectiveThemeModeUseCase(settingsRepository);
   }
 
-  @singleton
+  @Singleton(dispose: disposeNetClient)
   @Named(APP_SERVER_PUBLIC_API_CLIENT)
   NetClient getAppServerPublicApiClient(
     FlavorConfig flavorConfig,
@@ -353,7 +357,7 @@ abstract class AppModule {
     return client;
   }
 
-  @singleton
+  @Singleton(dispose: disposeNetClient)
   @Named(APP_SERVER_PRIVATE_API_CLIENT)
   NetClient getAppServerPrivateApiClient(
     FlavorConfig flavorConfig,
@@ -373,7 +377,12 @@ abstract class AppModule {
 
     client.interceptors.addAll([
       MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      AuthInterceptor(client, getAuthInfo, getRefreshedAuthInfo),
+      AuthInterceptor(
+        AppAuthDataProvider(getAuthInfo, getRefreshedAuthInfo),
+        const AppAuthRefreshPolicy(),
+        const AppAuthRequestTransformer(),
+        AppRequestRetrier(client),
+      ),
       LoggerInterceptor(logger),
     ]);
 
@@ -476,15 +485,29 @@ abstract class AppModule {
   }
 
   @singleton
-  NavRouter getAppRouter(
+  Rover getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
     IsAuthedUseCase isAuthedUseCase,
   ) {
-    return NavRouterFactory().create(
+    return RoverFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
       routes: getAppRouteDefs(isAuthedUseCase),
       guards: [RouterLogger()],
     );
   }
+}
+
+FutureOr<dynamic> disposeSettingsRepository(
+  SettingsRepository repository,
+) async {
+  await repository.dispose();
+}
+
+FutureOr<dynamic> disposeAppDatabase(SQLiteDb database) async {
+  await database.dispose();
+}
+
+FutureOr<dynamic> disposeNetClient(NetClient client) async {
+  await client.close();
 }

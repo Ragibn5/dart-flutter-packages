@@ -4,4 +4,5 @@ enum TransportErrorType {
   RECEIVE_TIMEOUT,
   CONNECTION_ERROR,
   BAD_CERTIFICATE,
+  OTHER;
 }

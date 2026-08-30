@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:snacker/snacker.dart';
 
+final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 void main() {
   runApp(const SnackerExampleApp());
 }
@@ -17,9 +20,6 @@ class SnackerExampleApp extends StatelessWidget {
     );
   }
 }
-
-final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
