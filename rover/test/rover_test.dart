@@ -53,10 +53,10 @@ void main() {
 
     test('canPopTopRoute delegates correctly', () {
       final router = _MockRover();
-      when(() => router.canPopTopRoute()).thenReturn(true);
+      when(router.canPopTopRoute).thenReturn(true);
 
       expect(router.canPopTopRoute(), isTrue);
-      verify(() => router.canPopTopRoute()).called(1);
+      verify(router.canPopTopRoute).called(1);
     });
 
     test('popTopRoute delegates correctly', () {
@@ -64,7 +64,7 @@ void main() {
       when(() => router.popTopRoute<Object?>(any())).thenReturn(null);
 
       router.popTopRoute();
-      verify(() => router.popTopRoute()).called(1);
+      verify(router.popTopRoute).called(1);
     });
 
     test('popUntilRoute delegates correctly', () {

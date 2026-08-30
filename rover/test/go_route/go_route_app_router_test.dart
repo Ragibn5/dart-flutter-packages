@@ -18,8 +18,8 @@ void main() {
         navigatorKey: GlobalKey<NavigatorState>(),
         initialRoute: const RouteInfo('root', '/'),
         routes: [
-          RouteDef(
-            info: const RouteInfo('home', '/home'),
+          const RouteDef(
+            info: RouteInfo('home', '/home'),
             builder: _dummyBuilder,
           ),
         ],

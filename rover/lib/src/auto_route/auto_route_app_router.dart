@@ -128,6 +128,7 @@ class AutoRouteAppRouter extends RootStackRouter implements Rover {
       )
       .toList();
 
+  @visibleForTesting
   @protected
   @override
   List<AutoRouteGuard> get guards => [_GuardChain(_guards, _routes)];

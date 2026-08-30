@@ -11,9 +11,9 @@ class _MockNavigationResolver extends Mock implements NavigationResolver {}
 
 class _MockStackRouter extends Mock implements StackRouter {}
 
-class _MockRouteData extends Mock implements RouteData {}
+class _MockRouteData extends Mock implements RouteData<dynamic> {}
 
-class _MockRouteMatch extends Mock implements RouteMatch {}
+class _MockRouteMatch extends Mock implements RouteMatch<dynamic> {}
 
 class _MockParameters extends Mock implements Parameters {}
 
@@ -25,26 +25,34 @@ Widget _dummyBuilder(
   RouteContext routeContext,
 ) => const SizedBox.shrink();
 
+class _TestableAutoRouteAppRouter extends AutoRouteAppRouter {
+  _TestableAutoRouteAppRouter({
+    required super.navigatorKey,
+    required super.initialRoute,
+    required super.routes,
+  });
+
+  List<AutoRouteGuard> get exposedGuards => guards;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
     registerFallbackValue(_MockStackRouter());
-    registerFallbackValue(
-      NamedRoute('fallback', params: {}, queryParams: {}, args: null),
-    );
+    registerFallbackValue(const NamedRoute('fallback'));
   });
 
   group('AutoRouteAppRouter', () {
-    late AutoRouteAppRouter sut;
+    late _TestableAutoRouteAppRouter sut;
 
     setUp(() {
-      sut = AutoRouteAppRouter(
+      sut = _TestableAutoRouteAppRouter(
         navigatorKey: GlobalKey<NavigatorState>(),
         initialRoute: const RouteInfo('root', '/'),
         routes: [
-          RouteDef(
-            info: const RouteInfo('home', '/home'),
+          const RouteDef(
+            info: RouteInfo('home', '/home'),
             builder: _dummyBuilder,
           ),
         ],
@@ -106,7 +114,7 @@ void main() {
       });
 
       test('calls resolver.next() when guard returns Continue', () async {
-        sut = AutoRouteAppRouter(
+        sut = _TestableAutoRouteAppRouter(
           navigatorKey: GlobalKey<NavigatorState>(),
           initialRoute: const RouteInfo('root', '/'),
           routes: [
@@ -118,14 +126,14 @@ void main() {
           ],
         );
 
-        sut.guards.first.onNavigation(resolver, router);
+        sut.exposedGuards.first.onNavigation(resolver, router);
         await Future<void>.delayed(Duration.zero);
 
         verify(() => resolver.next()).called(1);
       });
 
       test('calls resolver.next(false) when guard returns Block', () async {
-        sut = AutoRouteAppRouter(
+        sut = _TestableAutoRouteAppRouter(
           navigatorKey: GlobalKey<NavigatorState>(),
           initialRoute: const RouteInfo('root', '/'),
           routes: [
@@ -137,7 +145,7 @@ void main() {
           ],
         );
 
-        sut.guards.first.onNavigation(resolver, router);
+        sut.exposedGuards.first.onNavigation(resolver, router);
         await Future<void>.delayed(Duration.zero);
 
         verify(() => resolver.next(false)).called(1);
@@ -146,7 +154,7 @@ void main() {
       test(
         'calls resolver.next(false) and push when guard returns Redirect',
         () async {
-          sut = AutoRouteAppRouter(
+          sut = _TestableAutoRouteAppRouter(
             navigatorKey: GlobalKey<NavigatorState>(),
             initialRoute: const RouteInfo('root', '/'),
             routes: [
@@ -160,7 +168,7 @@ void main() {
 
           when(() => router.push(any())).thenAnswer((_) async => null);
 
-          sut.guards.first.onNavigation(resolver, router);
+          sut.exposedGuards.first.onNavigation(resolver, router);
           await Future<void>.delayed(Duration.zero);
 
           verify(() => resolver.next(false)).called(1);

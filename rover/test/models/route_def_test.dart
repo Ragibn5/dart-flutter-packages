@@ -12,7 +12,7 @@ void main() {
   group('RouteDef', () {
     test('stores info, builder, and guards', () {
       const info = RouteInfo('home', '/home');
-      final def = RouteDef(info: info, builder: _dummyBuilder);
+      const def = RouteDef(info: info, builder: _dummyBuilder);
       expect(def.info, info);
       expect(def.builder, _dummyBuilder);
       expect(def.guards, isEmpty);
