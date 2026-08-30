@@ -370,6 +370,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i130.Rover>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i519.AppLogger>(),
         gh<_i97.IsAuthedUseCase>(),
       ),
     );

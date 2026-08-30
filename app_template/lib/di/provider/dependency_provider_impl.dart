@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:app_template/di/config/dependencies.dart';
 import 'package:app_template/di/provider/dependency_provider.dart';
@@ -55,7 +54,6 @@ class DependencyProviderImpl implements DependencyProvider {
   @override
   FutureOr<void> initialize(AppFlavor? flavor) async {
     if (_isInitialized) {
-      log('$DependencyProvider already initialized');
       return;
     }
 
