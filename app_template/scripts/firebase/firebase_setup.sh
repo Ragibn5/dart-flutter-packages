@@ -15,9 +15,10 @@ runFirebaseSetup() {
       ;;
   esac
 
-  local env_file="scripts/firebase/firebase.env"
-  if [[ -f "$env_file" ]]; then
-    source "$env_file"
+  if [[ ! -f "scripts/firebase/firebase.env" ]]; then
+    echo "Warning: scripts/firebase/firebase.env not found; using defaults." >&2
+  else
+    source "scripts/firebase/firebase.env"
   fi
 
   local default_project default_ios_bundle default_android_pkg
