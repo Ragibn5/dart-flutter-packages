@@ -1,19 +1,15 @@
-// ignore_for_file: avoid_print
-
 import 'package:dev_tools/dev_tools.dart';
 
 Future<void> main() async {
-  const flutterCommandFinder = FlutterCommandFinder();
-  const dartCommandFinder = DartCommandFinder();
+  const flutterCommandFinder = FvmAwareFlutterCommandFinder();
+  const dartCommandFinder = FvmAwareDartCommandFinder();
   print('Flutter command: ${await flutterCommandFinder()}');
   print('Dart command: ${await dartCommandFinder()}');
 
-  const projectUtils = ProjectUtils();
-  final root = await projectUtils.findProjectRoot();
+  final root = await const FindProjectRoot()();
   print('Project root: $root');
-  print('Dart package: ${await projectUtils.getCurrentDartPackage(root)}');
+  print('Dart package: ${await const GetCurrentDartPackage()(root)}');
 
-  const gitUtils = GitUtils();
-  final branch = await gitUtils.currentBranch();
+  final branch = await const GetCurrentBranch()();
   print('Current branch: $branch');
 }

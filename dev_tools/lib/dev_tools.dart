@@ -1,16 +1,25 @@
 /// Shared developer tooling for Dart and Flutter projects.
 library;
 
-export 'src/dev_tools_exception.dart';
-export 'src/utils/check_coverage.dart';
-export 'src/utils/cmd_installation_checker.dart';
-export 'src/utils/coverage_utils.dart';
-export 'src/utils/dart_command_finder.dart';
-export 'src/utils/flutter_command_finder.dart';
-export 'src/utils/git_utils.dart';
-export 'src/utils/process_coverage_data.dart';
-export 'src/utils/project_utils.dart';
-export 'src/utils/prompt_utils.dart';
-export 'src/utils/publish_utils.dart';
-export 'src/utils/run_test_with_coverage.dart';
-export 'src/utils/text_utils.dart';
+export 'src/use_cases/calculate_coverage.dart';
+export 'src/use_cases/check_coverage_with_threshold.dart';
+export 'src/use_cases/cmd_installation_checker.dart';
+export 'src/use_cases/fvm_aware_dart_command_finder.dart';
+export 'src/use_cases/fvm_aware_flutter_command_finder.dart';
+export 'src/use_cases/process_coverage_data.dart';
+export 'src/use_cases/run_flutter_test_with_coverage.dart';
+export 'src/use_cases/confirm_yes_no.dart';
+export 'src/use_cases/detect_folder_changes.dart';
+export 'src/use_cases/find_project_root.dart';
+export 'src/use_cases/get_current_branch.dart';
+export 'src/use_cases/get_current_dart_package.dart';
+export 'src/use_cases/get_current_platform_package.dart';
+export 'src/use_cases/get_package_name.dart';
+export 'src/use_cases/get_package_version.dart';
+export 'src/use_cases/has_clean_working_tree.dart';
+export 'src/use_cases/parse_release_branch.dart';
+export 'src/use_cases/prompt_with_default.dart';
+export 'src/use_cases/publish_validation_exception.dart';
+export 'src/use_cases/run_publish_flow.dart';
+export 'src/use_cases/text_utils.dart';
+export 'src/use_cases/validate_package_path.dart';
