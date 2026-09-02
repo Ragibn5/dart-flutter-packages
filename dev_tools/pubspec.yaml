@@ -1,0 +1,27 @@
+name: dev_tools
+description: Shared developer tooling for Dart and Flutter projects.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/dev_tools
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.11.0
+
+executables:
+  dev_tools:
+
+# Dependencies
+dependencies:
+  args: ^2.7.0
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  test: ^1.25.5
+  lints: ^3.0.0
+  very_good_analysis: ^5.1.0

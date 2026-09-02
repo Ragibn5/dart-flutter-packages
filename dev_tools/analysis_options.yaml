@@ -1,0 +1,65 @@
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
+
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# Analyzers
+# Uncomment the one to use (and comment the one to disable, only one can be used)
+#include: package:lints/recommended.yaml
+include: package:very_good_analysis/analysis_options.yaml
+
+
+analyzer:
+  # Set/Modify language features
+  language:
+    strict-casts: true
+    strict-raw-types: true
+    strict-inference: true
+
+
+  # Add all rules that you want to consider
+  # as error (regardless of their default level).
+  errors:
+    camel_case_types: error
+    camel_case_extensions: error
+    avoid_dynamic_calls: error
+    prefer_single_quotes: error
+    cancel_subscriptions: error
+    provide_deprecation_message: error
+    always_declare_return_types: error
+    avoid_unused_constructor_parameters: error
+    lines_longer_than_80_chars: warning
+
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at
+  # https://dart-lang.github.io/linter/lints/index.html.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific Dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    avoid_print: false
+    unnecessary_breaks: false
+    flutter_style_todos: false
+    one_member_abstracts: false
+    sort_pub_dependencies: false
+    public_member_api_docs: false
+    unnecessary_raw_strings: false
+    sort_constructors_first: false
+    require_trailing_commas: false
+    constant_identifier_names: false
+    depend_on_referenced_packages: false
+    avoid_catches_without_on_clauses: false
+    prefer_constructors_over_static_methods: false
+    always_put_required_named_parameters_first: false
+    missing_whitespace_between_adjacent_strings: false
