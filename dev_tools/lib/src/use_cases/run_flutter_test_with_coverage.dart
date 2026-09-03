@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:dev_tools/src/use_cases/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
+import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 
 class RunFlutterTestWithCoverage {
   final FindProjectRoot _findProjectRoot;
@@ -18,10 +17,10 @@ class RunFlutterTestWithCoverage {
     final projectRoot = await _findProjectRoot();
     final flutterCmd = await _findFlutterCommand();
     final parts = flutterCmd.split(' ');
-    final result = await Process.run(
-      parts.first,
-      [
-        ...parts,
+    final runner = InteractiveProcessRunner(
+      executable: parts.first,
+      arguments: [
+        ...parts.sublist(1),
         'test',
         '--no-test-assets',
         '--coverage',
@@ -30,10 +29,11 @@ class RunFlutterTestWithCoverage {
       ],
       workingDirectory: projectRoot,
     );
-    if (result.exitCode != 0) {
+
+    final exitCode = await runner.run();
+    if (exitCode != 0) {
       throw FlutterTestWithCoverageException(
-        'Error: flutter test with coverage failed.\n'
-        '${result.stdout}${result.stderr}',
+        'Error($exitCode): flutter test with coverage failed.',
       );
     }
   }

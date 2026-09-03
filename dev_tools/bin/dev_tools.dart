@@ -13,7 +13,7 @@ import 'package:dev_tools/src/commands/test_all_command.dart';
 Future<void> main(List<String> args) async {
   const executableName = 'dev_tools';
   const description = 'Shared developer tooling for Dart and Flutter projects.';
-  final runner = CommandRunner<void>(executableName, description)
+  final runner = CommandRunner<dynamic>(executableName, description)
     ..addCommand(FvmDartCommand())
     ..addCommand(FvmFlutterCommand())
     ..addCommand(GitCommand())
