@@ -8,11 +8,11 @@ void main() {
     sut = ProcessCoverageCommand();
   });
 
-  test('should expose the process name', () {
-    expect(sut.name, 'process');
+  test('should expose the process-coverage name', () {
+    expect(sut.name, 'process-coverage');
   });
 
-  test('should describe filtering lcov data and generating an HTML report', () {
+  test('should describe filtering lcov data using exclusion patterns', () {
     expect(sut.description, contains('lcov'));
   });
 }

@@ -12,11 +12,11 @@ class ProcessCoverageCommand extends Command<void> {
   }) : _processCoverageData = processCoverageData;
 
   @override
-  String get name => 'process';
+  String get name => 'process-coverage';
 
   @override
-  String get description => 'Filter lcov data and generate an HTML report.';
+  String get description => 'Filter lcov data using exclusion patterns.';
 
   @override
-  FutureOr<void>? run() async => _processCoverageData();
+  FutureOr<void>? run() => _processCoverageData(exclusions: argResults!.rest);
 }

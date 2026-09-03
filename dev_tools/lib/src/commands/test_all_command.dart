@@ -26,7 +26,9 @@ class TestAllCommand extends Command<void> {
     final result = await Process.run('bash', [runner.path]);
     stdout.write(result.stdout);
     stderr.write(result.stderr);
-    if (result.exitCode != 0) throw const TestAllException();
+    if (result.exitCode != 0) {
+      throw const TestAllException();
+    }
   }
 }
 

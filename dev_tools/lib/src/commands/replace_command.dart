@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/text_utils.dart';
@@ -7,8 +6,8 @@ import 'package:dev_tools/src/use_cases/text_utils.dart';
 class ReplaceCommand extends Command<void> {
   final TextUtils _textUtils;
 
-  ReplaceCommand({TextUtils textUtils = const TextUtils()})
-      : _textUtils = textUtils;
+  ReplaceCommand({TextUtils? textUtils})
+    : _textUtils = textUtils ?? TextUtils();
 
   @override
   String get name => 'replace';
@@ -22,10 +21,9 @@ class ReplaceCommand extends Command<void> {
     if (rest.length < 2) {
       throw UsageException('Usage: dev_tools replace <src> <target>', '');
     }
-    final count = await _textUtils(
+    await _textUtils(
       srcText: rest[0],
       targetText: rest[1],
     );
-    stdout.writeln('Replaced $count occurrence(s).');
   }
 }

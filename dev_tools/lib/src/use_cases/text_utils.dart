@@ -4,9 +4,15 @@ import 'package:dev_tools/src/use_cases/confirm_yes_no.dart';
 
 class TextUtils {
   final ConfirmYesNo _confirmYesNo;
+  final IOSink _stdout;
 
-  const TextUtils({ConfirmYesNo confirmYesNo = const ConfirmYesNo()})
-      : _confirmYesNo = confirmYesNo;
+  TextUtils({
+    ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
+    IOSink? stdout,
+  })  : _confirmYesNo = confirmYesNo,
+        _stdout = stdout ?? TextUtils._stdOut;
+
+  static IOSink get _stdOut => stdout;
 
   Future<int> call({
     required String srcText,
@@ -45,6 +51,7 @@ class TextUtils {
         !await _confirmYesNo(
           'Replace "$srcText" with "$targetText" in all the files?',
         )) {
+_stdout.writeln('Replaced $totalOccurrences occurrence(s).');
       return totalOccurrences;
     }
 
@@ -53,6 +60,7 @@ class TextUtils {
       await file.writeAsString(content.replaceAll(srcText, targetText));
     }
 
+    _stdout.writeln('Replaced $totalOccurrences occurrence(s).');
     return totalOccurrences;
   }
 

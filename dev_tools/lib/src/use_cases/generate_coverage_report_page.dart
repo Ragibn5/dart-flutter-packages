@@ -26,5 +26,7 @@ class GenerateCoverageReportPage {
       '-o',
       '$root/coverage/html',
     ]);
+
+    stdout.writeln('HTML report generated at coverage/html/.');
   }
 }

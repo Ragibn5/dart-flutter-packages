@@ -28,5 +28,7 @@ class ProcessCoverageDataWithLcov {
       '$root/coverage/lcov.info',
       ...exclusions,
     ]);
+
+    stdout.writeln('Coverage data filtered at coverage/lcov.info.');
   }
 }

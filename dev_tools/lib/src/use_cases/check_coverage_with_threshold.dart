@@ -1,17 +1,24 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:io';
+
 import 'package:dev_tools/src/use_cases/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
 
 class CheckCoverageWithThreshold {
   final FindProjectRoot _findProjectRoot;
   final CalculateCoverage _coverageUtils;
+  final IOSink _stdout;
 
-  const CheckCoverageWithThreshold({
+  CheckCoverageWithThreshold({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
     CalculateCoverage coverageUtils = const CalculateCoverage(),
+    IOSink? stdout,
   })  : _findProjectRoot = findProjectRoot,
-        _coverageUtils = coverageUtils;
+        _coverageUtils = coverageUtils,
+        _stdout = stdout ?? CheckCoverageWithThreshold._stdOut;
+
+  static IOSink get _stdOut => stdout;
 
   Future<void> call({
     String lcovFile = 'coverage/lcov.info',
@@ -25,6 +32,7 @@ class CheckCoverageWithThreshold {
         '       Make sure you ran the tests with coverage and processed the coverage data first for fresh coverage data.',
       );
     }
+    _stdout.writeln('Coverage meets required ${_fmt(threshold)}%.');
   }
 
   String _fmt(double value) {

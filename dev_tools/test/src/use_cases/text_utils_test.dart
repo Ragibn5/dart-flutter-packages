@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/text_utils.dart';
 import 'package:test/test.dart';
 
@@ -7,11 +9,16 @@ void main() {
   late Directory tempDir;
 
   late TextUtils sut;
+  late StringBuffer out;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('text_utils_test');
+    out = StringBuffer();
 
-    sut = const TextUtils();
+    sut = TextUtils(
+      stdout: _BufferSink(out),
+      confirmYesNo: const _ImmediateYes(),
+    );
   });
 
   tearDown(() {
@@ -32,6 +39,7 @@ void main() {
     );
 
     expect(count, 2);
+    expect(out.toString(), contains('Replaced 2 occurrence(s).'));
     expect(fileA.readAsStringSync(), 'goodbye world\ngoodbye again\n');
     expect(fileB.readAsStringSync(), 'nothing here\n');
   });
@@ -96,4 +104,57 @@ void main() {
       throwsArgumentError,
     );
   });
+}
+
+class _ImmediateYes implements ConfirmYesNo {
+  const _ImmediateYes();
+
+  @override
+  Future<bool> call(String question) async => true;
+}
+
+class _BufferSink implements IOSink {
+  final StringBuffer _buffer;
+
+  _BufferSink(this._buffer);
+
+  @override
+  Encoding get encoding => utf8;
+
+  @override
+  set encoding(Encoding value) {}
+
+  @override
+  Future<void> get done => Future.value();
+
+  @override
+  void add(List<int> data) => _buffer.write(utf8.decode(data));
+
+  @override
+  void addError(Object error, [StackTrace? stackTrace]) {}
+
+  @override
+  Future<void> addStream(Stream<List<int>> stream) async {
+    await for (final chunk in stream) {
+      add(chunk);
+    }
+  }
+
+  @override
+  Future<void> close() async {}
+
+  @override
+  Future<void> flush() async {}
+
+  @override
+  void write(Object? object) {}
+
+  @override
+  void writeAll(Iterable<Object?> objects, [String separator = '']) {}
+
+  @override
+  void writeCharCode(int charCode) {}
+
+  @override
+  void writeln([Object? object = '']) => _buffer.writeln(object);
 }

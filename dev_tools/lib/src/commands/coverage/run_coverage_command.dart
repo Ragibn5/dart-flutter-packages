@@ -18,5 +18,5 @@ class RunCoverageCommand extends Command<void> {
   String get description => 'Run tests with coverage, writing to lcov.info.';
 
   @override
-  FutureOr<void>? run() async => _runTestWithCoverage();
+  FutureOr<void>? run() => _runTestWithCoverage();
 }
