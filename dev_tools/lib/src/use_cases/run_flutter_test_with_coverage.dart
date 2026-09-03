@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
+import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 
 class RunFlutterTestWithCoverage {
   final FindProjectRoot _findProjectRoot;

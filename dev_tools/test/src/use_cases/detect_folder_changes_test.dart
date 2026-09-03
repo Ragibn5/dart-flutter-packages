@@ -49,25 +49,25 @@ Future<bool> _runDetect(Directory repoDir, String folder) async {
     '${Directory.current.path}/test/src/use_cases/_detect_script.dart',
   );
   // Place the script inside the package so package:dev_tools resolves.
-  script.writeAsString('''
-import 'dart:io';
-
-import 'package:dev_tools/src/use_cases/detect_folder_changes.dart';
-
-Future<void> main(List<String> args) async {
-  final result = await const DetectFolderChanges()(args[0]);
-  stdout.writeln('RESULT=\$result');
-}
-''');
+  await script.writeAsString(r'''
+  import 'dart:io';
+  
+  import 'package:dev_tools/src/use_cases/detect_folder_changes.dart';
+  
+  Future<void> main(List<String> args) async {
+    final result = await const DetectFolderChanges()(args[0]);
+    stdout.writeln('RESULT=$result');
+  }
+  ''');
   addTearDown(() {
     if (script.existsSync()) script.deleteSync();
   });
 
-  final proc = await Process.start('dart', [
-    'run',
-    script.path,
-    folder,
-  ], workingDirectory: repoDir.path);
+  final proc = await Process.start(
+    'dart',
+    ['run', script.path, folder],
+    workingDirectory: repoDir.path,
+  );
   final out = await proc.stdout.transform(utf8.decoder).join();
   await proc.exitCode;
   return out

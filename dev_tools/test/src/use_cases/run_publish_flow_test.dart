@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:dev_tools/src/use_cases/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/get_current_branch.dart';
 import 'package:dev_tools/src/use_cases/get_package_name.dart';
@@ -21,8 +23,8 @@ void main() {
     getCurrentBranch = _FakeGetCurrentBranch('release/pkg-1.0.0');
     getPackageName = _FakeGetPackageName('foo');
     getPackageVersion = _FakeGetPackageVersion('1.0.0');
-    hasCleanWorkingTree = _FakeHasCleanWorkingTree(true);
-    confirmYesNo = _FakeConfirmYesNo(true);
+    hasCleanWorkingTree = _FakeHasCleanWorkingTree(clean: true);
+    confirmYesNo = _FakeConfirmYesNo(response: true);
 
     sut = RunPublishFlow(
       getCurrentBranch: getCurrentBranch,
@@ -116,7 +118,7 @@ class _FakeGetPackageVersion extends GetPackageVersion {
 }
 
 class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
-  _FakeHasCleanWorkingTree(this.clean);
+  _FakeHasCleanWorkingTree({required this.clean});
 
   bool clean;
 
@@ -125,7 +127,7 @@ class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
 }
 
 class _FakeConfirmYesNo extends ConfirmYesNo {
-  _FakeConfirmYesNo(this.response);
+  _FakeConfirmYesNo({required this.response});
 
   bool response;
 

@@ -37,6 +37,7 @@ void main() {
   );
 
   test(
+    // ignore: lines_longer_than_80_chars
     'should throw PublishValidationException when directory has no pubspec.yaml',
     () {
       Directory('${tempDir.path}/empty').createSync();

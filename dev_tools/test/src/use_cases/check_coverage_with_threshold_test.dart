@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:dev_tools/src/use_cases/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/check_coverage_with_threshold.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
@@ -12,7 +14,7 @@ void main() {
   late CheckCoverageWithThreshold sut;
 
   setUp(() {
-    findProjectRoot = _FakeFindProjectRoot(root);
+    findProjectRoot = const _FakeFindProjectRoot(root);
     coverageUtils = _FakeCalculateCoverage(100);
 
     sut = CheckCoverageWithThreshold(
@@ -37,7 +39,7 @@ void main() {
       coverageUtils.percent = 80;
 
       await expectLater(
-        sut(threshold: 100),
+        sut(),
         throwsA(isA<CheckCoverageWithThresholdException>()),
       );
     },

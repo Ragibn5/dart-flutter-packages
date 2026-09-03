@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:dev_tools/src/use_cases/parse_release_branch.dart';
 import 'package:test/test.dart';
 

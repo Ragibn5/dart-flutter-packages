@@ -15,8 +15,8 @@ void main() {
   late ProcessCoverageDataWithLcov sut;
 
   setUp(() {
-    findProjectRoot = _FakeFindProjectRoot(root);
-    cmdChecker = _FakeChecker(true);
+    findProjectRoot = const _FakeFindProjectRoot(root);
+    cmdChecker = _FakeChecker(available: true);
 
     sut = ProcessCoverageDataWithLcov(
       findProjectRoot: findProjectRoot,
@@ -52,7 +52,7 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeChecker extends CmdInstallationChecker {
-  _FakeChecker(this.available);
+  _FakeChecker({required this.available});
 
   bool available;
 

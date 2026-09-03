@@ -9,14 +9,14 @@ import 'package:test/test.dart';
 void main() {
   const root = '/fake/root';
 
-  late _FakeFindProjectRoot findProjectRoot;
   late _FakeChecker cmdChecker;
+  late _FakeFindProjectRoot findProjectRoot;
 
   late GenerateCoverageReportPage sut;
 
   setUp(() {
-    findProjectRoot = _FakeFindProjectRoot(root);
-    cmdChecker = _FakeChecker(true);
+    cmdChecker = _FakeChecker(available: true);
+    findProjectRoot = const _FakeFindProjectRoot(root);
 
     sut = GenerateCoverageReportPage(
       findProjectRoot: findProjectRoot,
@@ -52,7 +52,7 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeChecker extends CmdInstallationChecker {
-  _FakeChecker(this.available);
+  _FakeChecker({required this.available});
 
   bool available;
 
