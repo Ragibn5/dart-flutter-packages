@@ -10,14 +10,14 @@ version: 1.0.0
 
 # Range of compatible SDK versions
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.0.6
 
 executables:
   dev_tools:
 
 # Dependencies
 dependencies:
-  args: ^2.7.0
+  args: ^2.5.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
