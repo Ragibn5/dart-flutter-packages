@@ -4,11 +4,14 @@ import 'package:dev_tools/src/use_cases/find_project_root.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const useCase = FindProjectRoot();
   late Directory tempDir;
+
+  late FindProjectRoot sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('find_project_root_test');
+
+    sut = const FindProjectRoot();
   });
 
   tearDown(() {
@@ -22,7 +25,7 @@ void main() {
         ..createSync(recursive: true);
       File('${tempDir.path}/pubspec.yaml').writeAsStringSync('name: foo\n');
 
-      final root = await useCase(nested.path);
+      final root = await sut(nested.path);
       expect(root, tempDir.path);
     },
   );
@@ -32,7 +35,7 @@ void main() {
     () async {
       File('${tempDir.path}/pubspec.yaml').writeAsStringSync('name: foo\n');
 
-      final root = await useCase(tempDir.path);
+      final root = await sut(tempDir.path);
       expect(root, tempDir.path);
     },
   );
@@ -44,7 +47,7 @@ void main() {
         ..createSync(recursive: true);
 
       expect(
-        () => useCase(empty.path),
+        () => sut(empty.path),
         throwsA(isA<ProjectRootNotFoundException>()),
       );
     },

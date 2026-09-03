@@ -4,11 +4,14 @@ import 'package:dev_tools/src/use_cases/text_utils.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const useCase = TextUtils();
   late Directory tempDir;
+
+  late TextUtils sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('text_utils_test');
+
+    sut = const TextUtils();
   });
 
   tearDown(() {
@@ -21,7 +24,7 @@ void main() {
     final fileB = File('${tempDir.path}/b.txt')
       ..writeAsStringSync('nothing here\n');
 
-    final count = await useCase(
+    final count = await sut(
       srcText: 'hello',
       targetText: 'goodbye',
       start: tempDir.path,
@@ -39,7 +42,7 @@ void main() {
     final text = File('${tempDir.path}/readme.md')
       ..writeAsStringSync('foo bar\n');
 
-    final count = await useCase(
+    final count = await sut(
       srcText: 'foo',
       targetText: 'baz',
       start: tempDir.path,
@@ -56,7 +59,7 @@ void main() {
     final dartTool = Directory('${tempDir.path}/.dart_tool')..createSync();
     File('${dartTool.path}/cache.dart').writeAsStringSync('foo foo\n');
 
-    final count = await useCase(
+    final count = await sut(
       srcText: 'foo',
       targetText: 'bar',
       start: tempDir.path,
@@ -70,7 +73,7 @@ void main() {
   test('should return 0 when no occurrences are found', () async {
     File('${tempDir.path}/a.txt').writeAsStringSync('no match here\n');
 
-    final count = await useCase(
+    final count = await sut(
       srcText: 'missing',
       targetText: 'x',
       start: tempDir.path,
@@ -82,14 +85,14 @@ void main() {
 
   test('should throw ArgumentError when srcText is empty', () {
     expect(
-      () => useCase(srcText: '', targetText: 'b', interactive: false),
+      () => sut(srcText: '', targetText: 'b', interactive: false),
       throwsArgumentError,
     );
   });
 
   test('should throw ArgumentError when targetText is empty', () {
     expect(
-      () => useCase(srcText: 'a', targetText: '', interactive: false),
+      () => sut(srcText: 'a', targetText: '', interactive: false),
       throwsArgumentError,
     );
   });

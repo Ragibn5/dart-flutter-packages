@@ -9,17 +9,38 @@ import 'package:dev_tools/src/use_cases/validate_package_path.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late _FakeGetCurrentBranch getCurrentBranch;
+  late _FakeGetPackageName getPackageName;
+  late _FakeGetPackageVersion getPackageVersion;
+  late _FakeHasCleanWorkingTree hasCleanWorkingTree;
+  late _FakeConfirmYesNo confirmYesNo;
+
+  late RunPublishFlow sut;
+
+  setUp(() {
+    getCurrentBranch = _FakeGetCurrentBranch('release/pkg-1.0.0');
+    getPackageName = _FakeGetPackageName('foo');
+    getPackageVersion = _FakeGetPackageVersion('1.0.0');
+    hasCleanWorkingTree = _FakeHasCleanWorkingTree(true);
+    confirmYesNo = _FakeConfirmYesNo(true);
+
+    sut = RunPublishFlow(
+      getCurrentBranch: getCurrentBranch,
+      validatePackagePath: const _FakeValidatePackagePath(),
+      getPackageName: getPackageName,
+      getPackageVersion: getPackageVersion,
+      hasCleanWorkingTree: hasCleanWorkingTree,
+      confirmYesNo: confirmYesNo,
+    );
+  });
+
   test(
     'should throw PublishValidationException when in detached HEAD',
     () async {
-      final useCase = _buildFlow(
-        branch: null,
-        name: 'foo',
-        version: '1.0.0',
-        clean: true,
-      );
+      getCurrentBranch.branch = null;
+
       await expectLater(
-        useCase(repoRoot: '/fake'),
+        sut(repoRoot: '/fake'),
         throwsA(isA<PublishValidationException>()),
       );
     },
@@ -28,14 +49,10 @@ void main() {
   test(
     'should throw PublishValidationException when branch is not a release branch',
     () async {
-      final useCase = _buildFlow(
-        branch: 'main',
-        name: 'foo',
-        version: '1.0.0',
-        clean: true,
-      );
+      getCurrentBranch.branch = 'main';
+
       await expectLater(
-        useCase(repoRoot: '/fake'),
+        sut(repoRoot: '/fake'),
         throwsA(isA<PublishValidationException>()),
       );
     },
@@ -44,14 +61,10 @@ void main() {
   test(
     'should throw PublishValidationException when branch version mismatches pubspec',
     () async {
-      final useCase = _buildFlow(
-        branch: 'release/pkg-1.0.0',
-        name: 'foo',
-        version: '2.0.0',
-        clean: true,
-      );
+      getPackageVersion.version = '2.0.0';
+
       await expectLater(
-        useCase(repoRoot: '/fake'),
+        sut(repoRoot: '/fake'),
         throwsA(isA<PublishValidationException>()),
       );
     },
@@ -60,39 +73,18 @@ void main() {
   test(
     'should cancel when working tree is dirty and user declines to continue',
     () async {
-      final useCase = _buildFlow(
-        branch: 'release/pkg-1.0.0',
-        name: 'foo',
-        version: '1.0.0',
-        clean: false,
-        confirm: false,
-      );
-      await expectLater(useCase(repoRoot: '/fake'), completes);
-    },
-  );
-}
+      hasCleanWorkingTree.clean = false;
+      confirmYesNo.response = false;
 
-RunPublishFlow _buildFlow({
-  required String? branch,
-  required String name,
-  required String version,
-  required bool clean,
-  bool confirm = true,
-}) {
-  return RunPublishFlow(
-    getCurrentBranch: _FakeGetCurrentBranch(branch),
-    validatePackagePath: const _FakeValidatePackagePath(),
-    getPackageName: _FakeGetPackageName(name),
-    getPackageVersion: _FakeGetPackageVersion(version),
-    hasCleanWorkingTree: _FakeHasCleanWorkingTree(clean),
-    confirmYesNo: _FakeConfirmYesNo(confirm),
+      await expectLater(sut(repoRoot: '/fake'), completes);
+    },
   );
 }
 
 class _FakeGetCurrentBranch extends GetCurrentBranch {
   _FakeGetCurrentBranch(this.branch);
 
-  final String? branch;
+  String? branch;
 
   @override
   Future<String?> call([String? repoRoot]) async => branch;
@@ -108,7 +100,7 @@ class _FakeValidatePackagePath extends ValidatePackagePath {
 class _FakeGetPackageName extends GetPackageName {
   _FakeGetPackageName(this.name);
 
-  final String name;
+  String name;
 
   @override
   Future<String?> call(String repoRoot, String pkgPath) async => name;
@@ -117,7 +109,7 @@ class _FakeGetPackageName extends GetPackageName {
 class _FakeGetPackageVersion extends GetPackageVersion {
   _FakeGetPackageVersion(this.version);
 
-  final String version;
+  String version;
 
   @override
   Future<String?> call(String repoRoot, String pkgPath) async => version;
@@ -126,7 +118,7 @@ class _FakeGetPackageVersion extends GetPackageVersion {
 class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
   _FakeHasCleanWorkingTree(this.clean);
 
-  final bool clean;
+  bool clean;
 
   @override
   Future<bool> call([String? repoRoot]) async => clean;
@@ -135,7 +127,7 @@ class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
 class _FakeConfirmYesNo extends ConfirmYesNo {
   _FakeConfirmYesNo(this.response);
 
-  final bool response;
+  bool response;
 
   @override
   Future<bool> call(String question) async => response;

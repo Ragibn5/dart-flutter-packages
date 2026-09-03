@@ -4,13 +4,15 @@ import 'package:dev_tools/src/use_cases/calculate_coverage.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const calculateCoverage = CalculateCoverage();
-
   late Directory tempDir;
+
+  late CalculateCoverage sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('calculate_coverage_test');
     Directory('${tempDir.path}/coverage').createSync();
+
+    sut = const CalculateCoverage();
   });
 
   tearDown(() {
@@ -22,7 +24,7 @@ void main() {
     () async {
       _writeLcovFile('${tempDir.path}/coverage/lcov.info');
 
-      final pct = await calculateCoverage('coverage/lcov.info', tempDir.path);
+      final pct = await sut('coverage/lcov.info', tempDir.path);
       expect(pct, 50);
     },
     skip: _lcovNotAvailable ? 'lcov not available' : null,
@@ -32,7 +34,7 @@ void main() {
     'should throw CoverageCalculationException when file does not exist',
     () async {
       expect(
-        () => calculateCoverage('coverage/missing.info', tempDir.path),
+        () => sut('coverage/missing.info', tempDir.path),
         throwsA(isA<CoverageCalculationException>()),
       );
     },
@@ -46,7 +48,7 @@ void main() {
       ).writeAsStringSync('garbage output without lines\n');
 
       expect(
-        () => calculateCoverage('coverage/lcov.info', tempDir.path),
+        () => sut('coverage/lcov.info', tempDir.path),
         throwsA(isA<CoverageCalculationException>()),
       );
     },

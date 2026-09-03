@@ -2,11 +2,17 @@ import 'package:dev_tools/src/commands/replace_command.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late ReplaceCommand sut;
+
+  setUp(() {
+    sut = ReplaceCommand();
+  });
+
   test('should expose the replace name', () {
-    expect(ReplaceCommand().name, 'replace');
+    expect(sut.name, 'replace');
   });
 
   test('should describe replacing literal text across files', () {
-    expect(ReplaceCommand().description, contains('Replace'));
+    expect(sut.description, contains('Replace'));
   });
 }

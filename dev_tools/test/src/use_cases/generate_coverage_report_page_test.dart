@@ -9,25 +9,34 @@ import 'package:test/test.dart';
 void main() {
   const root = '/fake/root';
 
+  late _FakeFindProjectRoot findProjectRoot;
+  late _FakeChecker cmdChecker;
+
+  late GenerateCoverageReportPage sut;
+
+  setUp(() {
+    findProjectRoot = _FakeFindProjectRoot(root);
+    cmdChecker = _FakeChecker(true);
+
+    sut = GenerateCoverageReportPage(
+      findProjectRoot: findProjectRoot,
+      cmdInstallationChecker: cmdChecker,
+    );
+  });
+
   test(
     'should throw CommandNotFoundException when genhtml is not installed',
     () async {
-      const useCase = GenerateCoverageReportPage(
-        findProjectRoot: _FakeFindProjectRoot(root),
-        cmdInstallationChecker: const _FakeChecker(false),
-      );
-      await expectLater(useCase(), throwsA(isA<CommandNotFoundException>()));
+      cmdChecker.available = false;
+
+      await expectLater(sut(), throwsA(isA<CommandNotFoundException>()));
     },
   );
 
   test(
     'should run genhtml when it is installed',
     () async {
-      const useCase = GenerateCoverageReportPage(
-        findProjectRoot: _FakeFindProjectRoot(root),
-        cmdInstallationChecker: const _FakeChecker(true),
-      );
-      await expectLater(useCase(), completes);
+      await expectLater(sut(), completes);
     },
     skip: _toolNotAvailable('genhtml') ? 'genhtml not available' : null,
   );
@@ -43,9 +52,9 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeChecker extends CmdInstallationChecker {
-  const _FakeChecker(this.available);
+  _FakeChecker(this.available);
 
-  final bool available;
+  bool available;
 
   @override
   Future<bool> call(String executable) async => available;

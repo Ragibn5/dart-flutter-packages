@@ -5,11 +5,14 @@ import 'package:dev_tools/src/use_cases/validate_package_path.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const useCase = ValidatePackagePath();
   late Directory tempDir;
+
+  late ValidatePackagePath sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('validate_package_path_test');
+
+    sut = const ValidatePackagePath();
   });
 
   tearDown(() {
@@ -20,14 +23,14 @@ void main() {
     Directory('${tempDir.path}/pkg').createSync();
     File('${tempDir.path}/pkg/pubspec.yaml').writeAsStringSync('name: p\n');
 
-    expect(() => useCase(tempDir.path, 'pkg'), returnsNormally);
+    expect(() => sut(tempDir.path, 'pkg'), returnsNormally);
   });
 
   test(
     'should throw PublishValidationException when directory does not exist',
     () {
       expect(
-        () => useCase(tempDir.path, 'nope'),
+        () => sut(tempDir.path, 'nope'),
         throwsA(isA<PublishValidationException>()),
       );
     },
@@ -39,7 +42,7 @@ void main() {
       Directory('${tempDir.path}/empty').createSync();
 
       expect(
-        () => useCase(tempDir.path, 'empty'),
+        () => sut(tempDir.path, 'empty'),
         throwsA(isA<PublishValidationException>()),
       );
     },

@@ -4,38 +4,43 @@ import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late _FakeChecker cmdChecker;
+
+  late FvmAwareFlutterCommandFinder sut;
+
+  setUp(() {
+    cmdChecker = _FakeChecker({});
+
+    sut = FvmAwareFlutterCommandFinder(cmdInstallationChecker: cmdChecker);
+  });
+
   test('should return fvm flutter when fvm is installed', () async {
-    const finder = FvmAwareFlutterCommandFinder(
-      cmdInstallationChecker: _FakeChecker({'fvm', 'flutter'}),
-    );
-    expect(await finder(), 'fvm flutter');
+    cmdChecker.installed = {'fvm', 'flutter'};
+
+    expect(await sut(), 'fvm flutter');
   });
 
   test(
     'should return flutter when fvm is not installed but flutter is',
     () async {
-      const finder = FvmAwareFlutterCommandFinder(
-        cmdInstallationChecker: _FakeChecker({'flutter'}),
-      );
-      expect(await finder(), 'flutter');
+      cmdChecker.installed = {'flutter'};
+
+      expect(await sut(), 'flutter');
     },
   );
 
   test(
     'should throw CommandNotFoundException when neither is installed',
     () async {
-      const finder = FvmAwareFlutterCommandFinder(
-        cmdInstallationChecker: _FakeChecker({}),
-      );
-      expect(() => finder(), throwsA(isA<CommandNotFoundException>()));
+      expect(() => sut(), throwsA(isA<CommandNotFoundException>()));
     },
   );
 }
 
 class _FakeChecker extends CmdInstallationChecker {
-  const _FakeChecker(this.installed);
+  _FakeChecker(this.installed);
 
-  final Set<String> installed;
+  Set<String> installed;
 
   @override
   Future<bool> call(String executable) async => installed.contains(executable);

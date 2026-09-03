@@ -4,31 +4,42 @@ import 'package:test/test.dart';
 
 void main() {
   group('GitCommand', () {
+    late GitCommand sut;
+
+    setUp(() {
+      sut = GitCommand();
+    });
+
     test('should expose the git name', () {
-      expect(GitCommand().name, 'git');
+      expect(sut.name, 'git');
     });
 
     test('should describe git helpers for CI change detection', () {
-      expect(GitCommand().description, contains('Git'));
+      expect(sut.description, contains('Git'));
     });
 
     test('should register the detect-folder-changes subcommand', () {
-      final cmd = GitCommand();
-      expect(cmd.subcommands, contains('detect-folder-changes'));
+      expect(sut.subcommands, contains('detect-folder-changes'));
       expect(
-        cmd.subcommands['detect-folder-changes'],
+        sut.subcommands['detect-folder-changes'],
         isA<DetectFolderChangesCommand>(),
       );
     });
   });
 
   group('DetectFolderChangesCommand', () {
+    late DetectFolderChangesCommand sut;
+
+    setUp(() {
+      sut = DetectFolderChangesCommand();
+    });
+
     test('should expose the detect-folder-changes name', () {
-      expect(DetectFolderChangesCommand().name, 'detect-folder-changes');
+      expect(sut.name, 'detect-folder-changes');
     });
 
     test('should describe detecting changes against the CI base ref', () {
-      expect(DetectFolderChangesCommand().description, contains('changes'));
+      expect(sut.description, contains('changes'));
     });
   });
 }

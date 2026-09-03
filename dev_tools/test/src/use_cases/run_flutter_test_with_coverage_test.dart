@@ -6,47 +6,53 @@ import 'package:dev_tools/src/use_cases/run_flutter_test_with_coverage.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late Directory tempDir;
+
+  late _FakeFindProjectRoot findProjectRoot;
+  late _FakeFlutterFinder flutterFinder;
+
+  late RunFlutterTestWithCoverage sut;
+
+  setUp(() {
+    tempDir = Directory.systemTemp.createTempSync('run_flutter_project');
+    findProjectRoot = _FakeFindProjectRoot(tempDir.path);
+    flutterFinder = _FakeFlutterFinder(_script(tempDir, exitCode: 0));
+
+    sut = RunFlutterTestWithCoverage(
+      findProjectRoot: findProjectRoot,
+      flutterCommandFinder: flutterFinder,
+    );
+  });
+
+  tearDown(() {
+    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+  });
+
   test(
     'should not throw when the flutter test command exits with zero',
     () async {
-      final dir = await _setupProject();
-      final useCase = RunFlutterTestWithCoverage(
-        findProjectRoot: _FakeFindProjectRoot(dir.path),
-        flutterCommandFinder: _FakeFlutterFinder(_script(dir)),
-      );
-      await expectLater(useCase(), completes);
+      await expectLater(sut(), completes);
     },
   );
 
   test(
     'should throw FlutterTestWithCoverageException when the command fails',
     () async {
-      final dir = await _setupProject();
-      final useCase = RunFlutterTestWithCoverage(
-        findProjectRoot: _FakeFindProjectRoot(dir.path),
-        flutterCommandFinder: _FakeFlutterFinder(_script(dir, exitCode: 1)),
-      );
+      flutterFinder.command = _script(tempDir, exitCode: 1);
+
       await expectLater(
-        useCase(),
+        sut(),
         throwsA(isA<FlutterTestWithCoverageException>()),
       );
     },
   );
 }
 
-String _script(Directory dir, {int exitCode = 0}) {
+String _script(Directory dir, {required int exitCode}) {
   final script = File('${dir.path}/cmd.sh')
     ..writeAsStringSync('#!/bin/sh\nexit $exitCode\n');
   Process.runSync('chmod', ['+x', script.path]);
   return script.path;
-}
-
-Future<Directory> _setupProject() async {
-  final dir = Directory.systemTemp.createTempSync('run_flutter_project');
-  addTearDown(() {
-    if (dir.existsSync()) dir.deleteSync(recursive: true);
-  });
-  return dir;
 }
 
 class _FakeFindProjectRoot extends FindProjectRoot {
@@ -59,9 +65,9 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeFlutterFinder extends FvmAwareFlutterCommandFinder {
-  const _FakeFlutterFinder(this.command);
+  _FakeFlutterFinder(this.command);
 
-  final String command;
+  String command;
 
   @override
   Future<String> call() async => command;

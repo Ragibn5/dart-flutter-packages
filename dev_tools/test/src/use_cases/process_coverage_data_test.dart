@@ -9,25 +9,34 @@ import 'package:test/test.dart';
 void main() {
   const root = '/fake/root';
 
+  late _FakeFindProjectRoot findProjectRoot;
+  late _FakeChecker cmdChecker;
+
+  late ProcessCoverageDataWithLcov sut;
+
+  setUp(() {
+    findProjectRoot = _FakeFindProjectRoot(root);
+    cmdChecker = _FakeChecker(true);
+
+    sut = ProcessCoverageDataWithLcov(
+      findProjectRoot: findProjectRoot,
+      cmdInstallationChecker: cmdChecker,
+    );
+  });
+
   test(
     'should throw CommandNotFoundException when lcov is not installed',
     () async {
-      const useCase = ProcessCoverageDataWithLcov(
-        findProjectRoot: _FakeFindProjectRoot(root),
-        cmdInstallationChecker: const _FakeChecker(false),
-      );
-      await expectLater(useCase(), throwsA(isA<CommandNotFoundException>()));
+      cmdChecker.available = false;
+
+      await expectLater(sut(), throwsA(isA<CommandNotFoundException>()));
     },
   );
 
   test(
     'should run lcov when it is installed',
     () async {
-      const useCase = ProcessCoverageDataWithLcov(
-        findProjectRoot: _FakeFindProjectRoot(root),
-        cmdInstallationChecker: const _FakeChecker(true),
-      );
-      await expectLater(useCase(exclusions: ['lib/generated/*']), completes);
+      await expectLater(sut(exclusions: ['lib/generated/*']), completes);
     },
     skip: _toolNotAvailable('lcov') ? 'lcov not available' : null,
   );
@@ -43,9 +52,9 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeChecker extends CmdInstallationChecker {
-  const _FakeChecker(this.available);
+  _FakeChecker(this.available);
 
-  final bool available;
+  bool available;
 
   @override
   Future<bool> call(String executable) async => available;

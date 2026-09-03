@@ -2,11 +2,17 @@ import 'package:dev_tools/src/commands/coverage/run_coverage_command.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late RunCoverageCommand sut;
+
+  setUp(() {
+    sut = RunCoverageCommand();
+  });
+
   test('should expose the run name', () {
-    expect(RunCoverageCommand().name, 'run');
+    expect(sut.name, 'run');
   });
 
   test('should describe running tests with coverage', () {
-    expect(RunCoverageCommand().description, contains('coverage'));
+    expect(sut.description, contains('coverage'));
   });
 }

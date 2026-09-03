@@ -4,13 +4,17 @@ import 'package:dev_tools/src/use_cases/get_current_branch.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const useCase = GetCurrentBranch();
+  late GetCurrentBranch sut;
+
+  setUp(() {
+    sut = const GetCurrentBranch();
+  });
 
   test(
     'should return the current branch when inside a git repository',
     () async {
       final expected = _runGit(['branch', '--show-current']);
-      final branch = await useCase();
+      final branch = await sut();
       expect(branch, expected.isNotEmpty ? expected : isNull);
     },
   );

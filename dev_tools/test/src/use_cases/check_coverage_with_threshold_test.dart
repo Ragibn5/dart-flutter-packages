@@ -6,31 +6,38 @@ import 'package:test/test.dart';
 void main() {
   const root = '/fake/root';
 
-  test('should not throw when coverage meets the threshold', () async {
-    const useCase = CheckCoverageWithThreshold(
-      findProjectRoot: _FakeFindProjectRoot(root),
-      coverageUtils: _FakeCalculateCoverage(100),
+  late _FakeFindProjectRoot findProjectRoot;
+  late _FakeCalculateCoverage coverageUtils;
+
+  late CheckCoverageWithThreshold sut;
+
+  setUp(() {
+    findProjectRoot = _FakeFindProjectRoot(root);
+    coverageUtils = _FakeCalculateCoverage(100);
+
+    sut = CheckCoverageWithThreshold(
+      findProjectRoot: findProjectRoot,
+      coverageUtils: coverageUtils,
     );
-    await expectLater(useCase(), completes);
+  });
+
+  test('should not throw when coverage meets the threshold', () async {
+    await expectLater(sut(), completes);
   });
 
   test('should not throw when coverage exceeds the threshold', () async {
-    const useCase = CheckCoverageWithThreshold(
-      findProjectRoot: _FakeFindProjectRoot(root),
-      coverageUtils: _FakeCalculateCoverage(95),
-    );
-    await expectLater(useCase(threshold: 90), completes);
+    coverageUtils.percent = 95;
+
+    await expectLater(sut(threshold: 90), completes);
   });
 
   test(
     'should throw CheckCoverageWithThresholdException when coverage is below threshold',
     () async {
-      const useCase = CheckCoverageWithThreshold(
-        findProjectRoot: _FakeFindProjectRoot(root),
-        coverageUtils: _FakeCalculateCoverage(80),
-      );
+      coverageUtils.percent = 80;
+
       await expectLater(
-        useCase(),
+        sut(threshold: 100),
         throwsA(isA<CheckCoverageWithThresholdException>()),
       );
     },
@@ -47,9 +54,9 @@ class _FakeFindProjectRoot extends FindProjectRoot {
 }
 
 class _FakeCalculateCoverage extends CalculateCoverage {
-  const _FakeCalculateCoverage(this.percent);
+  _FakeCalculateCoverage(this.percent);
 
-  final int percent;
+  int percent;
 
   @override
   Future<int> call(String lcovFile, [String? projectRoot]) async => percent;

@@ -4,11 +4,14 @@ import 'package:dev_tools/src/use_cases/get_current_platform_package.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const useCase = GetCurrentPlatformPackage();
   late Directory tempDir;
+
+  late GetCurrentPlatformPackage sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('get_platform_package_test');
+
+    sut = const GetCurrentPlatformPackage();
   });
 
   tearDown(() {
@@ -28,11 +31,11 @@ void main() {
         '}\n',
       );
 
-      expect(await useCase(tempDir.path), 'org.example.app');
+      expect(await sut(tempDir.path), 'org.example.app');
     },
   );
 
   test('should return null when build.gradle.kts does not exist', () async {
-    expect(await useCase(tempDir.path), isNull);
+    expect(await sut(tempDir.path), isNull);
   });
 }
