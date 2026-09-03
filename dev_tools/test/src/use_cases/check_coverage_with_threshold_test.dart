@@ -3,37 +3,27 @@
 import 'package:dev_tools/src/use_cases/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/check_coverage_with_threshold.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _FakeFindProjectRoot extends FindProjectRoot {
-  const _FakeFindProjectRoot(this.root);
+class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
-  final String root;
-
-  @override
-  Future<String> call([String? start]) async => root;
-}
-
-class _FakeCalculateCoverage extends CalculateCoverage {
-  _FakeCalculateCoverage(this.percent);
-
-  int percent;
-
-  @override
-  Future<int> call(String lcovFile, [String? projectRoot]) async => percent;
-}
+class _MockCalculateCoverage extends Mock implements CalculateCoverage {}
 
 void main() {
   const root = '/fake/root';
 
-  late _FakeFindProjectRoot findProjectRoot;
-  late _FakeCalculateCoverage coverageUtils;
+  late _MockFindProjectRoot findProjectRoot;
+  late _MockCalculateCoverage coverageUtils;
 
   late CheckCoverageWithThreshold sut;
 
   setUp(() {
-    findProjectRoot = const _FakeFindProjectRoot(root);
-    coverageUtils = _FakeCalculateCoverage(100);
+    findProjectRoot = _MockFindProjectRoot();
+    coverageUtils = _MockCalculateCoverage();
+
+    when(() => findProjectRoot()).thenAnswer((_) async => root);
+    when(() => coverageUtils(any(), any())).thenAnswer((_) async => 100);
 
     sut = CheckCoverageWithThreshold(
       findProjectRoot: findProjectRoot,
@@ -46,7 +36,7 @@ void main() {
   });
 
   test('should not throw when coverage exceeds the threshold', () async {
-    coverageUtils.percent = 95;
+    when(() => coverageUtils(any(), any())).thenAnswer((_) async => 95);
 
     await expectLater(sut(threshold: 90), completes);
   });
@@ -54,7 +44,7 @@ void main() {
   test(
     'should throw CheckCoverageWithThresholdException when coverage is below threshold',
     () async {
-      coverageUtils.percent = 80;
+      when(() => coverageUtils(any(), any())).thenAnswer((_) async => 80);
 
       await expectLater(
         sut(),

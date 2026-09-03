@@ -6,25 +6,12 @@ import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/cmd_installation_checker.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/process_coverage_data.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _FakeFindProjectRoot extends FindProjectRoot {
-  const _FakeFindProjectRoot(this.root);
+class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
-  final String root;
-
-  @override
-  Future<String> call([String? start]) async => root;
-}
-
-class _FakeChecker extends CmdInstallationChecker {
-  _FakeChecker({required this.available});
-
-  bool available;
-
-  @override
-  Future<bool> call(String executable) async => available;
-}
+class _MockCmdChecker extends Mock implements CmdInstallationChecker {}
 
 bool _toolNotAvailable(String tool) =>
     Process.runSync('which', [tool]).exitCode != 0;
@@ -32,14 +19,16 @@ bool _toolNotAvailable(String tool) =>
 void main() {
   const root = '/fake/root';
 
-  late _FakeFindProjectRoot findProjectRoot;
-  late _FakeChecker cmdChecker;
+  late _MockFindProjectRoot findProjectRoot;
+  late _MockCmdChecker cmdChecker;
 
   late ProcessCoverageDataWithLcov sut;
 
   setUp(() {
-    findProjectRoot = const _FakeFindProjectRoot(root);
-    cmdChecker = _FakeChecker(available: true);
+    findProjectRoot = _MockFindProjectRoot();
+    cmdChecker = _MockCmdChecker();
+
+    when(() => findProjectRoot()).thenAnswer((_) async => root);
 
     sut = ProcessCoverageDataWithLcov(
       findProjectRoot: findProjectRoot,
@@ -50,7 +39,7 @@ void main() {
   test(
     'should throw CommandNotFoundException when lcov is not installed',
     () async {
-      cmdChecker.available = false;
+      when(() => cmdChecker(any())).thenAnswer((_) async => false);
 
       await expectLater(sut(), throwsA(isA<CommandNotFoundException>()));
     },
@@ -59,6 +48,8 @@ void main() {
   test(
     'should run lcov when it is installed',
     () async {
+      when(() => cmdChecker(any())).thenAnswer((_) async => true);
+
       await expectLater(sut(exclusions: ['lib/generated/*']), completes);
     },
     skip: _toolNotAvailable('lcov') ? 'lcov not available' : null,

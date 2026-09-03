@@ -8,79 +8,51 @@ import 'package:dev_tools/src/use_cases/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/validate_package_path.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _FakeGetCurrentBranch extends GetCurrentBranch {
-  _FakeGetCurrentBranch(this.branch);
+class _MockGetCurrentBranch extends Mock implements GetCurrentBranch {}
 
-  String? branch;
+class _MockValidatePackagePath extends Mock implements ValidatePackagePath {}
 
-  @override
-  Future<String?> call([String? repoRoot]) async => branch;
-}
+class _MockGetPackageName extends Mock implements GetPackageName {}
 
-class _FakeValidatePackagePath extends ValidatePackagePath {
-  const _FakeValidatePackagePath();
+class _MockGetPackageVersion extends Mock implements GetPackageVersion {}
 
-  @override
-  void call(String repoRoot, String pkgPath) {}
-}
+class _MockHasCleanWorkingTree extends Mock implements HasCleanWorkingTree {}
 
-class _FakeGetPackageName extends GetPackageName {
-  _FakeGetPackageName(this.name);
-
-  String name;
-
-  @override
-  Future<String?> call(String repoRoot, String pkgPath) async => name;
-}
-
-class _FakeGetPackageVersion extends GetPackageVersion {
-  _FakeGetPackageVersion(this.version);
-
-  String version;
-
-  @override
-  Future<String?> call(String repoRoot, String pkgPath) async => version;
-}
-
-class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
-  _FakeHasCleanWorkingTree({required this.clean});
-
-  bool clean;
-
-  @override
-  Future<bool> call([String? repoRoot]) async => clean;
-}
-
-class _FakeConfirmYesNo extends ConfirmYesNo {
-  _FakeConfirmYesNo({required this.response});
-
-  bool response;
-
-  @override
-  Future<bool> call(String question) async => response;
-}
+class _MockConfirmYesNo extends Mock implements ConfirmYesNo {}
 
 void main() {
-  late _FakeGetCurrentBranch getCurrentBranch;
-  late _FakeGetPackageName getPackageName;
-  late _FakeGetPackageVersion getPackageVersion;
-  late _FakeHasCleanWorkingTree hasCleanWorkingTree;
-  late _FakeConfirmYesNo confirmYesNo;
+  late _MockGetCurrentBranch getCurrentBranch;
+  late _MockValidatePackagePath validatePackagePath;
+  late _MockGetPackageName getPackageName;
+  late _MockGetPackageVersion getPackageVersion;
+  late _MockHasCleanWorkingTree hasCleanWorkingTree;
+  late _MockConfirmYesNo confirmYesNo;
 
   late RunPublishFlow sut;
 
   setUp(() {
-    getCurrentBranch = _FakeGetCurrentBranch('release/pkg-1.0.0');
-    getPackageName = _FakeGetPackageName('foo');
-    getPackageVersion = _FakeGetPackageVersion('1.0.0');
-    hasCleanWorkingTree = _FakeHasCleanWorkingTree(clean: true);
-    confirmYesNo = _FakeConfirmYesNo(response: true);
+    getCurrentBranch = _MockGetCurrentBranch();
+    validatePackagePath = _MockValidatePackagePath();
+    getPackageName = _MockGetPackageName();
+    getPackageVersion = _MockGetPackageVersion();
+    hasCleanWorkingTree = _MockHasCleanWorkingTree();
+    confirmYesNo = _MockConfirmYesNo();
+
+    when(() => getCurrentBranch(any()))
+        .thenAnswer((_) async => 'release/pkg-1.0.0');
+    when(() => validatePackagePath(any(), any())).thenReturn(null);
+    when(() => getPackageName(any(), any())).thenAnswer((_) async => 'foo');
+    when(() => getPackageVersion(any(), any()))
+        .thenAnswer((_) async => '1.0.0');
+    when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => true);
+    when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
     sut = RunPublishFlow(
       getCurrentBranch: getCurrentBranch,
-      validatePackagePath: const _FakeValidatePackagePath(),
+      validatePackagePath: validatePackagePath,
       getPackageName: getPackageName,
       getPackageVersion: getPackageVersion,
       hasCleanWorkingTree: hasCleanWorkingTree,
@@ -91,7 +63,7 @@ void main() {
   test(
     'should throw PublishValidationException when in detached HEAD',
     () async {
-      getCurrentBranch.branch = null;
+      when(() => getCurrentBranch(any())).thenAnswer((_) async => null);
 
       await expectLater(
         sut(repoRoot: '/fake'),
@@ -103,7 +75,7 @@ void main() {
   test(
     'should throw PublishValidationException when branch is not a release branch',
     () async {
-      getCurrentBranch.branch = 'main';
+      when(() => getCurrentBranch(any())).thenAnswer((_) async => 'main');
 
       await expectLater(
         sut(repoRoot: '/fake'),
@@ -115,7 +87,8 @@ void main() {
   test(
     'should throw PublishValidationException when branch version mismatches pubspec',
     () async {
-      getPackageVersion.version = '2.0.0';
+      when(() => getPackageVersion(any(), any()))
+          .thenAnswer((_) async => '2.0.0');
 
       await expectLater(
         sut(repoRoot: '/fake'),
@@ -127,8 +100,8 @@ void main() {
   test(
     'should cancel when working tree is dirty and user declines to continue',
     () async {
-      hasCleanWorkingTree.clean = false;
-      confirmYesNo.response = false;
+      when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => false);
+      when(() => confirmYesNo(any())).thenAnswer((_) async => false);
 
       await expectLater(sut(repoRoot: '/fake'), completes);
     },

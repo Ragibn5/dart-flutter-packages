@@ -5,42 +5,34 @@ import 'dart:io';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 import 'package:dev_tools/src/use_cases/run_flutter_test_with_coverage.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _FakeFindProjectRoot extends FindProjectRoot {
-  const _FakeFindProjectRoot(this.root);
+class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
-  final String root;
-
-  @override
-  Future<String> call([String? start]) async => root;
-}
-
-class _FakeFlutterFinder extends FvmAwareFlutterCommandFinder {
-  _FakeFlutterFinder(this.command);
-
-  String command;
-
-  @override
-  Future<String> call() async => command;
-}
+class _MockFlutterCommandFinder extends Mock
+    implements FvmAwareFlutterCommandFinder {}
 
 void main() {
   late Directory tempDir;
 
-  late _FakeFindProjectRoot findProjectRoot;
-  late _FakeFlutterFinder flutterFinder;
+  late _MockFindProjectRoot findProjectRoot;
+  late _MockFlutterCommandFinder flutterCommandFinder;
 
   late RunFlutterTestWithCoverage sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('run_flutter_project');
-    findProjectRoot = _FakeFindProjectRoot(tempDir.path);
-    flutterFinder = _FakeFlutterFinder(_script(tempDir, exitCode: 0));
+    findProjectRoot = _MockFindProjectRoot();
+    flutterCommandFinder = _MockFlutterCommandFinder();
+
+    when(() => findProjectRoot()).thenAnswer((_) async => tempDir.path);
+    when(() => flutterCommandFinder())
+        .thenAnswer((_) async => _script(tempDir, exitCode: 0));
 
     sut = RunFlutterTestWithCoverage(
       findProjectRoot: findProjectRoot,
-      flutterCommandFinder: flutterFinder,
+      flutterCommandFinder: flutterCommandFinder,
     );
   });
 
@@ -56,7 +48,8 @@ void main() {
   test(
     'should throw FlutterTestWithCoverageException when the command fails',
     () async {
-      flutterFinder.command = _script(tempDir, exitCode: 1);
+      when(() => flutterCommandFinder())
+          .thenAnswer((_) async => _script(tempDir, exitCode: 1));
 
       await expectLater(
         sut(),
