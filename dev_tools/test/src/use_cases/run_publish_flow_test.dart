@@ -10,6 +10,58 @@ import 'package:dev_tools/src/use_cases/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/validate_package_path.dart';
 import 'package:test/test.dart';
 
+class _FakeGetCurrentBranch extends GetCurrentBranch {
+  _FakeGetCurrentBranch(this.branch);
+
+  String? branch;
+
+  @override
+  Future<String?> call([String? repoRoot]) async => branch;
+}
+
+class _FakeValidatePackagePath extends ValidatePackagePath {
+  const _FakeValidatePackagePath();
+
+  @override
+  void call(String repoRoot, String pkgPath) {}
+}
+
+class _FakeGetPackageName extends GetPackageName {
+  _FakeGetPackageName(this.name);
+
+  String name;
+
+  @override
+  Future<String?> call(String repoRoot, String pkgPath) async => name;
+}
+
+class _FakeGetPackageVersion extends GetPackageVersion {
+  _FakeGetPackageVersion(this.version);
+
+  String version;
+
+  @override
+  Future<String?> call(String repoRoot, String pkgPath) async => version;
+}
+
+class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
+  _FakeHasCleanWorkingTree({required this.clean});
+
+  bool clean;
+
+  @override
+  Future<bool> call([String? repoRoot]) async => clean;
+}
+
+class _FakeConfirmYesNo extends ConfirmYesNo {
+  _FakeConfirmYesNo({required this.response});
+
+  bool response;
+
+  @override
+  Future<bool> call(String question) async => response;
+}
+
 void main() {
   late _FakeGetCurrentBranch getCurrentBranch;
   late _FakeGetPackageName getPackageName;
@@ -81,56 +133,4 @@ void main() {
       await expectLater(sut(repoRoot: '/fake'), completes);
     },
   );
-}
-
-class _FakeGetCurrentBranch extends GetCurrentBranch {
-  _FakeGetCurrentBranch(this.branch);
-
-  String? branch;
-
-  @override
-  Future<String?> call([String? repoRoot]) async => branch;
-}
-
-class _FakeValidatePackagePath extends ValidatePackagePath {
-  const _FakeValidatePackagePath();
-
-  @override
-  void call(String repoRoot, String pkgPath) {}
-}
-
-class _FakeGetPackageName extends GetPackageName {
-  _FakeGetPackageName(this.name);
-
-  String name;
-
-  @override
-  Future<String?> call(String repoRoot, String pkgPath) async => name;
-}
-
-class _FakeGetPackageVersion extends GetPackageVersion {
-  _FakeGetPackageVersion(this.version);
-
-  String version;
-
-  @override
-  Future<String?> call(String repoRoot, String pkgPath) async => version;
-}
-
-class _FakeHasCleanWorkingTree extends HasCleanWorkingTree {
-  _FakeHasCleanWorkingTree({required this.clean});
-
-  bool clean;
-
-  @override
-  Future<bool> call([String? repoRoot]) async => clean;
-}
-
-class _FakeConfirmYesNo extends ConfirmYesNo {
-  _FakeConfirmYesNo({required this.response});
-
-  bool response;
-
-  @override
-  Future<bool> call(String question) async => response;
 }

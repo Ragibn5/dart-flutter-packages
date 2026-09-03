@@ -3,6 +3,15 @@ import 'package:dev_tools/src/use_cases/cmd_installation_checker.dart';
 import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 import 'package:test/test.dart';
 
+class _FakeChecker extends CmdInstallationChecker {
+  _FakeChecker(this.installed);
+
+  Set<String> installed;
+
+  @override
+  Future<bool> call(String executable) async => installed.contains(executable);
+}
+
 void main() {
   late _FakeChecker cmdChecker;
 
@@ -35,13 +44,4 @@ void main() {
       expect(() => sut(), throwsA(isA<CommandNotFoundException>()));
     },
   );
-}
-
-class _FakeChecker extends CmdInstallationChecker {
-  _FakeChecker(this.installed);
-
-  Set<String> installed;
-
-  @override
-  Future<bool> call(String executable) async => installed.contains(executable);
 }

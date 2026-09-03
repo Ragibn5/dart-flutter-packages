@@ -5,6 +5,24 @@ import 'package:dev_tools/src/use_cases/check_coverage_with_threshold.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
 import 'package:test/test.dart';
 
+class _FakeFindProjectRoot extends FindProjectRoot {
+  const _FakeFindProjectRoot(this.root);
+
+  final String root;
+
+  @override
+  Future<String> call([String? start]) async => root;
+}
+
+class _FakeCalculateCoverage extends CalculateCoverage {
+  _FakeCalculateCoverage(this.percent);
+
+  int percent;
+
+  @override
+  Future<int> call(String lcovFile, [String? projectRoot]) async => percent;
+}
+
 void main() {
   const root = '/fake/root';
 
@@ -44,22 +62,4 @@ void main() {
       );
     },
   );
-}
-
-class _FakeFindProjectRoot extends FindProjectRoot {
-  const _FakeFindProjectRoot(this.root);
-
-  final String root;
-
-  @override
-  Future<String> call([String? start]) async => root;
-}
-
-class _FakeCalculateCoverage extends CalculateCoverage {
-  _FakeCalculateCoverage(this.percent);
-
-  int percent;
-
-  @override
-  Future<int> call(String lcovFile, [String? projectRoot]) async => percent;
 }
