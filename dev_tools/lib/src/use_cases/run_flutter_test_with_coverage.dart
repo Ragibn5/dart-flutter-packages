@@ -1,16 +1,16 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
-import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 
 class RunFlutterTestWithCoverage {
   final FindProjectRoot _findProjectRoot;
-  final FvmAwareFlutterCommandFinder _findFlutterCommand;
+  final FindFvmAwareFlutterCommand _findFlutterCommand;
 
   const RunFlutterTestWithCoverage({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
-    FvmAwareFlutterCommandFinder flutterCommandFinder =
-        const FvmAwareFlutterCommandFinder(),
+    FindFvmAwareFlutterCommand flutterCommandFinder =
+        const FindFvmAwareFlutterCommand(),
   })  : _findProjectRoot = findProjectRoot,
         _findFlutterCommand = flutterCommandFinder;
 

@@ -2,8 +2,8 @@
 
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/find_project_root.dart';
-import 'package:dev_tools/src/use_cases/fvm_aware_flutter_command_finder.dart';
 import 'package:dev_tools/src/use_cases/run_flutter_test_with_coverage.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
 class _MockFlutterCommandFinder extends Mock
-    implements FvmAwareFlutterCommandFinder {}
+    implements FindFvmAwareFlutterCommand {}
 
 void main() {
   late Directory tempDir;

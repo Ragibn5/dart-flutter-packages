@@ -1,8 +1,8 @@
 import 'package:dev_tools/dev_tools.dart';
 
 Future<void> main() async {
-  const flutterCommandFinder = FvmAwareFlutterCommandFinder();
-  const dartCommandFinder = FvmAwareDartCommandFinder();
+  const flutterCommandFinder = FindFvmAwareFlutterCommand();
+  const dartCommandFinder = FindFvmAwareDartCommand();
   print('Flutter command: ${await flutterCommandFinder()}');
   print('Dart command: ${await dartCommandFinder()}');
 

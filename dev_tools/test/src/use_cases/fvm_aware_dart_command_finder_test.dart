@@ -1,6 +1,6 @@
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/cmd_installation_checker.dart';
-import 'package:dev_tools/src/use_cases/fvm_aware_dart_command_finder.dart';
+import 'package:dev_tools/src/use_cases/find_fvm_aware_dart_command.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -9,12 +9,12 @@ class _MockCmdChecker extends Mock implements CmdInstallationChecker {}
 void main() {
   late _MockCmdChecker cmdChecker;
 
-  late FvmAwareDartCommandFinder sut;
+  late FindFvmAwareDartCommand sut;
 
   setUp(() {
     cmdChecker = _MockCmdChecker();
 
-    sut = FvmAwareDartCommandFinder(cmdInstallationChecker: cmdChecker);
+    sut = FindFvmAwareDartCommand(cmdInstallationChecker: cmdChecker);
   });
 
   test('should return fvm dart when fvm is installed', () async {

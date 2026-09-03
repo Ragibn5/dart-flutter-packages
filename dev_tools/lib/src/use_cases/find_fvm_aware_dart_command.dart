@@ -1,21 +1,21 @@
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/cmd_installation_checker.dart';
 
-class FvmAwareFlutterCommandFinder {
+class FindFvmAwareDartCommand {
   final CmdInstallationChecker _cmdInstallationChecker;
 
-  const FvmAwareFlutterCommandFinder({
+  const FindFvmAwareDartCommand({
     CmdInstallationChecker cmdInstallationChecker =
         const CmdInstallationChecker(),
   }) : _cmdInstallationChecker = cmdInstallationChecker;
 
   Future<String> call() async {
     if (await _cmdInstallationChecker('fvm')) {
-      return 'fvm flutter';
+      return 'fvm dart';
     }
-    if (await _cmdInstallationChecker('flutter')) {
-      return 'flutter';
+    if (await _cmdInstallationChecker('dart')) {
+      return 'dart';
     }
-    throw const CommandNotFoundException(['fvm', 'flutter']);
+    throw const CommandNotFoundException(['fvm', 'dart']);
   }
 }
