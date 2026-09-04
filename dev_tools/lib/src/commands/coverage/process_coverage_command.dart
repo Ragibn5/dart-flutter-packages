@@ -12,7 +12,7 @@ class ProcessCoverageCommand extends Command<void> {
   }) : _processCoverageData = processCoverageData;
 
   @override
-  String get name => 'process-coverage';
+  String get name => 'process';
 
   @override
   String get description => 'Filter lcov data using exclusion patterns.';

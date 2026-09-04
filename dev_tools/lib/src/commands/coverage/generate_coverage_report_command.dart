@@ -12,7 +12,7 @@ class GenerateCoverageReportCommand extends Command<void> {
   }) : _generateCoverageReport = generateCoverageReport;
 
   @override
-  String get name => 'generate-coverage-report';
+  String get name => 'genreport';
 
   @override
   String get description => 'Generate an HTML coverage report with genhtml.';
