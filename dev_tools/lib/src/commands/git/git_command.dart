@@ -10,5 +10,5 @@ class GitCommand extends Command<void> {
   String get name => 'git';
 
   @override
-  String get description => 'Git helpers for CI change detection.';
+  String get description => 'Git related commands.';
 }

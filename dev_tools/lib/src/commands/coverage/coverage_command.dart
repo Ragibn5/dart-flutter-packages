@@ -16,6 +16,5 @@ class CoverageCommand extends Command<void> {
   String get name => 'coverage';
 
   @override
-  String get description =>
-      'Run tests with coverage, process coverage data and enforce thresholds.';
+  String get description => 'Coverage related commands.';
 }

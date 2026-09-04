@@ -1,5 +1,5 @@
 import 'package:dev_tools/src/commands/detect_folder_changes_command.dart';
-import 'package:dev_tools/src/commands/git_command.dart';
+import 'package:dev_tools/src/commands/git/git_command.dart';
 import 'package:test/test.dart';
 
 void main() {
