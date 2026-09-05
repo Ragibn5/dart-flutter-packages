@@ -28,44 +28,45 @@ dev_dependencies:
 
 ### CLI
 
-This is developer tooling, so add it under `dev_dependencies` in your project. A single executable is exposed (plus per-domain subcommands):
+This is developer tooling, so add it under `dev_dependencies` in your project. A single executable with per-domain subcommands is exposed:
+
+| Command            | Description                                                                                                                   |
+|--------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `fvm-dart`         | Returns the fvm-aware dart executable prefix.                                                                                 |
+| `fvm-flutter`      | Returns the fvm-aware flutter executable prefix.                                                                              |
+| `coverage run`     | Runs tests with coverage (`--lcov-file`, default `coverage/lcov.info`).                                                       |
+| `coverage process` | Filters lcov data using exclusion patterns relative to the project root (`-e`/`--exclude`, repeatable, e.g. `lib/api/**`).    |
+| `coverage enforce` | Enforces the coverage threshold against an lcov file (`--lcov-file`, `--threshold`, defaults `coverage/lcov.info` and `100`). |
+| `coverage genres`  | Generates an HTML coverage report with genhtml.                                                                               |
+| `publish`          | Validates and publishes a package from a release branch (`--dry-run` for a dry run).                                          |
+| `git changes`      | Detects changes in a folder between two refs: `git changes <folder> <from-ref> <to-ref>`.                                     |
+| `replace`          | Replaces literal text across files: `replace <src> <target>`.                                                                 |
+| `test-all`         | Discovers and runs tests for all packages (runs `scripts/run_all_tests.sh` from the current directory).                       |
+
+Examples:
 
 ```bash
-# Resolve the Flutter/Dart command (honors fvm when present)
-dart run dev_tools:flutter
-dart run dev_tools:dart
+# Resolve the Flutter/Dart executable (honors fvm when present)
+dart run dev_tools fvm-dart
+dart run dev_tools fvm-flutter
 
 # Coverage workflow
-dart run dev_tools:coverage run
-dart run dev_tools:coverage process --exclude lib/api/**
-dart run dev_tools:coverage enforce --lcov-file coverage/lcov.info --threshold 100
+dart run dev_tools coverage run --lcov-file coverage/lcov.info
+dart run dev_tools coverage process --exclude lib/api/**
+dart run dev_tools coverage enforce --lcov-file coverage/lcov.info --threshold 100
+dart run dev_tools coverage genres
 
 # Publish a package
-dart run dev_tools:publish --dry-run
-dart run dev_tools:publish
+dart run dev_tools publish --dry-run
 
 # CI change detection
-dart run dev_tools:git changes <folder> <from-ref> <to-ref>
+dart run dev_tools git changes lib <from-ref> <to-ref>
 
 # Replace text across files
-dart run dev_tools:replace <src> <target>
+dart run dev_tools replace <src> <target>
 
 # Discover and run tests for all packages
-dart run dev_tools:test-all
-```
-
-### Library
-
-Each utility is also available as a library under the `dev_tools` package.
-
-```dart
-import 'package:dev_tools/dev_tools.dart';
-
-void main() async {
-  final flutterCmd = await FlutterUtils.getFlutterCmd();
-  final root = await ProjectUtils.findProjectRoot();
-  final pct = await CoverageUtils.getCoveragePct('coverage/lcov.info');
-}
+dart run dev_tools test-all
 ```
 
 ## Example
