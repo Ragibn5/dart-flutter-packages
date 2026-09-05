@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/generate_coverage_report_page.dart';
+import 'package:dev_tools/src/use_cases/coverage/generate_coverage_report_page.dart';
 
 class GenerateCoverageReportCommand extends Command<void> {
   static const String commandName = 'genreport';

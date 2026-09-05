@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/run_publish_flow.dart';
+import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 
 class PublishCommand extends Command<void> {
   static const String commandName = 'publish';

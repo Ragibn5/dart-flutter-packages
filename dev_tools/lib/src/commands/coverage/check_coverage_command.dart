@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/check_coverage_with_threshold.dart';
+import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.dart';
 
 class CheckCoverageCommand extends Command<void> {
   static const String commandName = 'check';

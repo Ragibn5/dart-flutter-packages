@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 
 class DetectFolderChangesCommand extends Command<void> {
   static const String commandName = 'changes';

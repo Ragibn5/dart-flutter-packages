@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/text_utils.dart';
+import 'package:dev_tools/src/use_cases/common/text_utils.dart';
 
 class ReplaceCommand extends Command<void> {
   static const String commandName = 'replace';

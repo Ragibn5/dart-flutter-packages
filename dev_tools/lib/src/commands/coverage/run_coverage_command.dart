@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/run_flutter_test_with_coverage.dart';
+import 'package:dev_tools/src/use_cases/coverage/run_flutter_test_with_coverage.dart';
 
 class RunCoverageCommand extends Command<void> {
   static const String commandName = 'run';
