@@ -1,5 +1,5 @@
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/commands/detect_folder_changes_command.dart';
+import 'package:dev_tools/src/commands/git/detect_folder_changes_command.dart';
 
 class GitCommand extends Command<void> {
   static const String commandName = 'git';

@@ -1,8 +1,8 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:dev_tools/src/use_cases/common/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/git/get_current_branch.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
+import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/get_package_name.dart';
 import 'package:dev_tools/src/use_cases/publish/get_package_version.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';

@@ -2,9 +2,9 @@
 
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/common/find_fvm_aware_flutter_command.dart';
-import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_flutter_test_with_coverage.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

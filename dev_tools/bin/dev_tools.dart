@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
-import 'package:dev_tools/src/commands/fvm_dart_command.dart';
-import 'package:dev_tools/src/commands/fvm_flutter_command.dart';
+import 'package:dev_tools/src/commands/coverage/test_all_command.dart';
+import 'package:dev_tools/src/commands/dart_flutter/fvm_dart_command.dart';
+import 'package:dev_tools/src/commands/dart_flutter/fvm_flutter_command.dart';
+import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
 import 'package:dev_tools/src/commands/git/git_command.dart';
-import 'package:dev_tools/src/commands/publish_command.dart';
-import 'package:dev_tools/src/commands/replace_command.dart';
-import 'package:dev_tools/src/commands/test_all_command.dart';
+import 'package:dev_tools/src/commands/publish/publish_command.dart';
 
 Future<void> main(List<String> args) async {
   const executableName = 'dev_tools';

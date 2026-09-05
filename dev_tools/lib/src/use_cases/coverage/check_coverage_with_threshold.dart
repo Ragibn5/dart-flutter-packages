@@ -2,8 +2,8 @@
 
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 
 class EnforceCoverageThreshold {
   final FindProjectRoot _findProjectRoot;

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
-import 'package:dev_tools/src/use_cases/common/cmd_installation_checker.dart';
-import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
+import 'package:dev_tools/src/use_cases/shell_utils/cmd_installation_checker.dart';
 
 class GenerateCoverageReportPage {
   final FindProjectRoot _findProjectRoot;

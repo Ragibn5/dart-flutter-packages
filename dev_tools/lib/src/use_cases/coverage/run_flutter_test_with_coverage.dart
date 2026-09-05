@@ -1,12 +1,12 @@
-import 'package:dev_tools/src/use_cases/common/find_fvm_aware_flutter_command.dart';
-import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 
 class RunFlutterTestWithCoverage {
+  static final RegExp _fvmFlutterPattern = RegExp(r'^(fvm)\s+(flutter)$');
+
   final FindProjectRoot _findProjectRoot;
   final FindFvmAwareFlutterCommand _findFlutterCommand;
-
-  static final RegExp _fvmFlutterPattern = RegExp(r'^(fvm)\s+(flutter)$');
 
   const RunFlutterTestWithCoverage({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),

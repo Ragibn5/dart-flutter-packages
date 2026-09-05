@@ -3,9 +3,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
