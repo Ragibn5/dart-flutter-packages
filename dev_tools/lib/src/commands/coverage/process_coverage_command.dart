@@ -29,8 +29,8 @@ class ProcessCoverageCommand extends Command<void> {
   String get description => commandDescription;
 
   @override
-  FutureOr<void>? run() async {
+  FutureOr<void>? run() {
     final exclusions = argResults![excludeOption] as List<String>;
-    await _processCoverageData(exclusions: exclusions);
+    return _processCoverageData(exclusions: exclusions);
   }
 }
