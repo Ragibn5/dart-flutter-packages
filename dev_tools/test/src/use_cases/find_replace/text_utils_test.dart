@@ -70,7 +70,7 @@ void main() {
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
     sut = TextUtils(
-      stdout: _BufferSink(out),
+      stdOut: _BufferSink(out),
       confirmYesNo: confirmYesNo,
     );
   });
@@ -98,25 +98,7 @@ void main() {
     expect(fileB.readAsStringSync(), 'nothing here\n');
   });
 
-  test('should skip binary files', () async {
-    final binary = File('${tempDir.path}/logo.png')
-      ..writeAsBytesSync(List.filled(8, 0));
-    final text = File('${tempDir.path}/readme.md')
-      ..writeAsStringSync('foo bar\n');
-
-    final count = await sut(
-      srcText: 'foo',
-      targetText: 'baz',
-      start: tempDir.path,
-      interactive: false,
-    );
-
-    expect(count, 1);
-    expect(binary.readAsBytesSync(), List.filled(8, 0));
-    expect(text.readAsStringSync(), 'baz bar\n');
-  });
-
-  test('should skip files under .dart_tool and build directories', () async {
+  test('should only skip .dart_tool and build files when excluded', () async {
     File('${tempDir.path}/a.dart').writeAsStringSync('foo foo\n');
     final dartTool = Directory('${tempDir.path}/.dart_tool')..createSync();
     File('${dartTool.path}/cache.dart').writeAsStringSync('foo foo\n');
@@ -128,8 +110,20 @@ void main() {
       interactive: false,
     );
 
-    expect(count, 2);
-    expect(File('${dartTool.path}/cache.dart').readAsStringSync(), 'foo foo\n');
+    expect(count, 4);
+    expect(File('${dartTool.path}/cache.dart').readAsStringSync(), 'bar bar\n');
+
+    final skipped = await sut(
+      srcText: 'bar',
+      targetText: 'qux',
+      start: tempDir.path,
+      interactive: false,
+      exclusions: const ['.dart_tool/**', '**/build/**'],
+    );
+
+    expect(skipped, 2);
+    expect(File('${dartTool.path}/cache.dart').readAsStringSync(), 'bar bar\n');
+    expect(File('${tempDir.path}/a.dart').readAsStringSync(), 'qux qux\n');
   });
 
   test('should return 0 when no occurrences are found', () async {
@@ -179,20 +173,129 @@ void main() {
         .called(1);
   });
 
-  test('should honor an injected isTextFile callback', () async {
-    final anyExtension = File('${tempDir.path}/data.bin')
-      ..writeAsStringSync('hello hello\n');
+  test('should replace case-insensitively when ignoreCase is true', () async {
+    final file = File('${tempDir.path}/a.txt')
+      ..writeAsStringSync('Hello HELLO hello\n');
 
     final count = await sut(
       srcText: 'hello',
-      targetText: 'goodbye',
+      targetText: 'bye',
       start: tempDir.path,
       interactive: false,
-      isTextFile: (file) => file.path.endsWith('.bin'),
+      ignoreCase: true,
+    );
+
+    expect(count, 3);
+    expect(file.readAsStringSync(), 'bye bye bye\n');
+  });
+
+  test('should only replace whole words when matchWord is true', () async {
+    final file = File('${tempDir.path}/a.txt')
+      ..writeAsStringSync('hello hellothere xhello hi-hello\n');
+
+    final count = await sut(
+      srcText: 'hello',
+      targetText: 'bye',
+      start: tempDir.path,
+      interactive: false,
+      matchWord: true,
     );
 
     expect(count, 2);
-    expect(anyExtension.readAsStringSync(), 'goodbye goodbye\n');
+    expect(file.readAsStringSync(), 'bye hellothere xhello hi-bye\n');
+  });
+
+  test('should treat srcText as a regular expression when regex is true',
+      () async {
+    final file = File('${tempDir.path}/a.txt')
+      ..writeAsStringSync('Item 12 and item 345\n');
+
+    final count = await sut(
+      srcText: r'item \d+',
+      targetText: 'value',
+      start: tempDir.path,
+      interactive: false,
+      regex: true,
+      ignoreCase: true,
+    );
+
+    expect(count, 2);
+    expect(file.readAsStringSync(), 'value and value\n');
+  });
+
+  test('should skip files matched by exclusion patterns', () async {
+    File('${tempDir.path}/a.txt').writeAsStringSync('foo foo\n');
+    final skipDir = Directory('${tempDir.path}/generated')..createSync();
+    File('${skipDir.path}/b.txt').writeAsStringSync('foo foo\n');
+    File('${tempDir.path}/c.g.dart').writeAsStringSync('foo foo\n');
+
+    final count = await sut(
+      srcText: 'foo',
+      targetText: 'bar',
+      start: tempDir.path,
+      interactive: false,
+      exclusions: const ['generated/**', '*.g.dart'],
+    );
+
+    expect(count, 2);
+    expect(File('${tempDir.path}/a.txt').readAsStringSync(), 'bar bar\n');
+    expect(File('${skipDir.path}/b.txt').readAsStringSync(), 'foo foo\n');
+    expect(File('${tempDir.path}/c.g.dart').readAsStringSync(), 'foo foo\n');
+  });
+
+  test(
+    'should treat a bare or trailing-slash directory pattern as excluding '
+    'its subtree',
+    () async {
+      File('${tempDir.path}/a.txt').writeAsStringSync('foo foo\n');
+      final bareDir = Directory('${tempDir.path}/generated')..createSync();
+      File('${bareDir.path}/b.txt').writeAsStringSync('foo foo\n');
+      final slashDir = Directory('${tempDir.path}/out')..createSync();
+      File('${slashDir.path}/c.txt').writeAsStringSync('foo foo\n');
+
+      final count = await sut(
+        srcText: 'foo',
+        targetText: 'bar',
+        start: tempDir.path,
+        interactive: false,
+        exclusions: const ['generated', 'out/'],
+      );
+
+      expect(count, 2);
+      expect(File('${tempDir.path}/a.txt').readAsStringSync(), 'bar bar\n');
+      expect(File('${bareDir.path}/b.txt').readAsStringSync(), 'foo foo\n');
+      expect(File('${slashDir.path}/c.txt').readAsStringSync(), 'foo foo\n');
+    },
+  );
+
+  test('should not follow directory symlinks unless followLinks is true',
+      () async {
+    final outside = Directory.systemTemp.createTempSync('text_utils_outside');
+    final file = File('${outside.path}/data.txt')
+      ..writeAsStringSync('foo foo\n');
+    Link('${tempDir.path}/link').createSync(outside.path);
+
+    final skipped = await sut(
+      srcText: 'foo',
+      targetText: 'bar',
+      start: tempDir.path,
+      interactive: false,
+    );
+
+    expect(skipped, 0);
+    expect(file.readAsStringSync(), 'foo foo\n');
+
+    final followed = await sut(
+      srcText: 'foo',
+      targetText: 'bar',
+      start: tempDir.path,
+      interactive: false,
+      followLinks: true,
+    );
+
+    expect(followed, 2);
+    expect(file.readAsStringSync(), 'bar bar\n');
+    outside.deleteSync(recursive: true);
   });
 
   test('should throw ArgumentError when srcText is empty', () {

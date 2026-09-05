@@ -30,16 +30,16 @@ dev_dependencies:
 
 A single executable with per-domain subcommands is exposed:
 
-| Command              | Description                                                                                                                   |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| `fvm-dart`           | Returns the fvm-aware dart executable prefix.                                                                                 |
-| `fvm-flutter`        | Returns the fvm-aware flutter executable prefix.                                                                              |
-| `coverage run`       | Runs tests with coverage (`--lcov-file`, default `coverage/lcov.info`).                                                       |
-| `coverage process`   | Filters lcov data using exclusion patterns relative to the project root (`-e`/`--exclude`, repeatable, e.g. `lib/api/**`).    |
-| `coverage enforce`   | Enforces the coverage threshold against an lcov file (`--lcov-file`, `--threshold`, defaults `coverage/lcov.info` and `100`). |
-| `coverage genreport` | Generates an HTML coverage report with genhtml.                                                                               |
-| `publish`            | Validates and publishes a package from a release branch (`--dry-run` for a dry run).                                          |
-| `git changes`        | Detects changes in a folder between two refs: `git changes <folder> <from-ref> <to-ref>`.                                     |
-| `replace`            | Replaces literal text across files: `replace <src> <target>`.                                                                 |
+| Command              | Description                                                                                                                                                           |
+|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fvm-dart`           | Returns the fvm-aware dart executable prefix.                                                                                                                         |
+| `fvm-flutter`        | Returns the fvm-aware flutter executable prefix.                                                                                                                      |
+| `coverage run`       | Runs tests with coverage (`--lcov-file`, default `coverage/lcov.info`).                                                                                               |
+| `coverage process`   | Filters lcov data using exclusion patterns relative to the project root (`-e`/`--exclude`, repeatable, e.g. `lib/api/**`).                                            |
+| `coverage enforce`   | Enforces the coverage threshold against an lcov file (`--lcov-file`, `--threshold`, defaults `coverage/lcov.info` and `100`).                                         |
+| `coverage genreport` | Generates an HTML coverage report with genhtml.                                                                                                                       |
+| `publish`            | Validates and publishes a package from a release branch (`--dry-run` for a dry run).                                                                                  |
+| `git changes`        | Detects changes in a folder between two refs: `git changes <folder> <from-ref> <to-ref>`.                                                                             |
+| `replace`            | Replaces text across files: `replace <src> <target>` (`--start <dir>`, `-e`/`--exclude`, `--follow-links`, `--ignore-case`, `--match-word`, `--regex`, `-y`/`--yes`). |
 
 > Note: Please see the files at `lib/src/commands` for full understanding.
