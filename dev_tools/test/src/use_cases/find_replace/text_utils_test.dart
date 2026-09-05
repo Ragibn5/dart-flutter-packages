@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/find_replace/text_utils.dart';
+import 'package:dev_tools/src/use_cases/find_replace/replace_text_in_scope.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -60,7 +60,7 @@ void main() {
   late StringBuffer out;
   late _MockConfirmYesNo confirmYesNo;
 
-  late TextUtils sut;
+  late ReplaceTextInScope sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('text_utils_test');
@@ -69,7 +69,7 @@ void main() {
 
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
-    sut = TextUtils(
+    sut = ReplaceTextInScope(
       stdOut: _BufferSink(out),
       confirmYesNo: confirmYesNo,
     );

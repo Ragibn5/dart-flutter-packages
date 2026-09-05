@@ -4,11 +4,11 @@ import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:glob/glob.dart';
 import 'package:path/path.dart' as p;
 
-class TextUtils {
+class ReplaceTextInScope {
   final ConfirmYesNo _confirmYesNo;
   final IOSink _stdout;
 
-  TextUtils({
+  ReplaceTextInScope({
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     IOSink? stdOut,
   })  : _confirmYesNo = confirmYesNo,

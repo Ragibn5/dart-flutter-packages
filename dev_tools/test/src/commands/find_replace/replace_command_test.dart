@@ -1,24 +1,24 @@
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
-import 'package:dev_tools/src/use_cases/find_replace/text_utils.dart';
+import 'package:dev_tools/src/use_cases/find_replace/replace_text_in_scope.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _MockTextUtils extends Mock implements TextUtils {}
+class _MockReplaceTextInScope extends Mock implements ReplaceTextInScope {}
 
 void main() {
   late ReplaceCommand sut;
   late CommandRunner<void> runner;
-  late _MockTextUtils textUtils;
+  late _MockReplaceTextInScope mockReplaceTextInScope;
 
   setUp(() {
-    textUtils = _MockTextUtils();
-    sut = ReplaceCommand(textUtils: textUtils);
+    mockReplaceTextInScope = _MockReplaceTextInScope();
+    sut = ReplaceCommand(replaceTextInScope: mockReplaceTextInScope);
     runner = CommandRunner<void>('dev_tools', 'dev tooling')..addCommand(sut);
   });
 
   void stubTextUtils() {
-    when(() => textUtils(
+    when(() => mockReplaceTextInScope(
           srcText: any(named: 'srcText'),
           targetText: any(named: 'targetText'),
           start: any(named: 'start'),
@@ -58,7 +58,7 @@ void main() {
       'lib/**/*.g.dart',
     ]);
 
-    verify(() => textUtils(
+    verify(() => mockReplaceTextInScope(
           srcText: 'foo',
           targetText: 'bar',
           start: 'lib',
@@ -75,7 +75,7 @@ void main() {
     stubTextUtils();
     await runner.run(['replace', 'foo', 'bar']);
 
-    verify(() => textUtils(
+    verify(() => mockReplaceTextInScope(
           srcText: 'foo',
           targetText: 'bar',
           // ignore: avoid_redundant_argument_values

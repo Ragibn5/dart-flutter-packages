@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/find_replace/text_utils.dart';
+import 'package:dev_tools/src/use_cases/find_replace/replace_text_in_scope.dart';
 
 class ReplaceCommand extends Command<void> {
   static const String commandName = 'replace';
@@ -14,10 +14,10 @@ class ReplaceCommand extends Command<void> {
   static const String regexFlag = 'regex';
   static const String interactiveFlag = 'yes';
 
-  final TextUtils _textUtils;
+  final ReplaceTextInScope _replaceTextInScope;
 
-  ReplaceCommand({TextUtils? textUtils})
-      : _textUtils = textUtils ?? TextUtils() {
+  ReplaceCommand({ReplaceTextInScope? replaceTextInScope})
+      : _replaceTextInScope = replaceTextInScope ?? ReplaceTextInScope() {
     argParser
       ..addOption(
         startOption,
@@ -64,7 +64,7 @@ class ReplaceCommand extends Command<void> {
     if (rest.length < 2) {
       throw UsageException('Usage: dev_tools replace <src> <target>', '');
     }
-    await _textUtils(
+    await _replaceTextInScope(
       srcText: rest[0],
       targetText: rest[1],
       start: argResults![startOption] as String?,
