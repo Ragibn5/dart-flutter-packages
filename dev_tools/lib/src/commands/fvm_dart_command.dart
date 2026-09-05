@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/dev_tools.dart';
+import 'package:dev_tools/src/use_cases/common/find_fvm_aware_dart_command.dart';
 
 class FvmDartCommand extends Command<void> {
   static const String commandName = 'fvm-dart';

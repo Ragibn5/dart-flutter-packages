@@ -37,15 +37,15 @@ dart run dev_tools:dart
 
 # Coverage workflow
 dart run dev_tools:coverage run
-dart run dev_tools:coverage process
-dart run dev_tools:coverage check coverage/lcov.info 100
+dart run dev_tools:coverage process --exclude lib/api/**
+dart run dev_tools:coverage enforce --lcov-file coverage/lcov.info --threshold 100
 
 # Publish a package
 dart run dev_tools:publish --dry-run
 dart run dev_tools:publish
 
 # CI change detection
-dart run dev_tools:git detect-folder-changes <folder> --from <from-ref> --to <to-ref>
+dart run dev_tools:git changes <folder> <from-ref> <to-ref>
 
 # Replace text across files
 dart run dev_tools:replace <src> <target>

@@ -5,6 +5,8 @@ import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.d
 
 class EnforceCoverageCommand extends Command<void> {
   static const String commandName = 'enforce';
+  static const String lcovFileOption = 'lcov-file';
+  static const String thresholdOption = 'threshold';
   static const String commandDescription =
       'Enforce the coverage threshold against an lcov file (default 100%). '
       'The lcov file path is relative to the project root (default coverage/lcov.info) and the threshold is a percentage.';
@@ -12,7 +14,19 @@ class EnforceCoverageCommand extends Command<void> {
   final EnforceCoverageThreshold _checkCoverage;
 
   EnforceCoverageCommand({EnforceCoverageThreshold? checkCoverage})
-      : _checkCoverage = checkCoverage ?? EnforceCoverageThreshold();
+      : _checkCoverage = checkCoverage ?? EnforceCoverageThreshold() {
+    argParser
+      ..addOption(
+        lcovFileOption,
+        defaultsTo: 'coverage/lcov.info',
+        help: 'Path to the lcov file, relative to the project root.',
+      )
+      ..addOption(
+        thresholdOption,
+        defaultsTo: '100',
+        help: 'Coverage percentage.',
+      );
+  }
 
   @override
   String get name => commandName;
@@ -22,10 +36,9 @@ class EnforceCoverageCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() {
-    final rest = argResults!.rest;
-    final lcovFile = rest.isNotEmpty ? rest[0] : 'coverage/lcov.info';
+    final lcovFile = argResults![lcovFileOption] as String;
     final threshold =
-        rest.length > 1 ? double.tryParse(rest[1]) ?? 100.0 : 100.0;
+        double.tryParse(argResults![thresholdOption] as String) ?? 100.0;
     return _checkCoverage(lcovFile: lcovFile, threshold: threshold);
   }
 }

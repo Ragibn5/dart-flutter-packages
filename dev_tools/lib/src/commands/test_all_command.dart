@@ -15,9 +15,6 @@ class TestAllCommand extends Command<void> {
   String get description => commandDescription;
 
   @override
-  bool get takesArguments => false;
-
-  @override
   FutureOr<void>? run() async {
     final runner = File('${Directory.current.path}/scripts/run_all_tests.sh');
     if (!runner.existsSync()) {

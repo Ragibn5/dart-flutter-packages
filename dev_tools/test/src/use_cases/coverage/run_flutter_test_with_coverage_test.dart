@@ -72,11 +72,59 @@ void main() {
       }
     },
   );
+
+  test('should pass a custom lcov file path to the flutter test command',
+      () async {
+    final logFile = '${tempDir.path}/args.log';
+    when(() => flutterCommandFinder()).thenAnswer(
+        (_) async => _script(tempDir, exitCode: 0, logFile: logFile));
+
+    await sut(lcovFile: 'coverage/alt.info');
+
+    final args = File(logFile).readAsStringSync();
+    expect(args, contains('--coverage-path'));
+    expect(args, contains('coverage/alt.info'));
+  });
+
+  group('splitCommand', () {
+    test('should use the whole command as the executable for flutter', () {
+      final command = RunFlutterTestWithCoverage.splitCommand('flutter');
+      expect(command.executable, 'flutter');
+      expect(command.arguments, isEmpty);
+    });
+
+    test(
+      'should split the fvm prefix into executable and leading argument',
+      () {
+        final command = RunFlutterTestWithCoverage.splitCommand('fvm flutter');
+        expect(command.executable, 'fvm');
+        expect(command.arguments, ['flutter']);
+      },
+    );
+
+    test('should tolerate irregular and surrounding whitespace', () {
+      final command =
+          RunFlutterTestWithCoverage.splitCommand('  fvm\t  flutter  ');
+      expect(command.executable, 'fvm');
+      expect(command.arguments, ['flutter']);
+    });
+
+    test('should fall back to the whole command for arbitrary executables', () {
+      final command = RunFlutterTestWithCoverage.splitCommand('/tmp/x/cmd.sh');
+      expect(command.executable, '/tmp/x/cmd.sh');
+      expect(command.arguments, isEmpty);
+    });
+  });
 }
 
-String _script(Directory dir, {required int exitCode}) {
+String _script(Directory dir, {required int exitCode, String? logFile}) {
+  final buffer = StringBuffer('#!/bin/sh\n');
+  if (logFile != null) {
+    buffer.writeln('printf "%s\\n" "\$*" > "$logFile"');
+  }
+  buffer.writeln('exit $exitCode');
   final script = File('${dir.path}/cmd.sh')
-    ..writeAsStringSync('#!/bin/sh\nexit $exitCode\n');
+    ..writeAsStringSync(buffer.toString());
   Process.runSync('chmod', ['+x', script.path]);
   return script.path;
 }

@@ -6,6 +6,8 @@ class RunFlutterTestWithCoverage {
   final FindProjectRoot _findProjectRoot;
   final FindFvmAwareFlutterCommand _findFlutterCommand;
 
+  static final RegExp _fvmFlutterPattern = RegExp(r'^(fvm)\s+(flutter)$');
+
   const RunFlutterTestWithCoverage({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
     FindFvmAwareFlutterCommand flutterCommandFinder =
@@ -13,19 +15,30 @@ class RunFlutterTestWithCoverage {
   })  : _findProjectRoot = findProjectRoot,
         _findFlutterCommand = flutterCommandFinder;
 
-  Future<void> call() async {
+  /// Runs `flutter test --coverage` in the project root.
+  ///
+  /// Params:
+  /// - `lcovFile`: output path of the lcov file, relative to the project
+  ///   root (default 'coverage/lcov.info').
+  ///
+  /// Returns: nothing (void) when the tests pass.
+  ///
+  /// Notes: throws [FlutterTestWithCoverageException] when the command exits
+  /// with a non-zero code.
+  Future<void> call({String lcovFile = 'coverage/lcov.info'}) async {
     final projectRoot = await _findProjectRoot();
     final flutterCmd = await _findFlutterCommand();
-    final parts = flutterCmd.split(' ');
+    final (executable: executable, arguments: leadingArgs) =
+        splitCommand(flutterCmd);
     final runner = InteractiveProcessRunner(
-      executable: parts.first,
+      executable: executable,
       arguments: [
-        ...parts.sublist(1),
+        ...leadingArgs,
         'test',
         '--no-test-assets',
         '--coverage',
         '--coverage-path',
-        'coverage/lcov.info',
+        lcovFile,
       ],
       workingDirectory: projectRoot,
     );
@@ -36,6 +49,28 @@ class RunFlutterTestWithCoverage {
         'Error($exitCode): flutter test with coverage failed.',
       );
     }
+  }
+
+  /// Splits an fvm-aware flutter command into an executable and any leading
+  /// arguments using a pattern, instead of assuming a best-case single-space
+  /// split.
+  ///
+  /// Recognized forms:
+  /// - `flutter`: executable `flutter`, no leading arguments.
+  /// - `fvm flutter` (with any whitespace between): executable `fvm` and
+  ///   leading argument `flutter`.
+  /// - anything else: the whole command, trimmed, is used as the executable.
+  ///
+  /// Returns: a record with the `executable` and its `arguments`.
+  static ({String executable, List<String> arguments}) splitCommand(
+    String command,
+  ) {
+    final trimmed = command.trim();
+    final match = _fvmFlutterPattern.firstMatch(trimmed);
+    if (match != null) {
+      return (executable: match.group(1)!, arguments: [match.group(2)!]);
+    }
+    return (executable: trimmed, arguments: const <String>[]);
   }
 }
 

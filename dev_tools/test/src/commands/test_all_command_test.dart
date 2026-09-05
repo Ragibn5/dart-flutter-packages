@@ -15,8 +15,4 @@ void main() {
   test('should describe discovering and running tests for all packages', () {
     expect(sut.description, TestAllCommand.commandDescription);
   });
-
-  test('should not take positional arguments', () {
-    expect(sut.takesArguments, isFalse);
-  });
 }
