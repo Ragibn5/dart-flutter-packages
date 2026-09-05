@@ -5,6 +5,13 @@ import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
 class GetCurrentPlatformPackage {
   const GetCurrentPlatformPackage();
 
+  /// Reads the Android applicationId of the current platform package.
+  ///
+  /// Params:
+  /// - `projectRoot`: absolute path to the project root (default: the
+  ///   project root resolved from the current directory).
+  ///
+  /// Returns: the applicationId, or null when build.gradle.kts is missing.
   Future<String?> call([String? projectRoot]) async {
     final root = projectRoot ?? await const FindProjectRoot()();
     final gradle = File('$root/android/app/build.gradle.kts');

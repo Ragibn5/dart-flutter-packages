@@ -3,6 +3,13 @@ import 'dart:io';
 class GetPackageVersion {
   const GetPackageVersion();
 
+  /// Reads the version from a pubspec.yaml file.
+  ///
+  /// Params:
+  /// - `repoRoot`: absolute path to the repository root.
+  /// - `pkgPath`: package directory relative to [repoRoot].
+  ///
+  /// Returns: the package version, or null when the file is missing.
   Future<String?> call(String repoRoot, String pkgPath) async {
     final file = File('$repoRoot/$pkgPath/pubspec.yaml');
     return _readYamlField(file, 'version');

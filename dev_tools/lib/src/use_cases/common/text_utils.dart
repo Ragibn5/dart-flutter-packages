@@ -14,6 +14,20 @@ class TextUtils {
 
   static IOSink get _stdOut => stdout;
 
+  /// Replaces literal text across files in a directory tree.
+  ///
+  /// Params:
+  /// - `srcText`: literal text to find.
+  /// - `targetText`: literal text to replace with.
+  /// - `start`: directory to scan, absolute or relative to the current
+  ///   working directory (default: the current directory).
+  /// - `interactive`: confirm before replacing when matches are found.
+  /// - `isTextFile`: optional predicate to decide which files to scan.
+  ///
+  /// Returns: the number of occurrences replaced (or found, when the change
+  /// is declined or interactive is false).
+  ///
+  /// Notes: binary-like files and build artifacts are skipped.
   Future<int> call({
     required String srcText,
     required String targetText,

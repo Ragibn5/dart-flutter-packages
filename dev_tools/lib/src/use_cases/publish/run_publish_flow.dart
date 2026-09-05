@@ -43,6 +43,16 @@ class RunPublishFlow {
         _confirmYesNo = confirmYesNo,
         _publish = publish;
 
+  /// Validates and publishes a package from a release branch.
+  ///
+  /// Params:
+  /// - `repoRoot`: absolute path to the repository root.
+  /// - `dryRunOnly`: skip the actual publish after a successful dry run.
+  ///
+  /// Returns: nothing (void); reports progress to stdout.
+  ///
+  /// Notes: throws [PublishValidationException] on invalid state and
+  /// [PublishFailedException] when the dry run or publish fails.
   Future<void> call({
     required String repoRoot,
     bool dryRunOnly = false,

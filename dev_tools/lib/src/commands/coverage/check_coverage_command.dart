@@ -6,12 +6,13 @@ import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.d
 class CheckCoverageCommand extends Command<void> {
   static const String commandName = 'check';
   static const String commandDescription =
-      'Enforce the coverage threshold (default 100%).';
+      'Enforce the coverage threshold against an lcov file (default 100%). '
+      'The lcov file path is relative to the project root (default coverage/lcov.info) and the threshold is a percentage.';
 
-  final CheckCoverageWithThreshold _checkCoverage;
+  final EnforceCoverageThreshold _checkCoverage;
 
-  CheckCoverageCommand({CheckCoverageWithThreshold? checkCoverage})
-      : _checkCoverage = checkCoverage ?? CheckCoverageWithThreshold();
+  CheckCoverageCommand({EnforceCoverageThreshold? checkCoverage})
+      : _checkCoverage = checkCoverage ?? EnforceCoverageThreshold();
 
   @override
   String get name => commandName;

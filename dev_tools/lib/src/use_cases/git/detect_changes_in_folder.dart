@@ -4,6 +4,17 @@ import 'package:path/path.dart' as p;
 class DetectChangesInFolder {
   const DetectChangesInFolder();
 
+  /// Lists the files changed between two refs, optionally scoped to a folder.
+  ///
+  /// Params:
+  /// - `fromRef`: source ref to diff from (branch or commit).
+  /// - `toRef`: target ref to diff against (branch or commit).
+  /// - `folder`: path relative to the repository root to filter changes to
+  ///   (default '.', the whole repository).
+  ///
+  /// Returns: repository-root-relative paths of the changed files.
+  ///
+  /// Notes: throws [GitDiffingException] when `git diff` fails.
   Future<List<String>> call({
     required String fromRef,
     required String toRef,

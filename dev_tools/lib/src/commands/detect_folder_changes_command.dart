@@ -7,7 +7,8 @@ import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 class DetectFolderChangesCommand extends Command<void> {
   static const String commandName = 'changes';
   static const String commandDescription =
-      'Detect whether changes in a folder exist between two refs.';
+      'Detect changes in a folder (a path relative to the repository root, '
+      'e.g. lib) between two refs.';
 
   final DetectChangesInFolder _getChangedFiles;
 
@@ -40,7 +41,8 @@ class DetectFolderChangesCommand extends Command<void> {
     if (folder == null) {
       throw UsageException(
         'Usage: dev_tools git changes <folder> '
-            '--from <ref> --to <ref>',
+            '--from <ref> --to <ref>\n'
+            '  where <folder> is relative to the repository root (e.g. lib).',
         '',
       );
     }

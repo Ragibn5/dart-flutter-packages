@@ -20,7 +20,7 @@ void main() {
   late _MockCalculateCoverage coverageUtils;
   late StringBuffer out;
 
-  late CheckCoverageWithThreshold sut;
+  late EnforceCoverageThreshold sut;
 
   setUp(() {
     findProjectRoot = _MockFindProjectRoot();
@@ -30,7 +30,7 @@ void main() {
     when(() => findProjectRoot()).thenAnswer((_) async => root);
     when(() => coverageUtils(any(), any())).thenAnswer((_) async => 100);
 
-    sut = CheckCoverageWithThreshold(
+    sut = EnforceCoverageThreshold(
       findProjectRoot: findProjectRoot,
       coverageUtils: coverageUtils,
       stdout: _BufferSink(out),
@@ -54,13 +54,13 @@ void main() {
   });
 
   test(
-    'should throw CheckCoverageWithThresholdException when coverage is below threshold',
+    'should throw EnforceCoverageThresholdException when coverage is below threshold',
     () async {
       when(() => coverageUtils(any(), any())).thenAnswer((_) async => 80);
 
       await expectLater(
         sut(),
-        throwsA(isA<CheckCoverageWithThresholdException>()),
+        throwsA(isA<EnforceCoverageThresholdException>()),
       );
     },
   );
@@ -81,7 +81,7 @@ void main() {
       sut(threshold: 80.5),
       throwsA(
         allOf(
-          isA<CheckCoverageWithThresholdException>(),
+          isA<EnforceCoverageThresholdException>(),
           predicate(
             (exception) =>
                 exception.toString().contains('50%') &&

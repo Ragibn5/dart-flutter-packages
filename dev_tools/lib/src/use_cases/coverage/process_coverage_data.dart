@@ -15,6 +15,16 @@ class ProcessCoverageDataWithLcov {
   })  : _findProjectRoot = findProjectRoot,
         _cmdInstallationChecker = cmdInstallationChecker;
 
+  /// Filters lcov coverage data using exclusion patterns.
+  ///
+  /// Params:
+  /// - `exclusions`: lcov removal patterns relative to the project root
+  ///   (e.g. 'lib/api/**').
+  ///
+  /// Returns: nothing (void); writes the filtered data back to
+  /// coverage/lcov.info.
+  ///
+  /// Notes: throws [CommandNotFoundException] when lcov is not installed.
   Future<void> call({List<String> exclusions = const []}) async {
     final root = await _findProjectRoot();
     if (!await _cmdInstallationChecker('lcov')) {

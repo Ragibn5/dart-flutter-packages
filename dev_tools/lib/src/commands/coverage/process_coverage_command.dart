@@ -6,7 +6,8 @@ import 'package:dev_tools/src/use_cases/coverage/process_coverage_data.dart';
 class ProcessCoverageCommand extends Command<void> {
   static const String commandName = 'process';
   static const String commandDescription =
-      'Filter lcov data using exclusion patterns.';
+      'Filter lcov data using exclusion patterns relative to the project '
+      'root (e.g. lib/api/**).';
 
   final ProcessCoverageDataWithLcov _processCoverageData;
 

@@ -5,6 +5,13 @@ import 'package:dev_tools/src/use_cases/common/find_project_root.dart';
 class GetCurrentDartPackage {
   const GetCurrentDartPackage();
 
+  /// Reads the name of the current dart package from its pubspec.yaml.
+  ///
+  /// Params:
+  /// - `projectRoot`: absolute path to the dart package root (default: the
+  ///   project root resolved from the current directory).
+  ///
+  /// Returns: the package name, or null when pubspec.yaml is missing.
   Future<String?> call([String? projectRoot]) async {
     final root = projectRoot ?? await const FindProjectRoot()();
     final pubspecFile = File('$root/pubspec.yaml');
