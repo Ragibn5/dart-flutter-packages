@@ -1,5 +1,5 @@
-import 'package:dev_tools/src/commands/coverage/check_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
+import 'package:dev_tools/src/commands/coverage/enforce_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/generate_coverage_report_command.dart';
 import 'package:dev_tools/src/commands/coverage/process_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/run_coverage_command.dart';
@@ -23,14 +23,15 @@ void main() {
     },
   );
 
-  test('should register the run, process, genreport and check subcommands', () {
+  test('should register the run, process, genreport and enforce subcommands',
+      () {
     expect(
       sut.subcommands.keys,
       containsAll(<String>[
         RunCoverageCommand.commandName,
         ProcessCoverageCommand.commandName,
         GenerateCoverageReportCommand.commandName,
-        CheckCoverageCommand.commandName,
+        EnforceCoverageCommand.commandName,
       ]),
     );
     expect(sut.subcommands[RunCoverageCommand.commandName],
@@ -39,7 +40,7 @@ void main() {
         isA<ProcessCoverageCommand>());
     expect(sut.subcommands[GenerateCoverageReportCommand.commandName],
         isA<GenerateCoverageReportCommand>());
-    expect(sut.subcommands[CheckCoverageCommand.commandName],
-        isA<CheckCoverageCommand>());
+    expect(sut.subcommands[EnforceCoverageCommand.commandName],
+        isA<EnforceCoverageCommand>());
   });
 }

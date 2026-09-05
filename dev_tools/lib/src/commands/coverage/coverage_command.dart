@@ -1,5 +1,5 @@
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/commands/coverage/check_coverage_command.dart';
+import 'package:dev_tools/src/commands/coverage/enforce_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/generate_coverage_report_command.dart';
 import 'package:dev_tools/src/commands/coverage/process_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/run_coverage_command.dart';
@@ -12,7 +12,7 @@ class CoverageCommand extends Command<void> {
     addSubcommand(RunCoverageCommand());
     addSubcommand(ProcessCoverageCommand());
     addSubcommand(GenerateCoverageReportCommand());
-    addSubcommand(CheckCoverageCommand());
+    addSubcommand(EnforceCoverageCommand());
   }
 
   @override

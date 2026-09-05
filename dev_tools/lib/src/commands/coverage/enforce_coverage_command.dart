@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.dart';
 
-class CheckCoverageCommand extends Command<void> {
-  static const String commandName = 'check';
+class EnforceCoverageCommand extends Command<void> {
+  static const String commandName = 'enforce';
   static const String commandDescription =
       'Enforce the coverage threshold against an lcov file (default 100%). '
       'The lcov file path is relative to the project root (default coverage/lcov.info) and the threshold is a percentage.';
 
   final EnforceCoverageThreshold _checkCoverage;
 
-  CheckCoverageCommand({EnforceCoverageThreshold? checkCoverage})
+  EnforceCoverageCommand({EnforceCoverageThreshold? checkCoverage})
       : _checkCoverage = checkCoverage ?? EnforceCoverageThreshold();
 
   @override
