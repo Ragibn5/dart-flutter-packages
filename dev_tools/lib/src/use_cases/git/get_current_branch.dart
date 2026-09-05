@@ -6,8 +6,8 @@ class GetCurrentBranch {
   /// Reads the current branch of a git repository.
   ///
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root (default: the
-  ///   current working directory).
+  /// - `repoRoot`: absolute path to the repository root
+  ///   (default: the current working directory).
   ///
   /// Returns: the current branch name, or null when in detached HEAD or
   /// outside a repository.
