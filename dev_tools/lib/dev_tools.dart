@@ -5,7 +5,7 @@ export 'src/use_cases/calculate_coverage.dart';
 export 'src/use_cases/check_coverage_with_threshold.dart';
 export 'src/use_cases/cmd_installation_checker.dart';
 export 'src/use_cases/confirm_yes_no.dart';
-export 'src/use_cases/detect_folder_changes.dart';
+export 'src/use_cases/detect_changes_in_folder.dart';
 export 'src/use_cases/find_fvm_aware_dart_command.dart';
 export 'src/use_cases/find_fvm_aware_flutter_command.dart';
 export 'src/use_cases/find_project_root.dart';

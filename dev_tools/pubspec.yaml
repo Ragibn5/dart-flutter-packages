@@ -18,6 +18,7 @@ executables:
 # Dependencies
 dependencies:
   args: ^2.5.0
+  path: ^1.9.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

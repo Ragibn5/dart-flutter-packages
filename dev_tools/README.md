@@ -45,7 +45,7 @@ dart run dev_tools:publish --dry-run
 dart run dev_tools:publish
 
 # CI change detection
-dart run dev_tools:git detect-folder-changes app_template
+dart run dev_tools:git detect-folder-changes <folder> --from <from-ref> --to <to-ref>
 
 # Replace text across files
 dart run dev_tools:replace <src> <target>

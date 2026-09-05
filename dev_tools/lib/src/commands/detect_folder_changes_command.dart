@@ -2,21 +2,33 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/detect_folder_changes.dart';
+import 'package:dev_tools/src/use_cases/detect_changes_in_folder.dart';
 
 class DetectFolderChangesCommand extends Command<void> {
-  final DetectFolderChanges _detectFolderChanges;
+  final DetectChangesInFolder _getChangedFiles;
 
   DetectFolderChangesCommand({
-    DetectFolderChanges detectFolderChanges = const DetectFolderChanges(),
-  }) : _detectFolderChanges = detectFolderChanges;
+    DetectChangesInFolder getChangedFiles = const DetectChangesInFolder(),
+  }) : _getChangedFiles = getChangedFiles {
+    argParser
+      ..addOption(
+        'from',
+        mandatory: true,
+        help: 'The source ref to diff from (branch or commit).',
+      )
+      ..addOption(
+        'to',
+        mandatory: true,
+        help: 'The target ref to diff against (branch or commit).',
+      );
+  }
 
   @override
-  String get name => 'detect-folder-changes';
+  String get name => 'changes';
 
   @override
   String get description =>
-      'Detect whether there are changes in a folder against the CI base ref.';
+      'Detect whether changes in a folder exist between two refs.';
 
   @override
   FutureOr<void>? run() async {
@@ -24,15 +36,23 @@ class DetectFolderChangesCommand extends Command<void> {
     final folder = rest.isNotEmpty ? rest[0] : null;
     if (folder == null) {
       throw UsageException(
-        'Usage: dev_tools git detect-folder-changes <folder>',
+        'Usage: dev_tools git changes <folder> '
+            '--from <ref> --to <ref>',
         '',
       );
     }
-    if (await _detectFolderChanges(folder)) {
-      stdout.writeln('Changes detected in $folder/');
-      return;
+    final changes = await _getChangedFiles(
+      fromRef: argResults!['from'] as String,
+      toRef: argResults!['to'] as String,
+      folder: folder,
+    );
+
+    stdout
+      ..write('${changes.length}')
+      ..writeln();
+    for (final file in changes) {
+      stdout.writeln(file);
     }
-    throw NoFolderChangesException('No changes in $folder/ — skipping.');
   }
 }
 
