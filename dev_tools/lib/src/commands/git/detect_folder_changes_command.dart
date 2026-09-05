@@ -7,14 +7,34 @@ import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 class DetectFolderChangesCommand extends Command<void> {
   static const String commandName = 'changes';
   static const String commandDescription =
-      'Detect changes in a folder (a path relative to the repository root, '
-      'e.g. lib) between two refs.';
+      'Detect changes in a folder (default: the whole repository) between '
+      'two refs (defaults: HEAD and HEAD~1).';
+  static const String fromOption = 'from';
+  static const String toOption = 'to';
+  static const String folderOption = 'folder';
 
   final DetectChangesInFolder _getChangedFiles;
 
   DetectFolderChangesCommand({
     DetectChangesInFolder getChangedFiles = const DetectChangesInFolder(),
-  }) : _getChangedFiles = getChangedFiles;
+  }) : _getChangedFiles = getChangedFiles {
+    argParser
+      ..addOption(
+        fromOption,
+        defaultsTo: 'HEAD~1',
+        help: 'Source ref to diff from.',
+      )
+      ..addOption(
+        toOption,
+        defaultsTo: 'HEAD',
+        help: 'Target ref to diff against.',
+      )
+      ..addOption(
+        folderOption,
+        help: 'Folder to detect changes in, relative to the repository root '
+            "(default: '.', the whole repository).",
+      );
+  }
 
   @override
   String get name => commandName;
@@ -24,19 +44,10 @@ class DetectFolderChangesCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() async {
-    final rest = argResults!.rest;
-    if (rest.length < 3) {
-      throw UsageException(
-        'Usage: dev_tools git changes <folder> <from> <to>\n'
-            '  where <folder> is relative to the repository root (e.g. lib), '
-            '<from> is the source ref and <to> is the target ref.',
-        '',
-      );
-    }
     final changes = await _getChangedFiles(
-      fromRef: rest[1],
-      toRef: rest[2],
-      folder: rest[0],
+      fromRef: argResults![fromOption] as String,
+      toRef: argResults![toOption] as String,
+      folder: argResults![folderOption] as String?,
     );
 
     stdout
@@ -46,10 +57,4 @@ class DetectFolderChangesCommand extends Command<void> {
       stdout.writeln(file);
     }
   }
-}
-
-class NoFolderChangesException implements Exception {
-  final String message;
-
-  const NoFolderChangesException(this.message);
 }

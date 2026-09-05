@@ -42,7 +42,36 @@ void main() {
     expect(result, ['lib/a.txt']);
   });
 
-  test('should return all changes when folder is dot', () async {
+  test('should return all changes when no folder is provided (repo root)',
+      () async {
+    _commitFile(repoDir, 'base/keep.txt', 'base');
+    final base = _revParse(repoDir, 'HEAD');
+    _commitFile(repoDir, 'lib/a.txt', 'v1');
+    _commitFile(repoDir, 'docs/readme.md', 'updated');
+
+    final result = _parseResult(await _runGetChanged(repoDir, fromRef: base));
+    expect(result.toList()..sort(),
+        <String>['docs/readme.md', 'lib/a.txt']..sort());
+  });
+
+  test(
+      'should return an empty list for a folder that cannot match '
+      'repository-root-relative paths', () async {
+    _commitFile(repoDir, 'base/keep.txt', 'base');
+    final base = _revParse(repoDir, 'HEAD');
+    _commitFile(repoDir, 'lib/a.txt', 'v1');
+    _commitFile(repoDir, 'docs/readme.md', 'updated');
+
+    for (final folder in const <String>['.', '..', '../..', '/']) {
+      final result = _parseResult(
+          await _runGetChanged(repoDir, fromRef: base, folder: folder));
+      expect(result, isEmpty, reason: 'folder: "$folder"');
+    }
+  });
+
+  test(
+      'should return an empty list when folder escapes the repository root '
+      'and run from a subfolder', () async {
     _commitFile(repoDir, 'base/keep.txt', 'base');
     final base = _revParse(repoDir, 'HEAD');
     _commitFile(repoDir, 'lib/a.txt', 'v1');
@@ -51,10 +80,10 @@ void main() {
     final result = _parseResult(await _runGetChanged(
       repoDir,
       fromRef: base,
-      folder: '.', // ignore: avoid_redundant_argument_values
+      folder: '..',
+      cwd: '${repoDir.path}/lib',
     ));
-    expect(result.toList()..sort(),
-        <String>['docs/readme.md', 'lib/a.txt']..sort());
+    expect(result, isEmpty);
   });
 
   test('should return an empty list when the folder had no changes', () async {
@@ -66,6 +95,38 @@ void main() {
     final result = _parseResult(
         await _runGetChanged(repoDir, fromRef: base, folder: 'src'));
     expect(result, isEmpty);
+  });
+
+  test('should return all changed files when run from a subfolder', () async {
+    _commitFile(repoDir, 'base/keep.txt', 'base');
+    final base = _revParse(repoDir, 'HEAD');
+    _commitFile(repoDir, 'lib/a.txt', 'v1');
+    _commitFile(repoDir, 'docs/readme.md', 'updated');
+
+    final result = _parseResult(await _runGetChanged(
+      repoDir,
+      fromRef: base,
+      cwd: '${repoDir.path}/lib',
+    ));
+    expect(result.toList()..sort(),
+        <String>['docs/readme.md', 'lib/a.txt']..sort());
+  });
+
+  test(
+      'should keep explicit folders repository-root-relative from a '
+      'subfolder', () async {
+    _commitFile(repoDir, 'base/keep.txt', 'base');
+    final base = _revParse(repoDir, 'HEAD');
+    _commitFile(repoDir, 'lib/a.txt', 'v1');
+    _commitFile(repoDir, 'docs/readme.md', 'updated');
+
+    final result = _parseResult(await _runGetChanged(
+      repoDir,
+      fromRef: base,
+      folder: 'lib',
+      cwd: '${repoDir.path}/docs',
+    ));
+    expect(result, ['lib/a.txt']);
   });
 
   test('should honor explicit from and to refs', () async {
@@ -95,6 +156,7 @@ Future<String> _runGetChanged(
   String fromRef = 'HEAD~1',
   String toRef = 'HEAD',
   String? folder,
+  String? cwd,
 }) async {
   final script = File(
     '${Directory.current.path}/test/src/use_cases/git/_get_changed_script.dart',
@@ -125,7 +187,7 @@ Future<String> _runGetChanged(
   final proc = await Process.start(
     'dart',
     ['run', script.path, ...args],
-    workingDirectory: repoDir.path,
+    workingDirectory: cwd ?? repoDir.path,
   );
   final out = await proc.stdout.transform(utf8.decoder).join();
   await proc.exitCode;

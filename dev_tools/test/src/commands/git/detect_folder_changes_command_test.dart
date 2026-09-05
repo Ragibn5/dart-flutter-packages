@@ -25,26 +25,37 @@ void main() {
     expect(sut.name, DetectFolderChangesCommand.commandName);
   });
 
-  test('should describe detecting changes against the CI base ref', () {
+  test('should describe detecting changes against HEAD~1', () {
     expect(sut.description, DetectFolderChangesCommand.commandDescription);
   });
 
-  test('should throw a usage exception when a required positional is missing',
-      () async {
-    await expectLater(
-      _run(<String>[], sut),
-      throwsA(isA<UsageException>()),
-    );
-  });
-
-  test('should forward the folder and refs when all positionals are provided',
-      () async {
-    await _run(['lib', 'origin/main', 'HEAD'], sut);
+  test('should diff HEAD~1..HEAD scoped to the folder option', () async {
+    await _run(['--folder', 'lib'], sut);
 
     verify(() => getChangedFiles(
-          fromRef: 'origin/main',
+          fromRef: 'HEAD~1',
           toRef: 'HEAD',
           folder: 'lib',
+        )).called(1);
+  });
+
+  test('should forward custom from and to refs', () async {
+    await _run(['--folder', 'lib', '--from', 'main', '--to', 'dev'], sut);
+
+    verify(() => getChangedFiles(
+          fromRef: 'main',
+          toRef: 'dev',
+          folder: 'lib',
+        )).called(1);
+  });
+
+  test('should default the folder to the whole repository', () async {
+    await _run(const [], sut);
+
+    verify(() => getChangedFiles(
+          fromRef: 'HEAD~1',
+          toRef: 'HEAD',
+          folder: any(named: 'folder'),
         )).called(1);
   });
 }
