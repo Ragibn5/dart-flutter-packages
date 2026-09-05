@@ -9,6 +9,12 @@ import 'package:dev_tools/src/use_cases/parse_release_branch.dart';
 import 'package:dev_tools/src/use_cases/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/validate_package_path.dart';
 
+typedef PublishProcessRunner = Future<int> Function(
+  String repoRoot,
+  String pkgPath, {
+  required bool dryRun,
+});
+
 class RunPublishFlow {
   final GetCurrentBranch _getCurrentBranch;
   final ParseReleaseBranch _parseReleaseBranch;
@@ -17,6 +23,7 @@ class RunPublishFlow {
   final GetPackageName _getPackageName;
   final GetPackageVersion _getPackageVersion;
   final ConfirmYesNo _confirmYesNo;
+  final PublishProcessRunner? _publish;
 
   const RunPublishFlow({
     GetCurrentBranch getCurrentBranch = const GetCurrentBranch(),
@@ -26,18 +33,21 @@ class RunPublishFlow {
     GetPackageName getPackageName = const GetPackageName(),
     GetPackageVersion getPackageVersion = const GetPackageVersion(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
+    PublishProcessRunner? publish,
   })  : _getCurrentBranch = getCurrentBranch,
         _parseReleaseBranch = parseReleaseBranch,
         _hasCleanWorkingTree = hasCleanWorkingTree,
         _validatePackagePath = validatePackagePath,
         _getPackageName = getPackageName,
         _getPackageVersion = getPackageVersion,
-        _confirmYesNo = confirmYesNo;
+        _confirmYesNo = confirmYesNo,
+        _publish = publish;
 
   Future<void> call({
     required String repoRoot,
     bool dryRunOnly = false,
   }) async {
+    final publish = _publish ?? _defaultPublish;
     final branch = await _getCurrentBranch(repoRoot);
     if (branch == null) {
       throw const PublishValidationException(
@@ -81,7 +91,7 @@ class RunPublishFlow {
     }
 
     stdout.writeln('\nDRY-RUN PUBLISH');
-    final dryExit = await _publish(repoRoot, pkgPath, dryRun: true);
+    final dryExit = await publish(repoRoot, pkgPath, dryRun: true);
     stdout.writeln('DRY-RUN COMPLETE\n');
     if (dryExit != 0) {
       throw const PublishFailedException(
@@ -103,14 +113,14 @@ class RunPublishFlow {
     }
 
     stdout.writeln('\nPUBLISHING');
-    final exitCode = await _publish(repoRoot, pkgPath, dryRun: false);
+    final exitCode = await publish(repoRoot, pkgPath, dryRun: false);
     if (exitCode != 0) {
       throw const PublishFailedException('Error: Publishing failed.');
     }
     stdout.writeln('Successfully published!');
   }
 
-  Future<int> _publish(
+  static Future<int> _defaultPublish(
     String repoRoot,
     String pkgPath, {
     required bool dryRun,

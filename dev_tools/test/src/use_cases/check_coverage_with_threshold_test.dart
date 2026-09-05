@@ -64,6 +64,34 @@ void main() {
       );
     },
   );
+
+  test('should accept a fractional threshold on success', () async {
+    when(() => coverageUtils(any(), any())).thenAnswer((_) async => 90);
+
+    await expectLater(sut(threshold: 88.5), completes);
+
+    expect(out.toString(), contains('Coverage meets required 88.5%.'));
+  });
+
+  test('should include the fractional threshold in the exception message',
+      () async {
+    when(() => coverageUtils(any(), any())).thenAnswer((_) async => 50);
+
+    await expectLater(
+      sut(threshold: 80.5),
+      throwsA(
+        allOf(
+          isA<CheckCoverageWithThresholdException>(),
+          predicate(
+            (exception) =>
+                exception.toString().contains('50%') &&
+                exception.toString().contains('80.5%'),
+            'exception message includes coverage and threshold',
+          ),
+        ),
+      ),
+    );
+  });
 }
 
 class _BufferSink implements IOSink {

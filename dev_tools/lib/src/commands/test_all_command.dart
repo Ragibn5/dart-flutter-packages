@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 
 class TestAllCommand extends Command<void> {
-  @override
-  String get name => 'test-all';
+  static const String commandName = 'test-all';
+  static const String commandDescription =
+      'Discover and run tests for all packages (runs scripts/run_all_tests.sh).';
 
   @override
-  String get description =>
-      'Discover and run tests for all packages (runs scripts/run_all_tests.sh).';
+  String get name => commandName;
+
+  @override
+  String get description => commandDescription;
 
   @override
   bool get takesArguments => false;

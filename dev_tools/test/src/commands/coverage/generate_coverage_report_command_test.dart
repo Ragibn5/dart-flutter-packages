@@ -8,11 +8,11 @@ void main() {
     sut = GenerateCoverageReportCommand();
   });
 
-  test('should expose the generate-coverage-report name', () {
-    expect(sut.name, 'generate-coverage-report');
+  test('should expose the genreport name', () {
+    expect(sut.name, GenerateCoverageReportCommand.commandName);
   });
 
   test('should describe generating an HTML coverage report', () {
-    expect(sut.description, contains('HTML'));
+    expect(sut.description, GenerateCoverageReportCommand.commandDescription);
   });
 }

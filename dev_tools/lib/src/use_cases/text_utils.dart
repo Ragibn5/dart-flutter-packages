@@ -51,7 +51,7 @@ class TextUtils {
         !await _confirmYesNo(
           'Replace "$srcText" with "$targetText" in all the files?',
         )) {
-_stdout.writeln('Replaced $totalOccurrences occurrence(s).');
+      _stdout.writeln('Replaced $totalOccurrences occurrence(s).');
       return totalOccurrences;
     }
 

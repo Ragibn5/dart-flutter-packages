@@ -5,6 +5,10 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/detect_changes_in_folder.dart';
 
 class DetectFolderChangesCommand extends Command<void> {
+  static const String commandName = 'changes';
+  static const String commandDescription =
+      'Detect whether changes in a folder exist between two refs.';
+
   final DetectChangesInFolder _getChangedFiles;
 
   DetectFolderChangesCommand({
@@ -24,11 +28,10 @@ class DetectFolderChangesCommand extends Command<void> {
   }
 
   @override
-  String get name => 'changes';
+  String get name => commandName;
 
   @override
-  String get description =>
-      'Detect whether changes in a folder exist between two refs.';
+  String get description => commandDescription;
 
   @override
   FutureOr<void>? run() async {

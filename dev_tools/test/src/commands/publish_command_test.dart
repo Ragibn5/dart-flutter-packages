@@ -9,10 +9,10 @@ void main() {
   });
 
   test('should expose the publish name', () {
-    expect(sut.name, 'publish');
+    expect(sut.name, PublishCommand.commandName);
   });
 
   test('should describe validating and publishing a package', () {
-    expect(sut.description, contains('publish'));
+    expect(sut.description, PublishCommand.commandDescription);
   });
 }

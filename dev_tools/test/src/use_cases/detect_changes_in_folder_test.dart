@@ -25,7 +25,7 @@ void main() {
       _commitFile(repoDir, 'lib/a.txt', 'v1');
       _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-      final result = await _runGetChanged(repoDir, fromRef: base);
+      final result = _parseResult(await _runGetChanged(repoDir, fromRef: base));
       expect(result.toList()..sort(),
           <String>['docs/readme.md', 'lib/a.txt']..sort());
     },
@@ -37,7 +37,8 @@ void main() {
     _commitFile(repoDir, 'lib/a.txt', 'v1');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = await _runGetChanged(repoDir, fromRef: base, folder: 'lib');
+    final result = _parseResult(
+        await _runGetChanged(repoDir, fromRef: base, folder: 'lib'));
     expect(result, ['lib/a.txt']);
   });
 
@@ -47,7 +48,11 @@ void main() {
     _commitFile(repoDir, 'lib/a.txt', 'v1');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = await _runGetChanged(repoDir, fromRef: base, folder: '.');
+    final result = _parseResult(await _runGetChanged(
+      repoDir,
+      fromRef: base,
+      folder: '.', // ignore: avoid_redundant_argument_values
+    ));
     expect(result.toList()..sort(),
         <String>['docs/readme.md', 'lib/a.txt']..sort());
   });
@@ -58,7 +63,8 @@ void main() {
     _commitFile(repoDir, 'lib/a.txt', 'v1');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = await _runGetChanged(repoDir, fromRef: base, folder: 'src');
+    final result = _parseResult(
+        await _runGetChanged(repoDir, fromRef: base, folder: 'src'));
     expect(result, isEmpty);
   });
 
@@ -67,12 +73,24 @@ void main() {
     final first = _revParse(repoDir, 'HEAD');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = await _runGetChanged(repoDir, fromRef: first);
+    final result = _parseResult(await _runGetChanged(repoDir, fromRef: first));
     expect(result, ['docs/readme.md']);
+  });
+
+  test('should throw GitDiffingException when git fails', () async {
+    final nonRepo = Directory.systemTemp.createTempSync('not_a_repo');
+    addTearDown(() {
+      if (nonRepo.existsSync()) nonRepo.deleteSync(recursive: true);
+    });
+
+    final error = _parseError(await _runGetChanged(nonRepo,
+        fromRef: 'HEAD~1')); // ignore: avoid_redundant_argument_values
+
+    expect(error, startsWith('Error: git diff failed.'));
   });
 }
 
-Future<List<String>> _runGetChanged(
+Future<String> _runGetChanged(
   Directory repoDir, {
   String fromRef = 'HEAD~1',
   String toRef = 'HEAD',
@@ -90,8 +108,12 @@ Future<List<String>> _runGetChanged(
     final fromRef = args[0];
     final toRef = args[1];
     final folder = args.length > 2 ? args[2] : null;
-    final result = await const DetectChangesInFolder()(fromRef: fromRef, toRef: toRef, folder: folder);
-    stdout.writeln('RESULT=${result.join('|')}');
+    try {
+      final result = await const DetectChangesInFolder()(fromRef: fromRef, toRef: toRef, folder: folder);
+      stdout.writeln('RESULT=${result.join('|')}');
+    } on GitDiffingException catch (error) {
+      stdout.writeln('ERROR=${error.message}');
+    }
   }
   ''');
   addTearDown(() {
@@ -107,9 +129,18 @@ Future<List<String>> _runGetChanged(
   );
   final out = await proc.stdout.transform(utf8.decoder).join();
   await proc.exitCode;
+  return out;
+}
+
+List<String> _parseResult(String out) {
   final line = out.split('\n').firstWhere((l) => l.startsWith('RESULT='));
   final value = line.split('RESULT=')[1].trim();
-  return value == '' ? <String>[] : value.split('|');
+  return value.isEmpty ? <String>[] : value.split('|');
+}
+
+String _parseError(String out) {
+  final line = out.split('\n').firstWhere((l) => l.startsWith('ERROR='));
+  return line.split('ERROR=')[1].trim();
 }
 
 String _revParse(Directory repoDir, String ref) {

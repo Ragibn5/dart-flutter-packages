@@ -9,10 +9,10 @@ void main() {
   });
 
   test('should expose the replace name', () {
-    expect(sut.name, 'replace');
+    expect(sut.name, ReplaceCommand.commandName);
   });
 
   test('should describe replacing literal text across files', () {
-    expect(sut.description, contains('Replace'));
+    expect(sut.description, ReplaceCommand.commandDescription);
   });
 }

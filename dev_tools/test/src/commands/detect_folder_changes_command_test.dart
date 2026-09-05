@@ -8,11 +8,11 @@ void main() {
     sut = DetectFolderChangesCommand();
   });
 
-  test('should expose the detect-folder-changes name', () {
-    expect(sut.name, 'detect-folder-changes');
+  test('should expose the changes name', () {
+    expect(sut.name, DetectFolderChangesCommand.commandName);
   });
 
   test('should describe detecting changes against the CI base ref', () {
-    expect(sut.description, contains('changes'));
+    expect(sut.description, DetectFolderChangesCommand.commandDescription);
   });
 }

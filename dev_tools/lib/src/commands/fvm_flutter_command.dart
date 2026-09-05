@@ -5,6 +5,10 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/find_fvm_aware_flutter_command.dart';
 
 class FvmFlutterCommand extends Command<void> {
+  static const String commandName = 'fvm-flutter';
+  static const String commandDescription =
+      'returns fvm aware flutter executable prefix';
+
   final FindFvmAwareFlutterCommand _findFvmAwareFlutterCommand;
 
   FvmFlutterCommand({
@@ -13,10 +17,10 @@ class FvmFlutterCommand extends Command<void> {
   }) : _findFvmAwareFlutterCommand = findFvmAwareFlutterCommand;
 
   @override
-  String get name => 'fvm-flutter';
+  String get name => commandName;
 
   @override
-  String get description => 'returns fvm aware flutter executable prefix';
+  String get description => commandDescription;
 
   @override
   FutureOr<void>? run() async =>

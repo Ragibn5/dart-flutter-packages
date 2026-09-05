@@ -5,6 +5,10 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/run_publish_flow.dart';
 
 class PublishCommand extends Command<void> {
+  static const String commandName = 'publish';
+  static const String commandDescription =
+      'Validate and publish a package from a release branch.';
+
   final RunPublishFlow _runPublishFlow;
 
   PublishCommand({RunPublishFlow runPublishFlow = const RunPublishFlow()})
@@ -17,11 +21,10 @@ class PublishCommand extends Command<void> {
   }
 
   @override
-  String get name => 'publish';
+  String get name => commandName;
 
   @override
-  String get description =>
-      'Validate and publish a package from a release branch.';
+  String get description => commandDescription;
 
   @override
   FutureOr<void>? run() async {

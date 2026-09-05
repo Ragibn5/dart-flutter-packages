@@ -9,10 +9,10 @@ void main() {
   });
 
   test('should expose the check name', () {
-    expect(sut.name, 'check');
+    expect(sut.name, CheckCoverageCommand.commandName);
   });
 
   test('should describe enforcing the coverage threshold', () {
-    expect(sut.description, contains('threshold'));
+    expect(sut.description, CheckCoverageCommand.commandDescription);
   });
 }

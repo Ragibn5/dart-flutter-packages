@@ -4,16 +4,20 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/check_coverage_with_threshold.dart';
 
 class CheckCoverageCommand extends Command<void> {
+  static const String commandName = 'check';
+  static const String commandDescription =
+      'Enforce the coverage threshold (default 100%).';
+
   final CheckCoverageWithThreshold _checkCoverage;
 
   CheckCoverageCommand({CheckCoverageWithThreshold? checkCoverage})
-    : _checkCoverage = checkCoverage ?? CheckCoverageWithThreshold();
+      : _checkCoverage = checkCoverage ?? CheckCoverageWithThreshold();
 
   @override
-  String get name => 'check';
+  String get name => commandName;
 
   @override
-  String get description => 'Enforce the coverage threshold (default 100%).';
+  String get description => commandDescription;
 
   @override
   FutureOr<void>? run() {

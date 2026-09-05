@@ -5,6 +5,9 @@ import 'package:dev_tools/src/commands/coverage/process_coverage_command.dart';
 import 'package:dev_tools/src/commands/coverage/run_coverage_command.dart';
 
 class CoverageCommand extends Command<void> {
+  static const String commandName = 'coverage';
+  static const String commandDescription = 'Coverage related commands.';
+
   CoverageCommand() {
     addSubcommand(RunCoverageCommand());
     addSubcommand(ProcessCoverageCommand());
@@ -13,8 +16,8 @@ class CoverageCommand extends Command<void> {
   }
 
   @override
-  String get name => 'coverage';
+  String get name => commandName;
 
   @override
-  String get description => 'Coverage related commands.';
+  String get description => commandDescription;
 }

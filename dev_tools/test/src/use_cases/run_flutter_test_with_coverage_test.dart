@@ -57,6 +57,21 @@ void main() {
       );
     },
   );
+
+  test(
+    'should include the exit code in the FlutterTestWithCoverageException message',
+    () async {
+      when(() => flutterCommandFinder())
+          .thenAnswer((_) async => _script(tempDir, exitCode: 1));
+
+      try {
+        await sut();
+        fail('expected FlutterTestWithCoverageException to be thrown');
+      } on FlutterTestWithCoverageException catch (error) {
+        expect(error.toString(), contains('Error(1)'));
+      }
+    },
+  );
 }
 
 String _script(Directory dir, {required int exitCode}) {

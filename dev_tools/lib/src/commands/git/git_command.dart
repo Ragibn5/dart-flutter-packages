@@ -2,13 +2,16 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/detect_folder_changes_command.dart';
 
 class GitCommand extends Command<void> {
+  static const String commandName = 'git';
+  static const String commandDescription = 'Git related commands.';
+
   GitCommand() {
     addSubcommand(DetectFolderChangesCommand());
   }
 
   @override
-  String get name => 'git';
+  String get name => commandName;
 
   @override
-  String get description => 'Git related commands.';
+  String get description => commandDescription;
 }

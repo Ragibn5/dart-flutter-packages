@@ -4,6 +4,10 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/generate_coverage_report_page.dart';
 
 class GenerateCoverageReportCommand extends Command<void> {
+  static const String commandName = 'genreport';
+  static const String commandDescription =
+      'Generate an HTML coverage report with genhtml.';
+
   final GenerateCoverageReportPage _generateCoverageReport;
 
   GenerateCoverageReportCommand({
@@ -12,10 +16,10 @@ class GenerateCoverageReportCommand extends Command<void> {
   }) : _generateCoverageReport = generateCoverageReport;
 
   @override
-  String get name => 'genreport';
+  String get name => commandName;
 
   @override
-  String get description => 'Generate an HTML coverage report with genhtml.';
+  String get description => commandDescription;
 
   @override
   FutureOr<void>? run() => _generateCoverageReport();

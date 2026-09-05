@@ -13,35 +13,33 @@ void main() {
   });
 
   test('should expose the coverage name', () {
-    expect(sut.name, 'coverage');
+    expect(sut.name, CoverageCommand.commandName);
   });
 
   test(
     'should describe running tests with coverage and enforcing thresholds',
     () {
-      expect(sut.description, contains('coverage'));
+      expect(sut.description, CoverageCommand.commandDescription);
     },
   );
 
-  test('should register the run, process, generate and check subcommands', () {
+  test('should register the run, process, genreport and check subcommands', () {
     expect(
       sut.subcommands.keys,
       containsAll(<String>[
-        'run',
-        'process-coverage',
-        'generate-coverage-report',
-        'check',
+        RunCoverageCommand.commandName,
+        ProcessCoverageCommand.commandName,
+        GenerateCoverageReportCommand.commandName,
+        CheckCoverageCommand.commandName,
       ]),
     );
-    expect(sut.subcommands['run'], isA<RunCoverageCommand>());
-    expect(
-      sut.subcommands['process-coverage'],
-      isA<ProcessCoverageCommand>(),
-    );
-    expect(
-      sut.subcommands['generate-coverage-report'],
-      isA<GenerateCoverageReportCommand>(),
-    );
-    expect(sut.subcommands['check'], isA<CheckCoverageCommand>());
+    expect(sut.subcommands[RunCoverageCommand.commandName],
+        isA<RunCoverageCommand>());
+    expect(sut.subcommands[ProcessCoverageCommand.commandName],
+        isA<ProcessCoverageCommand>());
+    expect(sut.subcommands[GenerateCoverageReportCommand.commandName],
+        isA<GenerateCoverageReportCommand>());
+    expect(sut.subcommands[CheckCoverageCommand.commandName],
+        isA<CheckCoverageCommand>());
   });
 }

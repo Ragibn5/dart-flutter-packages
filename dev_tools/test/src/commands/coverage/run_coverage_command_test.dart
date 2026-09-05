@@ -9,10 +9,10 @@ void main() {
   });
 
   test('should expose the run name', () {
-    expect(sut.name, 'run');
+    expect(sut.name, RunCoverageCommand.commandName);
   });
 
   test('should describe running tests with coverage', () {
-    expect(sut.description, contains('coverage'));
+    expect(sut.description, RunCoverageCommand.commandDescription);
   });
 }

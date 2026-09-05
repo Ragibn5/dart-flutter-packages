@@ -9,11 +9,11 @@ void main() {
   });
 
   test('should expose the test-all name', () {
-    expect(sut.name, 'test-all');
+    expect(sut.name, TestAllCommand.commandName);
   });
 
   test('should describe discovering and running tests for all packages', () {
-    expect(sut.description, contains('test'));
+    expect(sut.description, TestAllCommand.commandDescription);
   });
 
   test('should not take positional arguments', () {
