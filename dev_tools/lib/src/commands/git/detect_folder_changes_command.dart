@@ -32,7 +32,7 @@ class DetectFolderChangesCommand extends Command<void> {
       ..addOption(
         folderOption,
         help: 'Folder to detect changes in, relative to the repository root '
-            "(default: '.', the whole repository).",
+            '(default: the repo root).',
       );
   }
 
