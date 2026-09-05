@@ -41,7 +41,6 @@ This is developer tooling, so add it under `dev_dependencies` in your project. A
 | `publish`          | Validates and publishes a package from a release branch (`--dry-run` for a dry run).                                          |
 | `git changes`      | Detects changes in a folder between two refs: `git changes <folder> <from-ref> <to-ref>`.                                     |
 | `replace`          | Replaces literal text across files: `replace <src> <target>`.                                                                 |
-| `test-all`         | Discovers and runs tests for all packages (runs `scripts/run_all_tests.sh` from the current directory).                       |
 
 Examples:
 
@@ -64,9 +63,6 @@ dart run dev_tools git changes lib <from-ref> <to-ref>
 
 # Replace text across files
 dart run dev_tools replace <src> <target>
-
-# Discover and run tests for all packages
-dart run dev_tools test-all
 ```
 
 ## Example
