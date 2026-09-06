@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/git/get_current_branch.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
@@ -148,7 +149,8 @@ class RunPublishFlow {
   }
 }
 
-class PublishFailedException implements Exception {
+class PublishFailedException extends CommandExecutionException {
+  @override
   final String message;
 
   const PublishFailedException(this.message);

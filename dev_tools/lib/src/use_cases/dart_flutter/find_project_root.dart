@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
+
 class FindProjectRoot {
   const FindProjectRoot();
 
@@ -29,7 +31,8 @@ class FindProjectRoot {
   }
 }
 
-class ProjectRootNotFoundException implements Exception {
+class ProjectRootNotFoundException extends CommandExecutionException {
+  @override
   final String message;
 
   const ProjectRootNotFoundException(this.message);

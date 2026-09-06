@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 
 class CalculateCoverage {
@@ -42,7 +43,8 @@ class CalculateCoverage {
   }
 }
 
-class CoverageCalculationException implements Exception {
+class CoverageCalculationException extends CommandExecutionException {
+  @override
   final String message;
 
   const CoverageCalculationException(this.message);

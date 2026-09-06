@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:path/path.dart' as p;
 
 class DetectChangesInFolder {
@@ -52,11 +53,9 @@ class DetectChangesInFolder {
   }
 }
 
-class GitDiffingException implements Exception {
+class GitDiffingException extends CommandExecutionException {
+  @override
   final String message;
 
   const GitDiffingException(this.message);
-
-  @override
-  String toString() => message;
 }

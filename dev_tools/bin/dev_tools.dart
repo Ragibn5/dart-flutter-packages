@@ -8,6 +8,7 @@ import 'package:dev_tools/src/commands/dart_flutter/fvm_flutter_command.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
 import 'package:dev_tools/src/commands/git/git_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 
 Future<void> main(List<String> args) async {
   const executableName = 'dev_tools';
@@ -22,8 +23,14 @@ Future<void> main(List<String> args) async {
 
   try {
     await runner.run(args);
-  } on UsageException catch (error) {
-    stderr.writeln(error.message);
+  } on UsageException catch (e) {
+    stderr.writeln(e);
+    exit(1);
+  } on CommandExecutionException catch (e) {
+    stderr.writeln(e);
+    exit(1);
+  } catch (e) {
+    stderr.writeln(e);
     exit(1);
   }
 }

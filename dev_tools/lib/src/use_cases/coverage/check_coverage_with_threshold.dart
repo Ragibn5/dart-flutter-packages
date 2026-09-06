@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 
@@ -53,11 +54,9 @@ class EnforceCoverageThreshold {
   }
 }
 
-class EnforceCoverageThresholdException implements Exception {
+class EnforceCoverageThresholdException extends CommandExecutionException {
+  @override
   final String message;
 
   const EnforceCoverageThresholdException(this.message);
-
-  @override
-  String toString() => message;
 }

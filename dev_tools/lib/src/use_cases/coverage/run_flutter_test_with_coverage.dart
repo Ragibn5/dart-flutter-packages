@@ -1,3 +1,4 @@
+import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
@@ -74,11 +75,9 @@ class RunFlutterTestWithCoverage {
   }
 }
 
-class FlutterTestWithCoverageException implements Exception {
+class FlutterTestWithCoverageException extends CommandExecutionException {
+  @override
   final String message;
 
   const FlutterTestWithCoverageException(this.message);
-
-  @override
-  String toString() => message;
 }
