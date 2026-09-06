@@ -1,0 +1,207 @@
+// ignore_for_file: lines_longer_than_80_chars
+
+import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/publish/verify_versioned_files.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
+
+class _MockReadPackageIdentity extends Mock implements ReadPackageIdentity {}
+
+class _MockVerifyVersionedFiles extends Mock implements VerifyVersionedFiles {}
+
+class _MockFetchPublishedPackageVersions extends Mock
+    implements FetchPublishedPackageVersions {}
+
+void main() {
+  const repoRoot = '/fake/repo';
+  const pkgPath = 'pkg';
+
+  late _MockReadPackageIdentity readPackageIdentity;
+  late _MockVerifyVersionedFiles verifyVersionedFiles;
+  late _MockFetchPublishedPackageVersions fetchPublishedPackageVersions;
+  late VerifyReleaseCompleteness sut;
+
+  VerifyReleaseCompleteness buildSut() => VerifyReleaseCompleteness(
+        readPackageIdentity: readPackageIdentity,
+        verifyVersionedFiles: verifyVersionedFiles,
+        fetchPublishedPackageVersions: fetchPublishedPackageVersions,
+      );
+
+  setUp(() {
+    readPackageIdentity = _MockReadPackageIdentity();
+    verifyVersionedFiles = _MockVerifyVersionedFiles();
+    fetchPublishedPackageVersions = _MockFetchPublishedPackageVersions();
+
+    when(() => readPackageIdentity(any(), any())).thenAnswer(
+      (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
+    );
+    when(
+      () => verifyVersionedFiles(
+        repoRoot: any(named: 'repoRoot'),
+        pkgPath: any(named: 'pkgPath'),
+        name: any(named: 'name'),
+        version: any(named: 'version'),
+        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+      ),
+    ).thenAnswer((_) async => <String>[]);
+    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+      (_) async => const PubDevPackageInfo(),
+    );
+
+    sut = buildSut();
+  });
+
+  test('should complete when the release is consistent', () async {
+    await expectLater(sut(repoRoot: repoRoot, pkgPath: pkgPath), completes);
+
+    verify(() => readPackageIdentity(repoRoot, pkgPath)).called(1);
+    verify(
+      () => verifyVersionedFiles(
+        repoRoot: repoRoot,
+        pkgPath: pkgPath,
+        name: 'foo',
+        version: '1.0.0',
+        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+      ),
+    ).called(1);
+  });
+
+  test('should throw PublishValidationException when already published',
+      () async {
+    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+      (_) async => const PubDevPackageInfo(
+        latestVersion: '1.0.0',
+        versions: ['1.0.0'],
+      ),
+    );
+
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      throwsA(
+        isA<PublishValidationException>().having(
+          (e) => e.message,
+          'message',
+          contains('foo@1.0.0 is already published on pub.dev.'),
+        ),
+      ),
+    );
+  });
+
+  test('should throw PublishValidationException when the release is older',
+      () async {
+    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+      (_) async => const PubDevPackageInfo(
+        latestVersion: '2.0.0',
+        versions: ['2.0.0'],
+      ),
+    );
+
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      throwsA(
+        isA<PublishValidationException>().having(
+          (e) => e.message,
+          'message',
+          contains(
+            'A newer version (2.0.0) is already published '
+            'on pub.dev; 1.0.0 must be greater.',
+          ),
+        ),
+      ),
+    );
+  });
+
+  test('should aggregate versioned file problems with a bullet prefix',
+      () async {
+    when(
+      () => verifyVersionedFiles(
+        repoRoot: any(named: 'repoRoot'),
+        pkgPath: any(named: 'pkgPath'),
+        name: any(named: 'name'),
+        version: any(named: 'version'),
+        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+      ),
+    ).thenAnswer((_) async => <String>[
+          'CHANGELOG.md has no entry for 1.0.0.',
+          'README.md does not reference foo-1.0.0 (git install).',
+        ]);
+
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      throwsA(
+        isA<PublishValidationException>().having(
+          (e) => e.message,
+          'message',
+          contains(
+            'Error: Release is incomplete for foo@1.0.0:\n'
+            '- CHANGELOG.md has no entry for 1.0.0.\n'
+            '- README.md does not reference foo-1.0.0 (git install).',
+          ),
+        ),
+      ),
+    );
+  });
+
+  test('should wrap PubDevLookupException into PublishValidationException',
+      () async {
+    when(() => fetchPublishedPackageVersions(any())).thenThrow(
+      const PubDevLookupException('connection timeout'),
+    );
+
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      throwsA(
+        isA<PublishValidationException>().having(
+          (e) => e.message,
+          'message',
+          contains('Could not reach pub.dev to verify foo: '
+              'connection timeout'),
+        ),
+      ),
+    );
+  });
+
+  test('should propagate PackageIdentityException', () async {
+    when(() => readPackageIdentity(any(), any())).thenThrow(
+      const PackageIdentityException('Error: pubspec.yaml not found.'),
+    );
+
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      throwsA(isA<PackageIdentityException>()),
+    );
+  });
+
+  test('should pass injected requiredVersionedFiles to VerifyVersionedFiles',
+      () async {
+    final customChecks = <String, VersionedFileCheck>{
+      'install': VersionedFileCheck(
+        filePath: 'docs/install.md',
+        pattern: (name, version) => RegExp(RegExp.escape(version)),
+        problem: (name, version) => 'docs/install.md lacks $version.',
+      ),
+    };
+
+    await expectLater(
+      sut(
+        repoRoot: repoRoot,
+        pkgPath: pkgPath,
+        requiredVersionedFiles: customChecks,
+      ),
+      completes,
+    );
+
+    verify(
+      () => verifyVersionedFiles(
+        repoRoot: repoRoot,
+        pkgPath: pkgPath,
+        name: 'foo',
+        version: '1.0.0',
+        requiredVersionedFiles: customChecks,
+      ),
+    ).called(1);
+  });
+}

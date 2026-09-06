@@ -20,6 +20,8 @@ dependencies:
   args: ^2.5.0
   glob: ^2.1.2
   path: ^1.9.0
+  yaml: ^3.1.2
+  pub_semver: ^2.1.4
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

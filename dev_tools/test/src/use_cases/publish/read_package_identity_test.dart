@@ -1,0 +1,81 @@
+import 'dart:io';
+
+import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
+import 'package:test/test.dart';
+
+void main() {
+  const pkgPath = 'pkg';
+
+  late Directory tempDir;
+
+  late ReadPackageIdentity sut;
+
+  setUp(() {
+    tempDir = Directory.systemTemp.createTempSync('read_package_identity_test');
+    Directory('${tempDir.path}/$pkgPath').createSync(recursive: true);
+
+    sut = const ReadPackageIdentity();
+  });
+
+  tearDown(() {
+    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+  });
+
+  test('should return the package identity from pubspec.yaml', () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml')
+        .writeAsStringSync('name: foo\nversion: 1.0.0\n');
+
+    final identity = await sut(tempDir.path, pkgPath);
+
+    expect(identity.name, 'foo');
+    expect(identity.version, '1.0.0');
+  });
+
+  test('should throw PackageIdentityException when pubspec.yaml is missing',
+      () async {
+    await expectLater(
+      sut(tempDir.path, pkgPath),
+      throwsA(
+        isA<PackageIdentityException>().having(
+          (e) => e.message,
+          'message',
+          'Error: pubspec.yaml not found.',
+        ),
+      ),
+    );
+  });
+
+  test('should throw PackageIdentityException when pubspec has no name',
+      () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml')
+        .writeAsStringSync('version: 1.0.0\n');
+
+    await expectLater(
+      sut(tempDir.path, pkgPath),
+      throwsA(
+        isA<PackageIdentityException>().having(
+          (e) => e.message,
+          'message',
+          'Error: pubspec.yaml has no name.',
+        ),
+      ),
+    );
+  });
+
+  test('should throw PackageIdentityException when pubspec has no version',
+      () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml')
+        .writeAsStringSync('name: foo\n');
+
+    await expectLater(
+      sut(tempDir.path, pkgPath),
+      throwsA(
+        isA<PackageIdentityException>().having(
+          (e) => e.message,
+          'message',
+          'Error: pubspec.yaml has no version.',
+        ),
+      ),
+    );
+  });
+}
