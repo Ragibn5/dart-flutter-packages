@@ -62,7 +62,7 @@ class ReplaceCommand extends Command<void> {
   FutureOr<void>? run() async {
     final rest = argResults!.rest;
     if (rest.length < 2) {
-      throw UsageException('Usage: dev_tools replace <src> <target>', '');
+      usageException('Missing required positional args <src> & <target>');
     }
     await _replaceTextInScope(
       srcText: rest[0],
