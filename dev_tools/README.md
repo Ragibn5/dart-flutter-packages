@@ -38,7 +38,7 @@ A single executable with per-domain subcommands is exposed:
 | `coverage process`   | Filters lcov data using exclusion patterns relative to the project root (`-e`/`--exclude`, repeatable, e.g. `lib/api/**`).                                                        |
 | `coverage enforce`   | Enforces the coverage threshold against an lcov file (`--lcov-file`, `--threshold`, defaults `coverage/lcov.info` and `100`).                                                     |
 | `coverage genreport` | Generates an HTML coverage report with genhtml.                                                                                                                                   |
-| `publish`            | Validates and publishes a package from a release branch (`--dry-run` for a dry run).                                                                                              |
+| `publish`            | Validates and publishes a package (`--path <dir>`, relative to the repo root, default the current directory; `--dry-run` for a dry run).                                          |
 | `git changes`        | Detects changes in a folder (default: the whole repository) between two refs: `git changes` (`--folder <dir>`, `--from <ref>` (default `HEAD~1`), `--to <ref>` (default `HEAD`)). |
 | `replace`            | Replaces text across files: `replace <src> <target>` (`--start <dir>`, `-e`/`--exclude`, `--follow-links`, `--ignore-case`, `--match-word`, `--regex`, `-y`/`--yes`).             |
 

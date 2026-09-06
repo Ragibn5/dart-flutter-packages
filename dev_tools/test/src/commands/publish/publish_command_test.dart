@@ -39,6 +39,22 @@ void main() {
         )).called(1);
   });
 
+  test('should default the package path to the current directory', () async {
+    final flow = _MockRunPublishFlow();
+    when(() => flow(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+          dryRunOnly: any(named: 'dryRunOnly'),
+        )).thenAnswer((_) async {});
+
+    await _run([], PublishCommand(runPublishFlow: flow));
+
+    verify(() => flow(
+          repoRoot: Directory.current.path,
+          pkgPath: '.',
+        )).called(1);
+  });
+
   test('should run the publish flow in dry-run-only mode', () async {
     final flow = _MockRunPublishFlow();
     when(() => flow(

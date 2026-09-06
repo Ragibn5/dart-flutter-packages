@@ -22,8 +22,8 @@ class PublishCommand extends Command<void> {
       ..addOption(
         pathOption,
         abbr: 'p',
-        mandatory: true,
-        help: 'Package directory relative to the repository root.',
+        help: 'Package directory relative to the repository root.'
+            '\n(Defaults to current directory)',
       );
   }
 
@@ -36,10 +36,10 @@ class PublishCommand extends Command<void> {
   @override
   FutureOr<void>? run() async {
     final dryRun = argResults!.flag('dry-run');
-    final pkgPath = argResults![pathOption] as String;
+    final pkgPath = argResults![pathOption] as String?;
     await _runPublishFlow(
       repoRoot: Directory.current.path,
-      pkgPath: pkgPath,
+      pkgPath: pkgPath ?? '.',
       dryRunOnly: dryRun,
     );
   }
