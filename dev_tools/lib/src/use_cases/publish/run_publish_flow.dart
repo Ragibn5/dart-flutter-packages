@@ -8,6 +8,7 @@ import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dar
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
+import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 
 typedef PublishProcessRunner = Future<int> Function(
   String repoRoot,
@@ -136,16 +137,18 @@ class RunPublishFlow {
     required PublishTooling tooling,
     required bool dryRun,
   }) async {
-    final args = [...tooling.prefix, 'pub', 'publish'];
-    if (dryRun) args.add('--dry-run');
-    final result = await Process.run(
-      args.first,
-      args.sublist(1),
+    final args = [
+      ...tooling.prefix,
+      'pub',
+      'publish',
+      if (dryRun) '--dry-run',
+    ];
+    final runner = InteractiveProcessRunner(
+      executable: args.first,
+      arguments: args.sublist(1),
       workingDirectory: '$repoRoot/$pkgPath',
     );
-    stdout.write(result.stdout);
-    stderr.write(result.stderr);
-    return result.exitCode;
+    return runner.run();
   }
 }
 

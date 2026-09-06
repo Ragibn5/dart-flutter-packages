@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:io';
+
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
@@ -302,4 +304,89 @@ void main() {
     );
     expect(publishCalls.map((call) => call.dryRun), <bool>[true, false]);
   });
+
+  test(
+    'should publish via the default runner using the resolved tooling prefix',
+    () async {
+      final tempDir =
+          Directory.systemTemp.createTempSync('run_publish_flow_default');
+      Directory('${tempDir.path}/pkg').createSync(recursive: true);
+      final logFile = '${tempDir.path}/args.log';
+      final script = _executableScript(
+        tempDir,
+        exitCode: 0,
+        logFile: logFile,
+      );
+      when(() => buildPublishCommand(any()))
+          .thenAnswer((_) async => PublishTooling(script));
+      addTearDown(() {
+        if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+      });
+
+      sut = RunPublishFlow(
+        validatePackagePath: validatePackagePath,
+        readPackageIdentity: readPackageIdentity,
+        hasCleanWorkingTree: hasCleanWorkingTree,
+        confirmYesNo: confirmYesNo,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
+        buildPublishCommand: buildPublishCommand,
+      );
+
+      await expectLater(
+        sut(repoRoot: tempDir.path, pkgPath: 'pkg'),
+        completes,
+      );
+
+      final lines = File(logFile).readAsStringSync().trim().split('\n');
+      expect(lines, <String>['pub publish --dry-run', 'pub publish']);
+    },
+  );
+
+  test('should throw PublishFailedException when the default runner fails',
+      () async {
+    final tempDir =
+        Directory.systemTemp.createTempSync('run_publish_flow_default_fail');
+    Directory('${tempDir.path}/pkg').createSync(recursive: true);
+    final logFile = '${tempDir.path}/args.log';
+    final script = _executableScript(
+      tempDir,
+      exitCode: 1,
+      logFile: logFile,
+    );
+    when(() => buildPublishCommand(any()))
+        .thenAnswer((_) async => PublishTooling(script));
+    addTearDown(() {
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+
+    sut = RunPublishFlow(
+      validatePackagePath: validatePackagePath,
+      readPackageIdentity: readPackageIdentity,
+      hasCleanWorkingTree: hasCleanWorkingTree,
+      confirmYesNo: confirmYesNo,
+      verifyReleaseCompleteness: verifyReleaseCompleteness,
+      buildPublishCommand: buildPublishCommand,
+    );
+
+    await expectLater(
+      sut(repoRoot: tempDir.path, pkgPath: 'pkg'),
+      throwsA(isA<PublishFailedException>()),
+    );
+
+    final lines = File(logFile).readAsStringSync().trim().split('\n');
+    expect(lines, <String>['pub publish --dry-run']);
+  });
+}
+
+String _executableScript(
+  Directory dir, {
+  required int exitCode,
+  required String logFile,
+}) {
+  final script = File('${dir.path}/cmd.sh')
+    ..writeAsStringSync(
+      '#!/bin/sh\nprintf "%s\\n" "\$*" >> "$logFile"\nexit $exitCode\n',
+    );
+  Process.runSync('chmod', ['+x', script.path]);
+  return script.path;
 }
