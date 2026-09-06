@@ -1,14 +1,12 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
-import 'package:dev_tools/src/use_cases/git/get_current_branch.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
-import 'package:dev_tools/src/use_cases/publish/get_package_name.dart';
-import 'package:dev_tools/src/use_cases/publish/get_package_version.dart';
-import 'package:dev_tools/src/use_cases/publish/parse_release_branch.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
+import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
 
 typedef PublishProcessRunner = Future<int> Function(
   String repoRoot,
@@ -17,82 +15,61 @@ typedef PublishProcessRunner = Future<int> Function(
 });
 
 class RunPublishFlow {
-  final GetCurrentBranch _getCurrentBranch;
-  final ParseReleaseBranch _parseReleaseBranch;
+  final ConfirmYesNo _confirmYesNo;
   final HasCleanWorkingTree _hasCleanWorkingTree;
   final ValidatePackagePath _validatePackagePath;
-  final GetPackageName _getPackageName;
-  final GetPackageVersion _getPackageVersion;
-  final ConfirmYesNo _confirmYesNo;
+  final ReadPackageIdentity _readPackageIdentity;
+  final VerifyReleaseCompleteness _verifyReleaseCompleteness;
   final PublishProcessRunner? _publish;
 
   const RunPublishFlow({
-    GetCurrentBranch getCurrentBranch = const GetCurrentBranch(),
-    ParseReleaseBranch parseReleaseBranch = const ParseReleaseBranch(),
+    ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     HasCleanWorkingTree hasCleanWorkingTree = const HasCleanWorkingTree(),
     ValidatePackagePath validatePackagePath = const ValidatePackagePath(),
-    GetPackageName getPackageName = const GetPackageName(),
-    GetPackageVersion getPackageVersion = const GetPackageVersion(),
-    ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
+    ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
+    VerifyReleaseCompleteness verifyReleaseCompleteness =
+        const VerifyReleaseCompleteness(),
     PublishProcessRunner? publish,
-  })  : _getCurrentBranch = getCurrentBranch,
-        _parseReleaseBranch = parseReleaseBranch,
+  })  : _confirmYesNo = confirmYesNo,
         _hasCleanWorkingTree = hasCleanWorkingTree,
         _validatePackagePath = validatePackagePath,
-        _getPackageName = getPackageName,
-        _getPackageVersion = getPackageVersion,
-        _confirmYesNo = confirmYesNo,
+        _readPackageIdentity = readPackageIdentity,
+        _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _publish = publish;
 
-  /// Validates and publishes a package from a release branch.
+  /// Validates and publishes a package.
   ///
   /// Params:
   /// - `repoRoot`: absolute path to the repository root.
+  /// - `pkgPath`: package directory relative to [repoRoot].
   /// - `dryRunOnly`: skip the actual publish after a successful dry run.
   ///
   /// Returns: nothing (void); reports progress to stdout.
   ///
-  /// Notes: throws [PublishValidationException] on invalid state and
-  /// [PublishFailedException] when the dry run or publish fails.
+  /// Notes: throws [PublishValidationException] on invalid state, including
+  /// incomplete release references reported by [VerifyReleaseCompleteness];
+  /// dedicated reader exceptions surface missing pubspecs or versioned
+  /// files; [PublishFailedException] is thrown when the dry run or publish
+  /// fails.
   Future<void> call({
     required String repoRoot,
+    required String pkgPath,
     bool dryRunOnly = false,
   }) async {
-    final publish = _publish ?? _defaultPublish;
-    final branch = await _getCurrentBranch(repoRoot);
-    if (branch == null) {
-      throw const PublishValidationException(
-        'Error: Detached HEAD. Checkout a release branch first.',
-      );
-    }
-    final parsed = _parseReleaseBranch(branch);
-    if (parsed == null) {
-      throw const PublishValidationException(
-        'Error: Branch name does not match format release/<package-path>-<version>.',
-      );
-    }
-
-    final pkgPath = parsed.packagePath;
     _validatePackagePath(repoRoot, pkgPath);
 
-    final pkgName = await _getPackageName(repoRoot, pkgPath);
-    final pkgVersion = await _getPackageVersion(repoRoot, pkgPath);
+    final publish = _publish ?? _defaultPublish;
+    final identity = await _readPackageIdentity(repoRoot, pkgPath);
 
     stdout
-      ..writeln('  Package: $pkgName')
-      ..writeln('  Version: $pkgVersion')
-      ..writeln('  Branch:  $branch');
+      ..writeln('Package: ${identity.name}')
+      ..writeln('Version: ${identity.version}');
 
-    if (parsed.version != pkgVersion) {
-      throw PublishValidationException(
-        'Error: Version mismatch — branch says ${parsed.version}, '
-        'pubspec says $pkgVersion.',
-      );
-    }
+    await _verifyReleaseCompleteness(repoRoot: repoRoot, pkgPath: pkgPath);
 
     var warnings = false;
     if (!await _hasCleanWorkingTree(repoRoot)) {
-      stdout.writeln('  WARNING: You have uncommitted changes.');
+      stdout.writeln('WARNING: You have uncommitted changes.');
       warnings = true;
     }
 
@@ -115,9 +92,8 @@ class RunPublishFlow {
       return;
     }
 
-    final confirmed = await _confirmYesNo(
-      'Publish $pkgName@$pkgVersion?',
-    );
+    final confirmed =
+        await _confirmYesNo('Publish ${identity.name}@${identity.version}?');
     if (!confirmed) {
       stdout.writeln('Cancelled.');
       return;

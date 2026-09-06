@@ -1,27 +1,25 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:dev_tools/src/use_cases/git/get_current_branch.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
-import 'package:dev_tools/src/use_cases/publish/get_package_name.dart';
-import 'package:dev_tools/src/use_cases/publish/get_package_version.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
+import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _MockGetCurrentBranch extends Mock implements GetCurrentBranch {}
-
 class _MockValidatePackagePath extends Mock implements ValidatePackagePath {}
 
-class _MockGetPackageName extends Mock implements GetPackageName {}
-
-class _MockGetPackageVersion extends Mock implements GetPackageVersion {}
+class _MockReadPackageIdentity extends Mock implements ReadPackageIdentity {}
 
 class _MockHasCleanWorkingTree extends Mock implements HasCleanWorkingTree {}
 
 class _MockConfirmYesNo extends Mock implements ConfirmYesNo {}
+
+class _MockVerifyReleaseCompleteness extends Mock
+    implements VerifyReleaseCompleteness {}
 
 class PublishAttempt {
   final String repoRoot;
@@ -57,81 +55,60 @@ void main() {
   const continuePrompt = 'Continue despite warnings?';
   const publishPrompt = 'Publish foo@1.0.0?';
 
-  late _MockGetCurrentBranch getCurrentBranch;
   late _MockValidatePackagePath validatePackagePath;
-  late _MockGetPackageName getPackageName;
-  late _MockGetPackageVersion getPackageVersion;
+  late _MockReadPackageIdentity readPackageIdentity;
   late _MockHasCleanWorkingTree hasCleanWorkingTree;
   late _MockConfirmYesNo confirmYesNo;
+  late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
 
   late List<PublishAttempt> publishCalls;
   late PublishProcessRunner publish;
   late RunPublishFlow sut;
 
   RunPublishFlow buildSut() => RunPublishFlow(
-        getCurrentBranch: getCurrentBranch,
         validatePackagePath: validatePackagePath,
-        getPackageName: getPackageName,
-        getPackageVersion: getPackageVersion,
+        readPackageIdentity: readPackageIdentity,
         hasCleanWorkingTree: hasCleanWorkingTree,
         confirmYesNo: confirmYesNo,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
         publish: publish,
       );
 
   setUp(() {
-    getCurrentBranch = _MockGetCurrentBranch();
     validatePackagePath = _MockValidatePackagePath();
-    getPackageName = _MockGetPackageName();
-    getPackageVersion = _MockGetPackageVersion();
+    readPackageIdentity = _MockReadPackageIdentity();
     hasCleanWorkingTree = _MockHasCleanWorkingTree();
     confirmYesNo = _MockConfirmYesNo();
+    verifyReleaseCompleteness = _MockVerifyReleaseCompleteness();
     publishCalls = <PublishAttempt>[];
     publish = _okPublish(publishCalls);
 
-    when(() => getCurrentBranch(any()))
-        .thenAnswer((_) async => 'release/$pkgPath-1.0.0');
     when(() => validatePackagePath(any(), any())).thenReturn(null);
-    when(() => getPackageName(any(), any())).thenAnswer((_) async => 'foo');
-    when(() => getPackageVersion(any(), any()))
-        .thenAnswer((_) async => '1.0.0');
+    when(() => readPackageIdentity(any(), any())).thenAnswer(
+      (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
+    );
+    when(() => verifyReleaseCompleteness(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+        )).thenAnswer((_) async {});
     when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => true);
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
     sut = buildSut();
   });
 
-  test('should throw PublishValidationException when in detached HEAD',
-      () async {
-    when(() => getCurrentBranch(any())).thenAnswer((_) async => null);
-
-    await expectLater(
-      sut(repoRoot: repoRoot),
-      throwsA(isA<PublishValidationException>()),
-    );
-    expect(publishCalls, isEmpty);
-  });
-
   test(
-    'should throw PublishValidationException when branch is not a release branch',
+    'should throw PublishValidationException when the release is incomplete',
     () async {
-      when(() => getCurrentBranch(any())).thenAnswer((_) async => 'main');
+      when(() => verifyReleaseCompleteness(
+            repoRoot: any(named: 'repoRoot'),
+            pkgPath: any(named: 'pkgPath'),
+          )).thenThrow(const PublishValidationException(
+        'Error: Release is incomplete for foo@1.0.0.',
+      ));
 
       await expectLater(
-        sut(repoRoot: repoRoot),
-        throwsA(isA<PublishValidationException>()),
-      );
-      expect(publishCalls, isEmpty);
-    },
-  );
-
-  test(
-    'should throw PublishValidationException when the branch version mismatches the pubspec',
-    () async {
-      when(() => getPackageVersion(any(), any()))
-          .thenAnswer((_) async => '2.0.0');
-
-      await expectLater(
-        sut(repoRoot: repoRoot),
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
         throwsA(isA<PublishValidationException>()),
       );
       expect(publishCalls, isEmpty);
@@ -145,7 +122,10 @@ void main() {
       when(() => confirmYesNo(any(that: equals(continuePrompt))))
           .thenAnswer((_) async => false);
 
-      await expectLater(sut(repoRoot: repoRoot), completes);
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        completes,
+      );
 
       expect(publishCalls, isEmpty);
     },
@@ -160,7 +140,10 @@ void main() {
       when(() => confirmYesNo(any(that: equals(publishPrompt))))
           .thenAnswer((_) async => true);
 
-      await expectLater(sut(repoRoot: repoRoot), completes);
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        completes,
+      );
 
       expect(publishSignatures(publishCalls), <(String, String, bool)>[
         (repoRoot, pkgPath, true),
@@ -176,14 +159,17 @@ void main() {
     sut = buildSut();
 
     await expectLater(
-      sut(repoRoot: repoRoot),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
       throwsA(isA<PublishFailedException>()),
     );
     expect(publishCalls.map((call) => call.dryRun), <bool>[true]);
   });
 
   test('should skip the actual publish when dryRunOnly is true', () async {
-    await expectLater(sut(repoRoot: repoRoot, dryRunOnly: true), completes);
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: true),
+      completes,
+    );
 
     expect(publishSignatures(publishCalls), <(String, String, bool)>[
       (repoRoot, pkgPath, true),
@@ -195,7 +181,10 @@ void main() {
     when(() => confirmYesNo(any(that: equals(publishPrompt))))
         .thenAnswer((_) async => false);
 
-    await expectLater(sut(repoRoot: repoRoot), completes);
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      completes,
+    );
 
     expect(publishSignatures(publishCalls), <(String, String, bool)>[
       (repoRoot, pkgPath, true),
@@ -203,12 +192,19 @@ void main() {
   });
 
   test('should publish successfully end to end', () async {
-    await expectLater(sut(repoRoot: repoRoot), completes);
+    await expectLater(
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      completes,
+    );
 
     expect(publishSignatures(publishCalls), <(String, String, bool)>[
       (repoRoot, pkgPath, true),
       (repoRoot, pkgPath, false),
     ]);
+    verify(() => verifyReleaseCompleteness(
+          repoRoot: repoRoot,
+          pkgPath: pkgPath,
+        )).called(1);
     verify(() => confirmYesNo(publishPrompt)).called(1);
   });
 
@@ -219,7 +215,7 @@ void main() {
     sut = buildSut();
 
     await expectLater(
-      sut(repoRoot: repoRoot),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
       throwsA(isA<PublishFailedException>()),
     );
     expect(publishCalls.map((call) => call.dryRun), <bool>[true, false]);

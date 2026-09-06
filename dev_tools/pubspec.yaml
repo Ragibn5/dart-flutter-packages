@@ -17,6 +17,7 @@ executables:
 
 # Dependencies
 dependencies:
+  meta: ^1.16.0
   args: ^2.5.0
   glob: ^2.1.2
   path: ^1.9.0
