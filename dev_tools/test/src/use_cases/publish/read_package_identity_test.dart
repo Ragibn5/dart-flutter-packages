@@ -29,6 +29,51 @@ void main() {
 
     expect(identity.name, 'foo');
     expect(identity.version, '1.0.0');
+    expect(identity.isFlutterPackage, isFalse);
+  });
+
+  test('should mark a package as Flutter from an environment.flutter row',
+      () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+name: foo
+version: 1.0.0
+environment:
+  sdk: ^3.0.0
+  flutter: ">=3.3.0"
+''');
+
+    final identity = await sut(tempDir.path, pkgPath);
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test('should mark a package as Flutter from a dependency on the flutter SDK',
+      () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+name: foo
+version: 1.0.0
+dependencies:
+  flutter:
+    sdk: flutter
+''');
+
+    final identity = await sut(tempDir.path, pkgPath);
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test('should mark a package as Flutter from a top-level flutter section',
+      () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+name: foo
+version: 1.0.0
+flutter:
+  plugin: true
+''');
+
+    final identity = await sut(tempDir.path, pkgPath);
+
+    expect(identity.isFlutterPackage, isTrue);
   });
 
   test('should throw PackageIdentityException when pubspec.yaml is missing',

@@ -7,8 +7,13 @@ import 'package:yaml/yaml.dart';
 class PackageIdentity {
   final String name;
   final String version;
+  final bool isFlutterPackage;
 
-  const PackageIdentity({required this.name, required this.version});
+  const PackageIdentity({
+    required this.name,
+    required this.version,
+    this.isFlutterPackage = false,
+  });
 }
 
 /// Represents an exception related to a package's malformed or
@@ -58,6 +63,17 @@ class ReadPackageIdentity {
         'Error: pubspec.yaml has no version.',
       );
     }
-    return PackageIdentity(name: name, version: version);
+    final isFlutterPackage = map.containsKey('flutter') ||
+        _flutterSdkReferenced(map, 'environment') ||
+        _flutterSdkReferenced(map, 'dependencies') ||
+        _flutterSdkReferenced(map, 'dev_dependencies');
+    return PackageIdentity(
+      name: name,
+      version: version,
+      isFlutterPackage: isFlutterPackage,
+    );
   }
+
+  static bool _flutterSdkReferenced(YamlMap map, String key) =>
+      map[key] is YamlMap && (map[key] as YamlMap).containsKey('flutter');
 }

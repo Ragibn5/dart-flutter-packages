@@ -2,6 +2,7 @@
 
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
+import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
@@ -21,6 +22,8 @@ class _MockConfirmYesNo extends Mock implements ConfirmYesNo {}
 class _MockVerifyReleaseCompleteness extends Mock
     implements VerifyReleaseCompleteness {}
 
+class _MockBuildPublishCommand extends Mock implements BuildPublishCommand {}
+
 class PublishAttempt {
   final String repoRoot;
   final String pkgPath;
@@ -33,7 +36,7 @@ List<(String, String, bool)> publishSignatures(List<PublishAttempt> calls) =>
     calls.map((call) => (call.repoRoot, call.pkgPath, call.dryRun)).toList();
 
 PublishProcessRunner _okPublish(List<PublishAttempt> calls) {
-  return (repoRoot, pkgPath, {required dryRun}) async {
+  return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
     calls.add(PublishAttempt(repoRoot, pkgPath, dryRun: dryRun));
     return 0;
   };
@@ -43,7 +46,7 @@ PublishProcessRunner _failingPublish({
   required bool failingDryRun,
   required List<PublishAttempt> calls,
 }) {
-  return (repoRoot, pkgPath, {required dryRun}) async {
+  return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
     calls.add(PublishAttempt(repoRoot, pkgPath, dryRun: dryRun));
     return dryRun == failingDryRun ? 1 : 0;
   };
@@ -55,11 +58,18 @@ void main() {
   const continuePrompt = 'Continue despite warnings?';
   const publishPrompt = 'Publish foo@1.0.0?';
 
+  setUpAll(() {
+    registerFallbackValue(
+      const PackageIdentity(name: 'foo', version: '1.0.0'),
+    );
+  });
+
   late _MockValidatePackagePath validatePackagePath;
   late _MockReadPackageIdentity readPackageIdentity;
   late _MockHasCleanWorkingTree hasCleanWorkingTree;
   late _MockConfirmYesNo confirmYesNo;
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
+  late _MockBuildPublishCommand buildPublishCommand;
 
   late List<PublishAttempt> publishCalls;
   late PublishProcessRunner publish;
@@ -71,6 +81,7 @@ void main() {
         hasCleanWorkingTree: hasCleanWorkingTree,
         confirmYesNo: confirmYesNo,
         verifyReleaseCompleteness: verifyReleaseCompleteness,
+        buildPublishCommand: buildPublishCommand,
         publish: publish,
       );
 
@@ -80,12 +91,16 @@ void main() {
     hasCleanWorkingTree = _MockHasCleanWorkingTree();
     confirmYesNo = _MockConfirmYesNo();
     verifyReleaseCompleteness = _MockVerifyReleaseCompleteness();
+    buildPublishCommand = _MockBuildPublishCommand();
     publishCalls = <PublishAttempt>[];
     publish = _okPublish(publishCalls);
 
     when(() => validatePackagePath(any(), any())).thenReturn(null);
     when(() => readPackageIdentity(any(), any())).thenAnswer(
       (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
+    );
+    when(() => buildPublishCommand(any())).thenAnswer(
+      (_) async => const PublishTooling('fvm dart'),
     );
     when(() => verifyReleaseCompleteness(
           repoRoot: any(named: 'repoRoot'),
@@ -112,6 +127,44 @@ void main() {
         throwsA(isA<PublishValidationException>()),
       );
       expect(publishCalls, isEmpty);
+    },
+  );
+
+  test(
+    'should cancel on the single confirmation when there is no scoped '
+    'version and the user declines',
+    () async {
+      when(() => buildPublishCommand(any()))
+          .thenAnswer((_) async => const PublishTooling('dart'));
+      when(() => confirmYesNo(any(that: equals(continuePrompt))))
+          .thenAnswer((_) async => false);
+
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        completes,
+      );
+
+      expect(publishCalls, isEmpty);
+    },
+  );
+
+  test(
+    'should proceed with the system-wide toolchain when the user confirms',
+    () async {
+      when(() => buildPublishCommand(any()))
+          .thenAnswer((_) async => const PublishTooling('dart'));
+      when(() => confirmYesNo(any(that: equals(publishPrompt))))
+          .thenAnswer((_) async => true);
+
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        completes,
+      );
+
+      expect(publishSignatures(publishCalls), <(String, String, bool)>[
+        (repoRoot, pkgPath, true),
+        (repoRoot, pkgPath, false),
+      ]);
     },
   );
 

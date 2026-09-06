@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
+import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
@@ -11,6 +12,7 @@ import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart
 typedef PublishProcessRunner = Future<int> Function(
   String repoRoot,
   String pkgPath, {
+  required PublishTooling tooling,
   required bool dryRun,
 });
 
@@ -19,6 +21,7 @@ class RunPublishFlow {
   final HasCleanWorkingTree _hasCleanWorkingTree;
   final ValidatePackagePath _validatePackagePath;
   final ReadPackageIdentity _readPackageIdentity;
+  final BuildPublishCommand _buildPublishCommand;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
   final PublishProcessRunner? _publish;
 
@@ -27,6 +30,7 @@ class RunPublishFlow {
     HasCleanWorkingTree hasCleanWorkingTree = const HasCleanWorkingTree(),
     ValidatePackagePath validatePackagePath = const ValidatePackagePath(),
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
+    BuildPublishCommand buildPublishCommand = const BuildPublishCommand(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
     PublishProcessRunner? publish,
@@ -34,6 +38,7 @@ class RunPublishFlow {
         _hasCleanWorkingTree = hasCleanWorkingTree,
         _validatePackagePath = validatePackagePath,
         _readPackageIdentity = readPackageIdentity,
+        _buildPublishCommand = buildPublishCommand,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _publish = publish;
 
@@ -46,11 +51,15 @@ class RunPublishFlow {
   ///
   /// Returns: nothing (void); reports progress to stdout.
   ///
-  /// Notes: throws [PublishValidationException] on invalid state, including
-  /// incomplete release references reported by [VerifyReleaseCompleteness];
-  /// dedicated reader exceptions surface missing pubspecs or versioned
-  /// files; [PublishFailedException] is thrown when the dry run or publish
-  /// fails.
+  /// Notes: the dry run and publish run from the package root using the
+  /// tooling in [PublishTooling]; without a scoped fvm version the user is
+  /// warned that the system-wide Dart/Flutter will be used. Warnings
+  /// (system-wide toolchain, uncommitted changes) are confirmed with a
+  /// single `Continue despite warnings?` prompt. Throws
+  /// [PublishValidationException] on invalid state, including incomplete
+  /// release references reported by [VerifyReleaseCompleteness]; dedicated
+  /// reader exceptions surface missing pubspecs or versioned files;
+  /// [PublishFailedException] is thrown when the dry run or publish fails.
   Future<void> call({
     required String repoRoot,
     required String pkgPath,
@@ -58,28 +67,41 @@ class RunPublishFlow {
   }) async {
     _validatePackagePath(repoRoot, pkgPath);
 
+    final warnings = <String>[];
     final publish = _publish ?? _defaultPublish;
     final identity = await _readPackageIdentity(repoRoot, pkgPath);
+    final tooling = await _buildPublishCommand(identity);
 
     stdout
       ..writeln('Package: ${identity.name}')
-      ..writeln('Version: ${identity.version}');
+      ..writeln('Version: ${identity.version}')
+      ..writeln();
 
     await _verifyReleaseCompleteness(repoRoot: repoRoot, pkgPath: pkgPath);
 
-    var warnings = false;
-    if (!await _hasCleanWorkingTree(repoRoot)) {
-      stdout.writeln('WARNING: You have uncommitted changes.');
-      warnings = true;
+    if (!tooling.usesFvm) {
+      warnings.add(
+        'Project not scoped with fvm, will use system-wide Dart/Flutter.',
+      );
     }
+    if (!await _hasCleanWorkingTree(repoRoot)) {
+      warnings.add('You have uncommitted changes.');
+    }
+    stdout.writeln('\nWarnings:');
+    for (final e in warnings) {
+      stdout.writeln('  - $e');
+    }
+    stdout.writeln();
 
-    if (warnings && !await _confirmYesNo('Continue despite warnings?')) {
+    if (warnings.isNotEmpty &&
+        !await _confirmYesNo('Continue despite warnings?')) {
       stdout.writeln('Cancelled.');
       return;
     }
 
     stdout.writeln('\nDRY-RUN PUBLISH');
-    final dryExit = await publish(repoRoot, pkgPath, dryRun: true);
+    final dryExit =
+        await publish(repoRoot, pkgPath, tooling: tooling, dryRun: true);
     stdout.writeln('DRY-RUN COMPLETE\n');
     if (dryExit != 0) {
       throw const PublishFailedException(
@@ -100,7 +122,8 @@ class RunPublishFlow {
     }
 
     stdout.writeln('\nPUBLISHING');
-    final exitCode = await publish(repoRoot, pkgPath, dryRun: false);
+    final exitCode =
+        await publish(repoRoot, pkgPath, tooling: tooling, dryRun: false);
     if (exitCode != 0) {
       throw const PublishFailedException('Error: Publishing failed.');
     }
@@ -110,13 +133,14 @@ class RunPublishFlow {
   static Future<int> _defaultPublish(
     String repoRoot,
     String pkgPath, {
+    required PublishTooling tooling,
     required bool dryRun,
   }) async {
-    final args = ['pub', 'publish'];
+    final args = [...tooling.prefix, 'pub', 'publish'];
     if (dryRun) args.add('--dry-run');
     final result = await Process.run(
-      'dart',
-      args,
+      args.first,
+      args.sublist(1),
       workingDirectory: '$repoRoot/$pkgPath',
     );
     stdout.write(result.stdout);
