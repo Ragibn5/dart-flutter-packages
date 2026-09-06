@@ -62,6 +62,22 @@ dependencies:
     expect(identity.isFlutterPackage, isTrue);
   });
 
+  test(
+      'should mark a package as Flutter from a dev_dependency on the '
+      'flutter SDK', () async {
+    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+    name: foo
+    version: 1.0.0
+    dev_dependencies:
+      flutter:
+        sdk: flutter
+    ''');
+
+    final identity = await sut(tempDir.path, pkgPath);
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
   test('should mark a package as Flutter from a top-level flutter section',
       () async {
     File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''

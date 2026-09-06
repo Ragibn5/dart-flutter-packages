@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:io';
+
 import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
@@ -203,5 +205,70 @@ void main() {
         requiredVersionedFiles: customChecks,
       ),
     ).called(1);
+  });
+
+  group('standard checks with real files', () {
+    const pkgPath = 'pkg';
+
+    late Directory tempDir;
+
+    VerifyReleaseCompleteness buildRealFilesSut() => VerifyReleaseCompleteness(
+          readPackageIdentity: readPackageIdentity,
+          fetchPublishedPackageVersions: fetchPublishedPackageVersions,
+        );
+
+    setUp(() {
+      tempDir = Directory.systemTemp
+          .createTempSync('verify_release_completeness_test');
+      Directory('${tempDir.path}/$pkgPath').createSync(recursive: true);
+      when(() => fetchPublishedPackageVersions(any()))
+          .thenAnswer((_) async => const PubDevPackageInfo());
+    });
+
+    tearDown(() {
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+
+    test('should pass when real files reference the version', () async {
+      File('${tempDir.path}/$pkgPath/CHANGELOG.md').writeAsStringSync(
+        '# Changelog\n\n## [1.0.0]\n- Initial release.',
+      );
+      File('${tempDir.path}/$pkgPath/README.md').writeAsStringSync(
+        'foo-1.0.0\n\nInstall with `foo: ^1.0.0`.',
+      );
+
+      await expectLater(
+        buildRealFilesSut()(repoRoot: tempDir.path, pkgPath: pkgPath),
+        completes,
+      );
+    });
+
+    test('should flag near-miss references as incomplete', () async {
+      File('${tempDir.path}/$pkgPath/CHANGELOG.md').writeAsStringSync(
+        '# Changelog\n\n## 1.0.0-rc.1\n',
+      );
+      File('${tempDir.path}/$pkgPath/README.md').writeAsStringSync(
+        'foo-1.0.0-1\n\nInstall with `foo: ^0.9.0`.',
+      );
+
+      await expectLater(
+        buildRealFilesSut()(repoRoot: tempDir.path, pkgPath: pkgPath),
+        throwsA(
+          isA<PublishValidationException>().having(
+            (e) => e.message,
+            'message',
+            allOf(
+              contains('CHANGELOG.md has no entry for 1.0.0.'),
+              contains(
+                'README.md does not reference foo-1.0.0 (git install).',
+              ),
+              contains(
+                'README.md does not reference foo: ^1.0.0 (pub.dev install).',
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   });
 }

@@ -27,17 +27,28 @@ class _MockBuildPublishCommand extends Mock implements BuildPublishCommand {}
 class PublishAttempt {
   final String repoRoot;
   final String pkgPath;
+  final PublishTooling tooling;
   final bool dryRun;
 
-  const PublishAttempt(this.repoRoot, this.pkgPath, {required this.dryRun});
+  const PublishAttempt(this.repoRoot, this.pkgPath, this.tooling,
+      {required this.dryRun});
 }
 
-List<(String, String, bool)> publishSignatures(List<PublishAttempt> calls) =>
-    calls.map((call) => (call.repoRoot, call.pkgPath, call.dryRun)).toList();
+List<(String, String, String, bool)> publishSignatures(
+  List<PublishAttempt> calls,
+) =>
+    calls
+        .map((call) => (
+              call.repoRoot,
+              call.pkgPath,
+              call.tooling.command,
+              call.dryRun,
+            ))
+        .toList();
 
 PublishProcessRunner _okPublish(List<PublishAttempt> calls) {
   return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
-    calls.add(PublishAttempt(repoRoot, pkgPath, dryRun: dryRun));
+    calls.add(PublishAttempt(repoRoot, pkgPath, tooling, dryRun: dryRun));
     return 0;
   };
 }
@@ -47,7 +58,7 @@ PublishProcessRunner _failingPublish({
   required List<PublishAttempt> calls,
 }) {
   return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
-    calls.add(PublishAttempt(repoRoot, pkgPath, dryRun: dryRun));
+    calls.add(PublishAttempt(repoRoot, pkgPath, tooling, dryRun: dryRun));
     return dryRun == failingDryRun ? 1 : 0;
   };
 }
@@ -161,9 +172,27 @@ void main() {
         completes,
       );
 
-      expect(publishSignatures(publishCalls), <(String, String, bool)>[
-        (repoRoot, pkgPath, true),
-        (repoRoot, pkgPath, false),
+      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+        (repoRoot, pkgPath, 'dart', true),
+        (repoRoot, pkgPath, 'dart', false),
+      ]);
+    },
+  );
+
+  test(
+    'should forward the resolved fvm tooling to both publish calls',
+    () async {
+      when(() => buildPublishCommand(any()))
+          .thenAnswer((_) async => const PublishTooling('fvm flutter'));
+
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        completes,
+      );
+
+      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+        (repoRoot, pkgPath, 'fvm flutter', true),
+        (repoRoot, pkgPath, 'fvm flutter', false),
       ]);
     },
   );
@@ -198,9 +227,9 @@ void main() {
         completes,
       );
 
-      expect(publishSignatures(publishCalls), <(String, String, bool)>[
-        (repoRoot, pkgPath, true),
-        (repoRoot, pkgPath, false),
+      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+        (repoRoot, pkgPath, 'fvm dart', true),
+        (repoRoot, pkgPath, 'fvm dart', false),
       ]);
     },
   );
@@ -224,8 +253,8 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, bool)>[
-      (repoRoot, pkgPath, true),
+    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+      (repoRoot, pkgPath, 'fvm dart', true),
     ]);
   });
 
@@ -239,8 +268,8 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, bool)>[
-      (repoRoot, pkgPath, true),
+    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+      (repoRoot, pkgPath, 'fvm dart', true),
     ]);
   });
 
@@ -250,9 +279,9 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, bool)>[
-      (repoRoot, pkgPath, true),
-      (repoRoot, pkgPath, false),
+    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+      (repoRoot, pkgPath, 'fvm dart', true),
+      (repoRoot, pkgPath, 'fvm dart', false),
     ]);
     verify(() => verifyReleaseCompleteness(
           repoRoot: repoRoot,

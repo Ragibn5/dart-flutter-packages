@@ -13,7 +13,7 @@ import 'package:pub_semver/pub_semver.dart';
 /// versioned files).
 class VerifyReleaseCompleteness {
   static const _changelogPrefix = r'^#{1,6}\s*\[?';
-  static const _changelogSuffix = r'\]?(\s*-.*)?\s*$';
+  static const _changelogSuffix = r'\]?(\s+-.*)?\s*$';
   static const _boundaryOpen = r'(^|[^0-9A-Za-z-])';
   static const _boundaryClose = r'([^0-9A-Za-z-]|$)';
   static const _constraintSeparator = r':\s*\^';

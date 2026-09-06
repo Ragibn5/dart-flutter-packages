@@ -72,4 +72,11 @@ void main() {
     expect(tooling.prefix, <String>['fvm', 'flutter']);
     expect(tooling.usesFvm, isTrue);
   });
+
+  test('should tolerate extra whitespace in the resolved command', () {
+    const tooling = PublishTooling('  fvm   flutter  ');
+
+    expect(tooling.prefix, <String>['fvm', 'flutter']);
+    expect(tooling.usesFvm, isTrue);
+  });
 }
