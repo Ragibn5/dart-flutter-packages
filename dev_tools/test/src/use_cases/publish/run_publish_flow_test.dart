@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';

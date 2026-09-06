@@ -1,7 +1,7 @@
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

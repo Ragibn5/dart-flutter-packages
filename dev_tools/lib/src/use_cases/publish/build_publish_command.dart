@@ -1,6 +1,6 @@
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 
 /// Tooling selected for publishing a package.
 class PublishTooling {

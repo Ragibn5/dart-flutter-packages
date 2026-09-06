@@ -1,20 +1,8 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:yaml/yaml.dart';
-
-/// The identity of a local pub package.
-class PackageIdentity {
-  final String name;
-  final String version;
-  final bool isFlutterPackage;
-
-  const PackageIdentity({
-    required this.name,
-    required this.version,
-    this.isFlutterPackage = false,
-  });
-}
 
 /// Represents an exception related to a package's malformed or
 /// missing identity.

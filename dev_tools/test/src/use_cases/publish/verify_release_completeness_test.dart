@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
