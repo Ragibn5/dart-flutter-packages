@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
+import 'package:path/path.dart' as p;
 
 class PublishCommand extends Command<void> {
   static const String commandName = 'publish';
@@ -10,9 +12,13 @@ class PublishCommand extends Command<void> {
   static const String pathOption = 'path';
 
   final RunPublishFlow _runPublishFlow;
+  final GetRepoRootPath _getRepoRootPath;
 
-  PublishCommand({RunPublishFlow runPublishFlow = const RunPublishFlow()})
-      : _runPublishFlow = runPublishFlow {
+  PublishCommand({
+    GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
+    RunPublishFlow runPublishFlow = const RunPublishFlow(),
+  })  : _getRepoRootPath = getRepoRootPath,
+        _runPublishFlow = runPublishFlow {
     argParser
       ..addFlag(
         'dry-run',
@@ -36,10 +42,12 @@ class PublishCommand extends Command<void> {
   @override
   FutureOr<void>? run() async {
     final dryRun = argResults!.flag('dry-run');
-    final pkgPath = argResults![pathOption] as String?;
+    final repoRoot = await _getRepoRootPath();
+    final pkgPath = argResults![pathOption] as String? ??
+        p.relative(Directory.current.path, from: repoRoot);
     await _runPublishFlow(
-      repoRoot: Directory.current.path,
-      pkgPath: pkgPath ?? '.',
+      repoRoot: repoRoot,
+      pkgPath: pkgPath,
       dryRunOnly: dryRun,
     );
   }
