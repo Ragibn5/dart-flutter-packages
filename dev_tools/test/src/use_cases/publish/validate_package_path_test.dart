@@ -23,14 +23,14 @@ void main() {
     Directory('${tempDir.path}/pkg').createSync();
     File('${tempDir.path}/pkg/pubspec.yaml').writeAsStringSync('name: p\n');
 
-    expect(() => sut(tempDir.path, 'pkg'), returnsNormally);
+    expect(() => sut('${tempDir.path}/pkg'), returnsNormally);
   });
 
   test(
     'should throw PublishValidationException when directory does not exist',
     () {
       expect(
-        () => sut(tempDir.path, 'nope'),
+        () => sut('${tempDir.path}/nope'),
         throwsA(isA<PublishValidationException>()),
       );
     },
@@ -43,7 +43,7 @@ void main() {
       Directory('${tempDir.path}/empty').createSync();
 
       expect(
-        () => sut(tempDir.path, 'empty'),
+        () => sut('${tempDir.path}/empty'),
         throwsA(isA<PublishValidationException>()),
       );
     },

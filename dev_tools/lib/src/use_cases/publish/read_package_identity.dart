@@ -19,18 +19,14 @@ class ReadPackageIdentity {
   /// Reads the package identity.
   ///
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root.
-  /// - `pkgPath`: package directory relative to [repoRoot].
+  /// - `packagePath`: absolute path to the package directory.
   ///
   /// Returns: a [PackageIdentity].
   ///
   /// Notes: throws [PackageIdentityException] when the pubspec is
   /// missing or lacks a `name` or `version`.
-  Future<PackageIdentity> call(
-    String repoRoot,
-    String pkgPath,
-  ) async {
-    final pubspecFile = File('$repoRoot/$pkgPath/pubspec.yaml');
+  Future<PackageIdentity> call(String packagePath) async {
+    final pubspecFile = File('$packagePath/pubspec.yaml');
     if (!pubspecFile.existsSync()) {
       throw const PackageIdentityException(
         'Error: pubspec.yaml not found.',

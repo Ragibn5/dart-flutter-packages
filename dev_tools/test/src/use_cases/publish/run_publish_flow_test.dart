@@ -69,6 +69,7 @@ PublishProcessRunner _failingPublish({
 void main() {
   const repoRoot = '/fake/repo';
   const pkgPath = 'pkg';
+  const packagePath = '$repoRoot/$pkgPath';
   const continuePrompt = 'Continue despite warnings?';
   const publishPrompt = 'Publish foo@1.0.0?';
 
@@ -109,17 +110,14 @@ void main() {
     publishCalls = <PublishAttempt>[];
     publish = _okPublish(publishCalls);
 
-    when(() => validatePackagePath(any(), any())).thenReturn(null);
-    when(() => readPackageIdentity(any(), any())).thenAnswer(
+    when(() => validatePackagePath(any())).thenReturn(null);
+    when(() => readPackageIdentity(any())).thenAnswer(
       (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
     );
     when(() => buildPublishCommand(any())).thenAnswer(
       (_) async => const PublishTooling('fvm dart'),
     );
-    when(() => verifyReleaseCompleteness(
-          repoRoot: any(named: 'repoRoot'),
-          pkgPath: any(named: 'pkgPath'),
-        )).thenAnswer((_) async {});
+    when(() => verifyReleaseCompleteness(any())).thenAnswer((_) async {});
     when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => true);
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
@@ -129,12 +127,11 @@ void main() {
   test(
     'should throw PublishValidationException when the release is incomplete',
     () async {
-      when(() => verifyReleaseCompleteness(
-            repoRoot: any(named: 'repoRoot'),
-            pkgPath: any(named: 'pkgPath'),
-          )).thenThrow(const PublishValidationException(
-        'Error: Release is incomplete for foo@1.0.0.',
-      ));
+      when(() => verifyReleaseCompleteness(any())).thenThrow(
+        const PublishValidationException(
+          'Error: Release is incomplete for foo@1.0.0.',
+        ),
+      );
 
       await expectLater(
         sut(repoRoot: repoRoot, pkgPath: pkgPath),
@@ -286,10 +283,7 @@ void main() {
       (repoRoot, pkgPath, 'fvm dart', true),
       (repoRoot, pkgPath, 'fvm dart', false),
     ]);
-    verify(() => verifyReleaseCompleteness(
-          repoRoot: repoRoot,
-          pkgPath: pkgPath,
-        )).called(1);
+    verify(() => verifyReleaseCompleteness(packagePath)).called(1);
     verify(() => confirmYesNo(publishPrompt)).called(1);
   });
 

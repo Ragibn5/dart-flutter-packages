@@ -7,12 +7,14 @@ void main() {
   const pkgPath = 'pkg';
 
   late Directory tempDir;
+  late String packagePath;
 
   late ReadPackageIdentity sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('read_package_identity_test');
-    Directory('${tempDir.path}/$pkgPath').createSync(recursive: true);
+    packagePath = '${tempDir.path}/$pkgPath';
+    Directory(packagePath).createSync(recursive: true);
 
     sut = const ReadPackageIdentity();
   });
@@ -22,10 +24,10 @@ void main() {
   });
 
   test('should return the package identity from pubspec.yaml', () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml')
+    File('$packagePath/pubspec.yaml')
         .writeAsStringSync('name: foo\nversion: 1.0.0\n');
 
-    final identity = await sut(tempDir.path, pkgPath);
+    final identity = await sut(packagePath);
 
     expect(identity.name, 'foo');
     expect(identity.version, '1.0.0');
@@ -34,7 +36,7 @@ void main() {
 
   test('should mark a package as Flutter from an environment.flutter row',
       () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+    File('$packagePath/pubspec.yaml').writeAsStringSync('''
 name: foo
 version: 1.0.0
 environment:
@@ -42,14 +44,14 @@ environment:
   flutter: ">=3.3.0"
 ''');
 
-    final identity = await sut(tempDir.path, pkgPath);
+    final identity = await sut(packagePath);
 
     expect(identity.isFlutterPackage, isTrue);
   });
 
   test('should mark a package as Flutter from a dependency on the flutter SDK',
       () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+    File('$packagePath/pubspec.yaml').writeAsStringSync('''
 name: foo
 version: 1.0.0
 dependencies:
@@ -57,7 +59,7 @@ dependencies:
     sdk: flutter
 ''');
 
-    final identity = await sut(tempDir.path, pkgPath);
+    final identity = await sut(packagePath);
 
     expect(identity.isFlutterPackage, isTrue);
   });
@@ -65,7 +67,7 @@ dependencies:
   test(
       'should mark a package as Flutter from a dev_dependency on the '
       'flutter SDK', () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+    File('$packagePath/pubspec.yaml').writeAsStringSync('''
     name: foo
     version: 1.0.0
     dev_dependencies:
@@ -73,21 +75,21 @@ dependencies:
         sdk: flutter
     ''');
 
-    final identity = await sut(tempDir.path, pkgPath);
+    final identity = await sut(packagePath);
 
     expect(identity.isFlutterPackage, isTrue);
   });
 
   test('should mark a package as Flutter from a top-level flutter section',
       () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml').writeAsStringSync('''
+    File('$packagePath/pubspec.yaml').writeAsStringSync('''
 name: foo
 version: 1.0.0
 flutter:
   plugin: true
 ''');
 
-    final identity = await sut(tempDir.path, pkgPath);
+    final identity = await sut(packagePath);
 
     expect(identity.isFlutterPackage, isTrue);
   });
@@ -95,7 +97,7 @@ flutter:
   test('should throw PackageIdentityException when pubspec.yaml is missing',
       () async {
     await expectLater(
-      sut(tempDir.path, pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PackageIdentityException>().having(
           (e) => e.message,
@@ -108,11 +110,10 @@ flutter:
 
   test('should throw PackageIdentityException when pubspec has no name',
       () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml')
-        .writeAsStringSync('version: 1.0.0\n');
+    File('$packagePath/pubspec.yaml').writeAsStringSync('version: 1.0.0\n');
 
     await expectLater(
-      sut(tempDir.path, pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PackageIdentityException>().having(
           (e) => e.message,
@@ -125,11 +126,10 @@ flutter:
 
   test('should throw PackageIdentityException when pubspec has no version',
       () async {
-    File('${tempDir.path}/$pkgPath/pubspec.yaml')
-        .writeAsStringSync('name: foo\n');
+    File('$packagePath/pubspec.yaml').writeAsStringSync('name: foo\n');
 
     await expectLater(
-      sut(tempDir.path, pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PackageIdentityException>().having(
           (e) => e.message,

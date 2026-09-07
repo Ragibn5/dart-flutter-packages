@@ -44,8 +44,7 @@ class VerifyVersionedFiles {
   /// Collects problems for files that do not reference the new version.
   ///
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root.
-  /// - `pkgPath`: package directory relative to [repoRoot].
+  /// - `packagePath`: absolute path to the package directory.
   /// - `name`: package name.
   /// - `version`: package version, as read from the pubspec.
   /// - `requiredVersionedFiles`: the complete set of checks to run; each
@@ -54,8 +53,7 @@ class VerifyVersionedFiles {
   /// Returns: a list of problem descriptions, empty when every file
   /// references [version].
   Future<List<String>> call({
-    required String repoRoot,
-    required String pkgPath,
+    required String packagePath,
     required String name,
     required String version,
     required Map<String, VersionedFileCheck> requiredVersionedFiles,
@@ -63,7 +61,7 @@ class VerifyVersionedFiles {
     final problems = <String>[];
     for (final entry in requiredVersionedFiles.entries) {
       final check = entry.value;
-      final file = File('$repoRoot/$pkgPath/${check.filePath}');
+      final file = File('$packagePath/${check.filePath}');
       _requireExists(file, check.filePath);
 
       final pattern = check.pattern(name, version);

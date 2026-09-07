@@ -9,6 +9,7 @@ import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
+import 'package:path/path.dart' as p;
 
 typedef PublishProcessRunner = Future<int> Function(
   String repoRoot,
@@ -66,11 +67,12 @@ class RunPublishFlow {
     required String pkgPath,
     bool dryRunOnly = false,
   }) async {
-    _validatePackagePath(repoRoot, pkgPath);
+    final packagePath = p.join(repoRoot, pkgPath);
+    _validatePackagePath(packagePath);
 
     final warnings = <String>[];
     final publish = _publish ?? _defaultPublish;
-    final identity = await _readPackageIdentity(repoRoot, pkgPath);
+    final identity = await _readPackageIdentity(packagePath);
     final tooling = await _buildPublishCommand(identity);
 
     stdout
@@ -78,7 +80,7 @@ class RunPublishFlow {
       ..writeln('Version: ${identity.version}')
       ..writeln();
 
-    await _verifyReleaseCompleteness(repoRoot: repoRoot, pkgPath: pkgPath);
+    await _verifyReleaseCompleteness(packagePath);
 
     if (!tooling.usesFvm) {
       warnings.add(

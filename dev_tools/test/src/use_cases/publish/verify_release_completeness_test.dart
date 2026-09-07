@@ -19,8 +19,7 @@ class _MockFetchPublishedPackageVersions extends Mock
     implements FetchPublishedPackageVersions {}
 
 void main() {
-  const repoRoot = '/fake/repo';
-  const pkgPath = 'pkg';
+  const packagePath = '/fake/repo/pkg';
 
   late _MockReadPackageIdentity readPackageIdentity;
   late _MockVerifyVersionedFiles verifyVersionedFiles;
@@ -38,13 +37,12 @@ void main() {
     verifyVersionedFiles = _MockVerifyVersionedFiles();
     fetchPublishedPackageVersions = _MockFetchPublishedPackageVersions();
 
-    when(() => readPackageIdentity(any(), any())).thenAnswer(
+    when(() => readPackageIdentity(any())).thenAnswer(
       (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
     );
     when(
       () => verifyVersionedFiles(
-        repoRoot: any(named: 'repoRoot'),
-        pkgPath: any(named: 'pkgPath'),
+        packagePath: any(named: 'packagePath'),
         name: any(named: 'name'),
         version: any(named: 'version'),
         requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
@@ -58,13 +56,12 @@ void main() {
   });
 
   test('should complete when the release is consistent', () async {
-    await expectLater(sut(repoRoot: repoRoot, pkgPath: pkgPath), completes);
+    await expectLater(sut(packagePath), completes);
 
-    verify(() => readPackageIdentity(repoRoot, pkgPath)).called(1);
+    verify(() => readPackageIdentity(packagePath)).called(1);
     verify(
       () => verifyVersionedFiles(
-        repoRoot: repoRoot,
-        pkgPath: pkgPath,
+        packagePath: packagePath,
         name: 'foo',
         version: '1.0.0',
         requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
@@ -82,7 +79,7 @@ void main() {
     );
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PublishValidationException>().having(
           (e) => e.message,
@@ -103,7 +100,7 @@ void main() {
     );
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PublishValidationException>().having(
           (e) => e.message,
@@ -121,8 +118,7 @@ void main() {
       () async {
     when(
       () => verifyVersionedFiles(
-        repoRoot: any(named: 'repoRoot'),
-        pkgPath: any(named: 'pkgPath'),
+        packagePath: any(named: 'packagePath'),
         name: any(named: 'name'),
         version: any(named: 'version'),
         requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
@@ -133,7 +129,7 @@ void main() {
         ]);
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PublishValidationException>().having(
           (e) => e.message,
@@ -155,7 +151,7 @@ void main() {
     );
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(packagePath),
       throwsA(
         isA<PublishValidationException>().having(
           (e) => e.message,
@@ -168,12 +164,12 @@ void main() {
   });
 
   test('should propagate PackageIdentityException', () async {
-    when(() => readPackageIdentity(any(), any())).thenThrow(
+    when(() => readPackageIdentity(any())).thenThrow(
       const PackageIdentityException('Error: pubspec.yaml not found.'),
     );
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(packagePath),
       throwsA(isA<PackageIdentityException>()),
     );
   });
@@ -189,18 +185,13 @@ void main() {
     };
 
     await expectLater(
-      sut(
-        repoRoot: repoRoot,
-        pkgPath: pkgPath,
-        requiredVersionedFiles: customChecks,
-      ),
+      sut(packagePath, requiredVersionedFiles: customChecks),
       completes,
     );
 
     verify(
       () => verifyVersionedFiles(
-        repoRoot: repoRoot,
-        pkgPath: pkgPath,
+        packagePath: packagePath,
         name: 'foo',
         version: '1.0.0',
         requiredVersionedFiles: customChecks,
@@ -239,7 +230,7 @@ void main() {
       );
 
       await expectLater(
-        buildRealFilesSut()(repoRoot: tempDir.path, pkgPath: pkgPath),
+        buildRealFilesSut()('${tempDir.path}/$pkgPath'),
         completes,
       );
     });
@@ -253,7 +244,7 @@ void main() {
       );
 
       await expectLater(
-        buildRealFilesSut()(repoRoot: tempDir.path, pkgPath: pkgPath),
+        buildRealFilesSut()('${tempDir.path}/$pkgPath'),
         throwsA(
           isA<PublishValidationException>().having(
             (e) => e.message,

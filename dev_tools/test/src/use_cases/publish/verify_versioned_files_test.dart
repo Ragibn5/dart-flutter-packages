@@ -55,8 +55,7 @@ void main() {
     File('${tempDir.path}/$pkgPath/VERSION.txt').writeAsStringSync('2.0.0\n');
 
     final problems = await sut(
-      repoRoot: tempDir.path,
-      pkgPath: pkgPath,
+      packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
       requiredVersionedFiles: versionFileChecks,
@@ -70,8 +69,7 @@ void main() {
     File('${tempDir.path}/$pkgPath/VERSION.txt').writeAsStringSync('1.0.0\n');
 
     final problems = await sut(
-      repoRoot: tempDir.path,
-      pkgPath: pkgPath,
+      packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
       requiredVersionedFiles: versionFileChecks,
@@ -95,8 +93,7 @@ void main() {
     };
 
     final problems = await sut(
-      repoRoot: tempDir.path,
-      pkgPath: pkgPath,
+      packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
       requiredVersionedFiles: checks,
@@ -111,8 +108,7 @@ void main() {
     () async {
       await expectLater(
         sut(
-          repoRoot: tempDir.path,
-          pkgPath: pkgPath,
+          packagePath: '${tempDir.path}/$pkgPath',
           name: 'foo',
           version: '2.0.0',
           requiredVersionedFiles: versionFileChecks,
@@ -142,8 +138,7 @@ void main() {
     };
 
     final problems = await sut(
-      repoRoot: tempDir.path,
-      pkgPath: pkgPath,
+      packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
       requiredVersionedFiles: checks,
@@ -167,8 +162,7 @@ void main() {
     };
 
     final problems = await sut(
-      repoRoot: tempDir.path,
-      pkgPath: pkgPath,
+      packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
       requiredVersionedFiles: checks,

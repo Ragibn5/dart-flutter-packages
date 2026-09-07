@@ -91,8 +91,7 @@ class VerifyReleaseCompleteness {
   /// Verifies all release references are consistent.
   ///
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root.
-  /// - `pkgPath`: package directory relative to [repoRoot].
+  /// - `packagePath`: absolute path to the package directory.
   /// - `requiredVersionedFiles`: the versioned file checks to run; defaults
   ///   to the standard CHANGELOG.md and README.md checks. Provide your own
   ///   map to replace them.
@@ -103,18 +102,16 @@ class VerifyReleaseCompleteness {
   /// reference, and when pub.dev cannot be reached. A missing pubspec, or
   /// missing required versioned files, surface as their dedicated reader
   /// exceptions instead of aggregated problems.
-  Future<void> call({
-    required String repoRoot,
-    required String pkgPath,
+  Future<void> call(
+    String packagePath, {
     Map<String, VersionedFileCheck> requiredVersionedFiles = _standardChecks,
   }) async {
-    final identity = await _readPackageIdentity(repoRoot, pkgPath);
+    final identity = await _readPackageIdentity(packagePath);
 
     final problems = <String>[
       ...await _findPublishedVersionProblems(identity.name, identity.version),
       ...await _verifyVersionedFiles(
-        repoRoot: repoRoot,
-        pkgPath: pkgPath,
+        packagePath: packagePath,
         name: identity.name,
         version: identity.version,
         requiredVersionedFiles: requiredVersionedFiles,

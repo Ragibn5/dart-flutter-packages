@@ -8,23 +8,22 @@ class ValidatePackagePath {
   /// Validates that a path points to a package directory.
   ///
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root.
-  /// - `pkgPath`: package directory relative to [repoRoot].
+  /// - `packagePath`: absolute path to the package directory.
   ///
   /// Returns: nothing (void) when the path is valid.
   ///
   /// Notes: throws [PublishValidationException] when the directory or its
   /// pubspec.yaml is missing.
-  void call(String repoRoot, String pkgPath) {
-    final full = Directory('$repoRoot/$pkgPath');
+  void call(String packagePath) {
+    final full = Directory(packagePath);
     if (!full.existsSync()) {
       throw PublishValidationException(
-        "Error: Directory '$pkgPath' not found.",
+        "Error: Directory '$packagePath' not found.",
       );
     }
     if (!File('${full.path}/pubspec.yaml').existsSync()) {
       throw PublishValidationException(
-        "Error: No pubspec.yaml found in '$pkgPath'.",
+        "Error: No pubspec.yaml found in '$packagePath'.",
       );
     }
   }
