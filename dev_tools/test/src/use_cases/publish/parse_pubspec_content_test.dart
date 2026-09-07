@@ -16,8 +16,7 @@ void main() {
     expect(identity.isFlutterPackage, isFalse);
   });
 
-  test('should mark a package as Flutter from an environment.flutter row',
-      () {
+  test('should mark a package as Flutter from an environment.flutter row', () {
     final identity = sut('''
 name: foo
 version: 1.0.0
@@ -56,8 +55,7 @@ dependencies:
     expect(identity.isFlutterPackage, isTrue);
   });
 
-  test('should mark a package as Flutter from a top-level flutter section',
-      () {
+  test('should mark a package as Flutter from a top-level flutter section', () {
     final identity = sut('''
 name: foo
 version: 1.0.0
@@ -81,8 +79,7 @@ flutter:
     );
   });
 
-  test('should throw PackageIdentityException when pubspec has no version',
-      () {
+  test('should throw PackageIdentityException when pubspec has no version', () {
     expect(
       () => sut('name: foo\n'),
       throwsA(

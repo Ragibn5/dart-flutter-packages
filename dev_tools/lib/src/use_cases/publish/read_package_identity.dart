@@ -25,9 +25,7 @@ class ReadPackageIdentity {
   Future<PackageIdentity> call(String packagePath) async {
     final pubspecFile = File('$packagePath/pubspec.yaml');
     if (!pubspecFile.existsSync()) {
-      throw const PackageIdentityException(
-        'Error: pubspec.yaml not found.',
-      );
+      throw const PackageIdentityException('Error: pubspec.yaml not found.');
     }
 
     return _parsePubspecContent(await pubspecFile.readAsString());
