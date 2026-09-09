@@ -8,6 +8,7 @@ import 'package:dev_tools/src/commands/dart_flutter/fvm_flutter_command.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
 import 'package:dev_tools/src/commands/git/git_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
+import 'package:dev_tools/src/commands/validate_merge_request_command.dart';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 
 Future<void> main(List<String> args) async {
@@ -19,7 +20,8 @@ Future<void> main(List<String> args) async {
     ..addCommand(GitCommand())
     ..addCommand(PublishCommand())
     ..addCommand(ReplaceCommand())
-    ..addCommand(CoverageCommand());
+    ..addCommand(CoverageCommand())
+    ..addCommand(ValidateMergeRequestCommand());
 
   try {
     await runner.run(args);

@@ -66,6 +66,27 @@ flutter:
     expect(identity.isFlutterPackage, isTrue);
   });
 
+  test('should mark a package as publishable by default', () {
+    final identity = sut('name: foo\nversion: 1.0.0\n');
+
+    expect(identity.isPublishable, isTrue);
+  });
+
+  test('should mark a package as not publishable when publish_to is none', () {
+    final identity = sut('name: foo\nversion: 1.0.0\npublish_to: none\n');
+
+    expect(identity.isPublishable, isFalse);
+  });
+
+  test('should mark a package as publishable when publish_to is a registry',
+      () {
+    final identity = sut(
+      'name: foo\nversion: 1.0.0\npublish_to: https://example.com\n',
+    );
+
+    expect(identity.isPublishable, isTrue);
+  });
+
   test('should throw PackageIdentityException when pubspec has no name', () {
     expect(
       () => sut('version: 1.0.0\n'),

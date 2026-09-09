@@ -3,7 +3,8 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
+import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
@@ -16,7 +17,7 @@ class _MockReadPackageIdentity extends Mock implements ReadPackageIdentity {}
 class _MockVerifyVersionedFiles extends Mock implements VerifyVersionedFiles {}
 
 class _MockFetchPublishedPackageVersions extends Mock
-    implements FetchPublishedPackageVersions {}
+    implements FetchPublishedPackageInfo {}
 
 void main() {
   const packagePath = '/fake/repo/pkg';
@@ -49,7 +50,7 @@ void main() {
       ),
     ).thenAnswer((_) async => <String>[]);
     when(() => fetchPublishedPackageVersions(any())).thenAnswer(
-      (_) async => const PubDevPackageInfo(),
+      (_) async => const PublishedPackageInfo(),
     );
 
     sut = buildSut();
@@ -72,7 +73,7 @@ void main() {
   test('should throw PublishValidationException when already published',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenAnswer(
-      (_) async => const PubDevPackageInfo(
+      (_) async => const PublishedPackageInfo(
         latestVersion: '1.0.0',
         versions: ['1.0.0'],
       ),
@@ -93,7 +94,7 @@ void main() {
   test('should throw PublishValidationException when the release is older',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenAnswer(
-      (_) async => const PubDevPackageInfo(
+      (_) async => const PublishedPackageInfo(
         latestVersion: '2.0.0',
         versions: ['2.0.0'],
       ),
@@ -144,6 +145,29 @@ void main() {
     );
   });
 
+  test(
+      'should use the injected publishedVersions instead of fetching from '
+      'pub.dev', () async {
+    await expectLater(
+      sut(
+        packagePath,
+        publishedPackageInfo: const PublishedPackageInfo(
+          latestVersion: '1.0.0',
+          versions: ['1.0.0'],
+        ),
+      ),
+      throwsA(
+        isA<PublishValidationException>().having(
+          (e) => e.message,
+          'message',
+          contains('foo@1.0.0 is already published on pub.dev.'),
+        ),
+      ),
+    );
+
+    verifyNever(() => fetchPublishedPackageVersions(any()));
+  });
+
   test('should wrap PubDevLookupException into PublishValidationException',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenThrow(
@@ -185,7 +209,7 @@ void main() {
     };
 
     await expectLater(
-      sut(packagePath, requiredVersionedFiles: customChecks),
+      sut(packagePath, checks: customChecks),
       completes,
     );
 
@@ -214,7 +238,7 @@ void main() {
           .createTempSync('verify_release_completeness_test');
       Directory('${tempDir.path}/$pkgPath').createSync(recursive: true);
       when(() => fetchPublishedPackageVersions(any()))
-          .thenAnswer((_) async => const PubDevPackageInfo());
+          .thenAnswer((_) async => const PublishedPackageInfo());
     });
 
     tearDown(() {

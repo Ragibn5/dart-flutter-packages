@@ -42,10 +42,12 @@ class ParsePubspecContent {
         _flutterSdkReferenced(map, 'environment') ||
         _flutterSdkReferenced(map, 'dependencies') ||
         _flutterSdkReferenced(map, 'dev_dependencies');
+    final publishTo = map['publish_to']?.toString().trim();
     return PackageIdentity(
       name: name,
       version: version,
       isFlutterPackage: isFlutterPackage,
+      isPublishable: publishTo != 'none',
     );
   }
 

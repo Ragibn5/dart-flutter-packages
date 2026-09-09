@@ -5,7 +5,7 @@ import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dar
 class ValidatePackagePath {
   const ValidatePackagePath();
 
-  /// Validates that a path points to a package directory.
+  /// Validates that a path points to a valid Flutter/Dart package directory.
   ///
   /// Params:
   /// - `packagePath`: absolute path to the package directory.

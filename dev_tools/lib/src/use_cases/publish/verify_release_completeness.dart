@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
+import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/verify_versioned_files.dart';
@@ -77,13 +78,13 @@ class VerifyReleaseCompleteness {
 
   final ReadPackageIdentity _readPackageIdentity;
   final VerifyVersionedFiles _verifyVersionedFiles;
-  final FetchPublishedPackageVersions _fetchPublishedPackageVersions;
+  final FetchPublishedPackageInfo _fetchPublishedPackageVersions;
 
   const VerifyReleaseCompleteness({
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
     VerifyVersionedFiles verifyVersionedFiles = const VerifyVersionedFiles(),
-    FetchPublishedPackageVersions fetchPublishedPackageVersions =
-        const FetchPublishedPackageVersions(),
+    FetchPublishedPackageInfo fetchPublishedPackageVersions =
+        const FetchPublishedPackageInfo(),
   })  : _readPackageIdentity = readPackageIdentity,
         _verifyVersionedFiles = verifyVersionedFiles,
         _fetchPublishedPackageVersions = fetchPublishedPackageVersions;
@@ -92,6 +93,7 @@ class VerifyReleaseCompleteness {
   ///
   /// Params:
   /// - `packagePath`: absolute path to the package directory.
+  /// - `publishedVersions`: known published versions of the package, or null.
   /// - `requiredVersionedFiles`: the versioned file checks to run; defaults
   ///   to the standard CHANGELOG.md and README.md checks. Provide your own
   ///   map to replace them.
@@ -104,17 +106,22 @@ class VerifyReleaseCompleteness {
   /// exceptions instead of aggregated problems.
   Future<void> call(
     String packagePath, {
-    Map<String, VersionedFileCheck> requiredVersionedFiles = _standardChecks,
+    PublishedPackageInfo? publishedPackageInfo,
+    Map<String, VersionedFileCheck> checks = _standardChecks,
   }) async {
     final identity = await _readPackageIdentity(packagePath);
 
     final problems = <String>[
-      ...await _findPublishedVersionProblems(identity.name, identity.version),
+      ...await _findPublishedVersionProblems(
+        identity.name,
+        identity.version,
+        publishedPackageInfo,
+      ),
       ...await _verifyVersionedFiles(
         packagePath: packagePath,
         name: identity.name,
         version: identity.version,
-        requiredVersionedFiles: requiredVersionedFiles,
+        requiredVersionedFiles: checks,
       ),
     ];
 
@@ -137,14 +144,19 @@ class VerifyReleaseCompleteness {
   Future<List<String>> _findPublishedVersionProblems(
     String name,
     String version,
+    PublishedPackageInfo? publishedVersions,
   ) async {
-    final PubDevPackageInfo info;
-    try {
-      info = await _fetchPublishedPackageVersions(name);
-    } on PubDevLookupException catch (e) {
-      throw PublishValidationException(
-        'Error: Could not reach pub.dev to verify $name: ${e.message}',
-      );
+    final PublishedPackageInfo info;
+    if (publishedVersions != null) {
+      info = publishedVersions;
+    } else {
+      try {
+        info = await _fetchPublishedPackageVersions(name);
+      } on PubDevLookupException catch (e) {
+        throw PublishValidationException(
+          'Error: Could not reach pub.dev to verify $name: ${e.message}',
+        );
+      }
     }
 
     if (info.versions.contains(version)) {

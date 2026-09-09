@@ -2,17 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
-
-/// Information about versions of a package fetched from pub.dev.
-class PubDevPackageInfo {
-  const PubDevPackageInfo({this.latestVersion, this.versions = const []});
-
-  /// The latest published version, or null when nothing is published.
-  final String? latestVersion;
-
-  /// All published versions, empty when nothing is published.
-  final List<String> versions;
-}
+import 'package:dev_tools/src/models/published_package_info.dart';
 
 /// Represents an exception when the pub.dev API cannot be queried.
 class PubDevLookupException extends CommandExecutionException {
@@ -22,17 +12,17 @@ class PubDevLookupException extends CommandExecutionException {
   const PubDevLookupException(this.message);
 }
 
-class FetchPublishedPackageVersions {
-  const FetchPublishedPackageVersions();
+class FetchPublishedPackageInfo {
+  const FetchPublishedPackageInfo();
 
   /// Retrieves the latest and all published versions for [packageName].
   ///
-  /// Returns: a [PubDevPackageInfo]; empty when the package has never been
+  /// Returns: a [PublishedPackageInfo]; empty when the package has never been
   /// published.
   ///
   /// Notes: throws [PubDevLookupException] when the pub.dev API cannot be
   /// queried or returns an unexpected status.
-  Future<PubDevPackageInfo> call(String packageName) async {
+  Future<PublishedPackageInfo> call(String packageName) async {
     final client = HttpClient();
     try {
       final request = await client.getUrl(
@@ -40,7 +30,7 @@ class FetchPublishedPackageVersions {
       );
       final response = await request.close();
       if (response.statusCode == HttpStatus.notFound) {
-        return const PubDevPackageInfo();
+        return const PublishedPackageInfo();
       }
       if (response.statusCode != HttpStatus.ok) {
         throw PubDevLookupException(
@@ -67,7 +57,7 @@ class FetchPublishedPackageVersions {
         }
       }
 
-      return PubDevPackageInfo(latestVersion: latest, versions: versions);
+      return PublishedPackageInfo(latestVersion: latest, versions: versions);
     } on PubDevLookupException {
       rethrow;
     } catch (e) {

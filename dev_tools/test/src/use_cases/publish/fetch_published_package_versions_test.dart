@@ -4,7 +4,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_versions.dart';
+import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -66,13 +67,13 @@ class _UnreachableHttpClient extends Fake implements HttpClient {
 }
 
 void main() {
-  late FetchPublishedPackageVersions sut;
+  late FetchPublishedPackageInfo sut;
 
   setUp(() {
-    sut = const FetchPublishedPackageVersions();
+    sut = const FetchPublishedPackageInfo();
   });
 
-  Future<PubDevPackageInfo> run(HttpClient client) {
+  Future<PublishedPackageInfo> run(HttpClient client) {
     return HttpOverrides.runZoned(
       () => sut('foo'),
       createHttpClient: (_) => client,
