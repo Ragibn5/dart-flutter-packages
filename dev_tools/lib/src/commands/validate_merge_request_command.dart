@@ -44,7 +44,6 @@ class ValidateMergeRequestCommand extends Command<void> {
   @override
   FutureOr<void>? run() async {
     final repoRoot = await _getRepoRootPath();
-    print(repoRoot);
     await _validateMergeRequest(
       repoRoot: repoRoot,
       fromBranch: argResults![fromOption] as String,
