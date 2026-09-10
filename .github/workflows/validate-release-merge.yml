@@ -1,8 +1,8 @@
-name: Validate release for merge
+name: Validate release merge
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
     branches:
       - main
 
@@ -12,15 +12,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Validate release branch
-        run: |
-          BRANCH="${{ github.head_ref }}"
-          source scripts/publish_utils.sh
-          branch_info=$(parse_release_branch "$BRANCH") || {
-            echo "Error: Branch '$BRANCH' does not match format release/<package-path>-<version>"
-            exit 1
-          }
-          PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
-          validate_package_path "$PKG_PATH" || exit 1
-          echo "Branch name and package validated."
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.9
+          cache: true
+
+      - name: Install dev_tools dependencies
+        run: dart pub get -C dev_tools
+
+      - name: Validate release candidates are complete
+        run: >
+          dart run dev_tools/bin/dev_tools.dart validate-release-mr
+          --to ${{ github.event.pull_request.base.sha }}
