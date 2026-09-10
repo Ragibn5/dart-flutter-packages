@@ -102,7 +102,7 @@ class ValidateReleaseMerge {
       ],
     ];
     stdout.writeln(
-      'Found ${candidates.length} release candidate(s)\n'
+      'Found ${candidates.length} release candidate(s):\n'
       '${summaryLines.join('\n')}',
     );
 
