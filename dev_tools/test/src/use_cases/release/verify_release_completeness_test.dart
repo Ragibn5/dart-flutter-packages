@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
-import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
@@ -16,27 +16,27 @@ class _MockReadPackageIdentity extends Mock implements ReadPackageIdentity {}
 
 class _MockVerifyVersionedFiles extends Mock implements VerifyVersionedFiles {}
 
-class _MockFetchPublishedPackageVersions extends Mock
-    implements FetchPublishedPackageInfo {}
+class _MockPackageRegistryClient extends Mock
+    implements PackageRegistryClient {}
 
 void main() {
   const packagePath = '/fake/repo/pkg';
 
   late _MockReadPackageIdentity readPackageIdentity;
   late _MockVerifyVersionedFiles verifyVersionedFiles;
-  late _MockFetchPublishedPackageVersions fetchPublishedPackageVersions;
+  late _MockPackageRegistryClient packageRegistryClient;
   late VerifyReleaseCompleteness sut;
 
   VerifyReleaseCompleteness buildSut() => VerifyReleaseCompleteness(
         readPackageIdentity: readPackageIdentity,
         verifyVersionedFiles: verifyVersionedFiles,
-        fetchPublishedPackageVersions: fetchPublishedPackageVersions,
+        packageRegistryClient: packageRegistryClient,
       );
 
   setUp(() {
     readPackageIdentity = _MockReadPackageIdentity();
     verifyVersionedFiles = _MockVerifyVersionedFiles();
-    fetchPublishedPackageVersions = _MockFetchPublishedPackageVersions();
+    packageRegistryClient = _MockPackageRegistryClient();
 
     when(() => readPackageIdentity(any())).thenAnswer(
       (_) async => const PackageIdentity(name: 'foo', version: '1.0.0'),
@@ -49,7 +49,7 @@ void main() {
         requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
       ),
     ).thenAnswer((_) async => <String>[]);
-    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+    when(() => packageRegistryClient(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(),
     );
 
@@ -72,7 +72,7 @@ void main() {
 
   test('should throw ReleaseValidationException when already published',
       () async {
-    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+    when(() => packageRegistryClient(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '1.0.0',
         versions: ['1.0.0'],
@@ -85,7 +85,7 @@ void main() {
         isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
-          contains('foo@1.0.0 is already published on pub.dev.'),
+          contains('foo@1.0.0 is already published.'),
         ),
       ),
     );
@@ -93,7 +93,7 @@ void main() {
 
   test('should throw ReleaseValidationException when the release is older',
       () async {
-    when(() => fetchPublishedPackageVersions(any())).thenAnswer(
+    when(() => packageRegistryClient(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '2.0.0',
         versions: ['2.0.0'],
@@ -107,8 +107,8 @@ void main() {
           (e) => e.message,
           'message',
           contains(
-            'A newer version (2.0.0) is already published '
-            'on pub.dev; 1.0.0 must be greater.',
+            'A newer version (2.0.0) is already published; '
+            '1.0.0 must be greater.',
           ),
         ),
       ),
@@ -147,7 +147,7 @@ void main() {
 
   test(
       'should use the injected publishedVersions instead of fetching from '
-      'pub.dev', () async {
+      'the registry', () async {
     await expectLater(
       sut(
         packagePath,
@@ -160,18 +160,19 @@ void main() {
         isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
-          contains('foo@1.0.0 is already published on pub.dev.'),
+          contains('foo@1.0.0 is already published.'),
         ),
       ),
     );
 
-    verifyNever(() => fetchPublishedPackageVersions(any()));
+    verifyNever(() => packageRegistryClient(any()));
   });
 
-  test('should wrap PubDevLookupException into ReleaseValidationException',
-      () async {
-    when(() => fetchPublishedPackageVersions(any())).thenThrow(
-      const PubDevLookupException('connection timeout'),
+  test(
+      'should wrap PackageRegistryLookupException into '
+      'ReleaseValidationException', () async {
+    when(() => packageRegistryClient(any())).thenThrow(
+      const PackageRegistryLookupException('connection timeout'),
     );
 
     await expectLater(
@@ -180,7 +181,7 @@ void main() {
         isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
-          contains('Could not reach pub.dev to verify foo: '
+          contains('Could not reach the package registry to verify foo: '
               'connection timeout'),
         ),
       ),
@@ -230,14 +231,14 @@ void main() {
 
     VerifyReleaseCompleteness buildRealFilesSut() => VerifyReleaseCompleteness(
           readPackageIdentity: readPackageIdentity,
-          fetchPublishedPackageVersions: fetchPublishedPackageVersions,
+          packageRegistryClient: packageRegistryClient,
         );
 
     setUp(() {
       tempDir = Directory.systemTemp
           .createTempSync('verify_release_completeness_test');
       Directory('${tempDir.path}/$pkgPath').createSync(recursive: true);
-      when(() => fetchPublishedPackageVersions(any()))
+      when(() => packageRegistryClient(any()))
           .thenAnswer((_) async => const PublishedPackageInfo());
     });
 
@@ -279,7 +280,7 @@ void main() {
                 'README.md does not reference foo-1.0.0 (git install).',
               ),
               contains(
-                'README.md does not reference foo: ^1.0.0 (pub.dev install).',
+                'README.md does not reference foo: ^1.0.0 (registry install).',
               ),
             ),
           ),

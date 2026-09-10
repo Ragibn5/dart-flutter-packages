@@ -2,16 +2,17 @@ import 'dart:io';
 
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
-import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 /// Verifies that a package release is complete before publishing.
 ///
-/// Checks the pubspec against its pub.dev state and the files expected to
-/// reference the new version (CHANGELOG.md, README.md, and any additional
-/// versioned files).
+/// Checks the pubspec against its package registry state and the files
+/// expected to reference the new version (CHANGELOG.md, README.md, and any
+/// additional versioned files).
 class VerifyReleaseCompleteness {
   static const _changelogPrefix = r'^#{1,6}\s*\[?';
   static const _changelogSuffix = r'\]?(\s+-.*)?\s*$';
@@ -42,9 +43,9 @@ class VerifyReleaseCompleteness {
     return 'README.md does not reference $name-$version (git install).';
   }
 
-  /// Matches the pub.dev install form `<package>: ^<version>` only when
-  /// surrounded by non-version characters.
-  static RegExp _pubInstallPattern(String name, String version) {
+  /// Matches the pub registry install form `<package>: ^<version>` only
+  /// when surrounded by non-version characters.
+  static RegExp _registryInstallPattern(String name, String version) {
     final escapedName = RegExp.escape(name);
     final escapedVersion = RegExp.escape(version);
     return RegExp(
@@ -53,8 +54,8 @@ class VerifyReleaseCompleteness {
     );
   }
 
-  static String _pubInstallProblem(String name, String version) {
-    return 'README.md does not reference $name: ^$version (pub.dev install).';
+  static String _registryInstallProblem(String name, String version) {
+    return 'README.md does not reference $name: ^$version (registry install).';
   }
 
   static const _standardChecks = <String, VersionedFileCheck>{
@@ -69,25 +70,25 @@ class VerifyReleaseCompleteness {
       pattern: _gitInstallPattern,
       problem: _gitInstallProblem,
     ),
-    'readme pub install': VersionedFileCheck(
+    'readme registry install': VersionedFileCheck(
       filePath: 'README.md',
-      pattern: _pubInstallPattern,
-      problem: _pubInstallProblem,
+      pattern: _registryInstallPattern,
+      problem: _registryInstallProblem,
     ),
   };
 
   final ReadPackageIdentity _readPackageIdentity;
   final VerifyVersionedFiles _verifyVersionedFiles;
-  final FetchPublishedPackageInfo _fetchPublishedPackageVersions;
+  final PackageRegistryClient _packageRegistryClient;
 
   const VerifyReleaseCompleteness({
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
     VerifyVersionedFiles verifyVersionedFiles = const VerifyVersionedFiles(),
-    FetchPublishedPackageInfo fetchPublishedPackageVersions =
-        const FetchPublishedPackageInfo(),
+    PackageRegistryClient packageRegistryClient =
+        const FetchPubDevPackageInfo(),
   })  : _readPackageIdentity = readPackageIdentity,
         _verifyVersionedFiles = verifyVersionedFiles,
-        _fetchPublishedPackageVersions = fetchPublishedPackageVersions;
+        _packageRegistryClient = packageRegistryClient;
 
   /// Verifies all release references are consistent.
   ///
@@ -102,7 +103,7 @@ class VerifyReleaseCompleteness {
   ///
   /// Throws:
   /// - [ReleaseValidationException] listing every missing reference, and
-  ///   when pub.dev cannot be reached.
+  ///   when the package registry cannot be reached.
   /// - [PackageIdentityException] when the pubspec is missing or lacks a
   ///   `name` or `version` (see [ReadPackageIdentity]).
   /// - [VersionedFileVerificationException] when a checked file does not
@@ -144,8 +145,8 @@ class VerifyReleaseCompleteness {
     );
   }
 
-  /// Collects pub.dev-related problems: the version being released is either
-  /// already published or lower than the latest published version.
+  /// Collects registry-related problems: the version being released is
+  /// either already published or lower than the latest published version.
   Future<List<String>> _findPublishedVersionProblems(
     String name,
     String version,
@@ -156,16 +157,17 @@ class VerifyReleaseCompleteness {
       info = publishedVersions;
     } else {
       try {
-        info = await _fetchPublishedPackageVersions(name);
-      } on PubDevLookupException catch (e) {
+        info = await _packageRegistryClient(name);
+      } on PackageRegistryLookupException catch (e) {
         throw ReleaseValidationException(
-          'Error: Could not reach pub.dev to verify $name: ${e.message}',
+          'Error: Could not reach the package registry to verify $name: '
+          '${e.message}',
         );
       }
     }
 
     if (info.versions.contains(version)) {
-      return ['$name@$version is already published on pub.dev.'];
+      return ['$name@$version is already published.'];
     }
 
     final latest = info.latestVersion;
@@ -174,8 +176,8 @@ class VerifyReleaseCompleteness {
     if (newVersion != null &&
         latestVersion != null &&
         newVersion < latestVersion) {
-      final message = 'A newer version ($latest) is already published on '
-          'pub.dev; $version must be greater.';
+      final message = 'A newer version ($latest) is already published; '
+          '$version must be greater.';
       return [message];
     }
     return const [];

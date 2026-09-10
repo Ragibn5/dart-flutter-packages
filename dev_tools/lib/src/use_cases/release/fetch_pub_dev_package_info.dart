@@ -1,28 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 
-/// Represents an exception when the pub.dev API cannot be queried.
-class PubDevLookupException extends CommandExecutionException {
+/// Looks up a package's published state on pub.dev.
+class FetchPubDevPackageInfo implements PackageRegistryClient {
+  const FetchPubDevPackageInfo();
+
   @override
-  final String message;
-
-  const PubDevLookupException(this.message);
-}
-
-class FetchPublishedPackageInfo {
-  const FetchPublishedPackageInfo();
-
-  /// Retrieves the latest and all published versions for [packageName].
-  ///
-  /// Returns: a [PublishedPackageInfo]; empty when the package has never been
-  /// published.
-  ///
-  /// Throws:
-  /// - [PubDevLookupException] when the pub.dev API cannot be queried or
-  ///   returns an unexpected status.
   Future<PublishedPackageInfo> call(String packageName) async {
     final client = HttpClient();
     try {
@@ -34,7 +20,7 @@ class FetchPublishedPackageInfo {
         return const PublishedPackageInfo();
       }
       if (response.statusCode != HttpStatus.ok) {
-        throw PubDevLookupException(
+        throw PackageRegistryLookupException(
           'pub.dev returned status ${response.statusCode} for $packageName.',
         );
       }
@@ -59,10 +45,10 @@ class FetchPublishedPackageInfo {
       }
 
       return PublishedPackageInfo(latestVersion: latest, versions: versions);
-    } on PubDevLookupException {
+    } on PackageRegistryLookupException {
       rethrow;
     } catch (e) {
-      throw PubDevLookupException(
+      throw PackageRegistryLookupException(
         'Could not reach pub.dev to verify $packageName: $e',
       );
     } finally {

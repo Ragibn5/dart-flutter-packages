@@ -1,6 +1,7 @@
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
-import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:path/path.dart' as p;
 
 /// Finds packages pending release among a set of changed files.
@@ -8,18 +9,19 @@ import 'package:path/path.dart' as p;
 /// A package is a release candidate when it was touched (per `changedFiles`,
 /// e.g. from `DetectChangesInFolder`), has a pubspec.yaml, does not opt out
 /// of publishing (`publish_to: none`, the convention for apps and other
-/// non-published packages), and its current version is not yet published on
-/// pub.dev (covering both version bumps and brand-new packages).
+/// non-published packages), and its current version is not yet published
+/// on the package registry (covering both version bumps and brand-new
+/// packages).
 class FindReleaseCandidatePackages {
   final FindPackages _findPackages;
-  final FetchPublishedPackageInfo _fetchPublishedPackageVersions;
+  final PackageRegistryClient _packageRegistryClient;
 
   const FindReleaseCandidatePackages({
     FindPackages findPackages = const FindPackages(),
-    FetchPublishedPackageInfo fetchPublishedPackageVersions =
-        const FetchPublishedPackageInfo(),
+    PackageRegistryClient packageRegistryClient =
+        const FetchPubDevPackageInfo(),
   })  : _findPackages = findPackages,
-        _fetchPublishedPackageVersions = fetchPublishedPackageVersions;
+        _packageRegistryClient = packageRegistryClient;
 
   /// Finds release-candidate packages.
   ///
@@ -33,7 +35,8 @@ class FindReleaseCandidatePackages {
   ///
   /// Throws:
   /// - [PackageFinderException] when `repoRoot` does not exist.
-  /// - [PubDevLookupException] when pub.dev cannot be reached.
+  /// - [PackageRegistryLookupException] when the package registry cannot
+  ///   be reached.
   Future<List<ReleaseCandidatePackage>> call({
     required String repoRoot,
     required List<String> changedFiles,
@@ -47,7 +50,7 @@ class FindReleaseCandidatePackages {
 
     final candidates = <ReleaseCandidatePackage>[];
     for (final package in touchedPublishablePackages) {
-      final info = await _fetchPublishedPackageVersions(
+      final info = await _packageRegistryClient(
         package.packageIdentity.name,
       );
       if (!info.versions.contains(package.packageIdentity.version)) {

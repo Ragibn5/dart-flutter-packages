@@ -130,7 +130,7 @@ void main() {
   });
 
   test(
-      "should reuse each candidate's already-fetched pub.dev state instead "
+      "should reuse each candidate's already-fetched registry state instead "
       'of re-fetching it', () async {
     final candidates = [candidate('pkg_a', 'pkg_a')];
     when(() => findReleaseCandidatePackages(

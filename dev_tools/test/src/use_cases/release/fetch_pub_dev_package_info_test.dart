@@ -5,7 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -67,10 +68,10 @@ class _UnreachableHttpClient extends Fake implements HttpClient {
 }
 
 void main() {
-  late FetchPublishedPackageInfo sut;
+  late FetchPubDevPackageInfo sut;
 
   setUp(() {
-    sut = const FetchPublishedPackageInfo();
+    sut = const FetchPubDevPackageInfo();
   });
 
   Future<PublishedPackageInfo> run(HttpClient client) {
@@ -100,12 +101,12 @@ void main() {
     expect(info.versions, <String>['1.0.0', '2.0.0']);
   });
 
-  test('should throw PubDevLookupException on unexpected status codes',
+  test('should throw PackageRegistryLookupException on unexpected status codes',
       () async {
     await expectLater(
       run(_FakeHttpClient(statusCode: HttpStatus.internalServerError)),
       throwsA(
-        isA<PubDevLookupException>().having(
+        isA<PackageRegistryLookupException>().having(
           (e) => e.message,
           'message',
           contains('pub.dev returned status 500'),
@@ -114,12 +115,13 @@ void main() {
     );
   });
 
-  test('should throw PubDevLookupException when pub.dev cannot be reached',
-      () async {
+  test(
+      'should throw PackageRegistryLookupException when pub.dev cannot be '
+      'reached', () async {
     await expectLater(
       run(_UnreachableHttpClient()),
       throwsA(
-        isA<PubDevLookupException>().having(
+        isA<PackageRegistryLookupException>().having(
           (e) => e.message,
           'message',
           contains('Could not reach pub.dev to verify foo'),

@@ -2,21 +2,21 @@ import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
-import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class _MockFindPackages extends Mock implements FindPackages {}
 
-class _MockFetchPublishedPackageInfo extends Mock
-    implements FetchPublishedPackageInfo {}
+class _MockPackageRegistryClient extends Mock
+    implements PackageRegistryClient {}
 
 void main() {
   const repoRoot = '/fake/repo';
 
   late _MockFindPackages findPackages;
-  late _MockFetchPublishedPackageInfo fetchPublishedPackageVersions;
+  late _MockPackageRegistryClient packageRegistryClient;
   late FindReleaseCandidatePackages sut;
 
   LocalPackageInfo localPackage(
@@ -36,14 +36,14 @@ void main() {
 
   setUp(() {
     findPackages = _MockFindPackages();
-    fetchPublishedPackageVersions = _MockFetchPublishedPackageInfo();
+    packageRegistryClient = _MockPackageRegistryClient();
 
-    when(() => fetchPublishedPackageVersions(any()))
+    when(() => packageRegistryClient(any()))
         .thenAnswer((_) async => const PublishedPackageInfo());
 
     sut = FindReleaseCandidatePackages(
       findPackages: findPackages,
-      fetchPublishedPackageVersions: fetchPublishedPackageVersions,
+      packageRegistryClient: packageRegistryClient,
     );
   });
 
@@ -75,7 +75,7 @@ void main() {
 
   test('should return a package with a version bump as a candidate', () async {
     stubFoundPackages([localPackage('pkg_a', 'pkg_a', '1.1.0')]);
-    when(() => fetchPublishedPackageVersions('pkg_a')).thenAnswer(
+    when(() => packageRegistryClient('pkg_a')).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '1.0.0',
         versions: ['1.0.0'],
@@ -95,7 +95,7 @@ void main() {
       'should not return a package whose current version is already '
       'published', () async {
     stubFoundPackages([localPackage('pkg_a', 'pkg_a', '1.0.0')]);
-    when(() => fetchPublishedPackageVersions('pkg_a')).thenAnswer(
+    when(() => packageRegistryClient('pkg_a')).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '1.0.0',
         versions: ['1.0.0'],
@@ -121,7 +121,7 @@ void main() {
     );
 
     expect(result, isEmpty);
-    verifyNever(() => fetchPublishedPackageVersions(any()));
+    verifyNever(() => packageRegistryClient(any()));
   });
 
   test('should ignore a package with no changed files', () async {
@@ -133,7 +133,7 @@ void main() {
     );
 
     expect(result, isEmpty);
-    verifyNever(() => fetchPublishedPackageVersions(any()));
+    verifyNever(() => packageRegistryClient(any()));
   });
 
   test('should treat a change inside a nested package directory as touched',
@@ -166,15 +166,15 @@ void main() {
     );
   });
 
-  test('should propagate PubDevLookupException', () async {
+  test('should propagate PackageRegistryLookupException', () async {
     stubFoundPackages([localPackage('pkg_a', 'pkg_a', '1.0.0')]);
-    when(() => fetchPublishedPackageVersions('pkg_a')).thenThrow(
-      const PubDevLookupException('connection timeout'),
+    when(() => packageRegistryClient('pkg_a')).thenThrow(
+      const PackageRegistryLookupException('connection timeout'),
     );
 
     await expectLater(
       sut(repoRoot: repoRoot, changedFiles: ['pkg_a/lib/pkg_a.dart']),
-      throwsA(isA<PubDevLookupException>()),
+      throwsA(isA<PackageRegistryLookupException>()),
     );
   });
 }
