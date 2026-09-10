@@ -65,11 +65,17 @@ class FindPackages {
     // Reported after every directory has resolved (rather than as each
     // completes) so skips print in a stable, traversal order regardless of
     // how the underlying async reads happen to interleave.
-    for (final result in results) {
-      if (result.skipReason != null) {
-        stdout.writeln('Skipping ${result.repoRootRelativePath}: '
-            '${result.skipReason}');
-      }
+    final skippedPackagePaths = [
+      for (final result in results)
+        if (result.skipReason != null) result,
+    ];
+    if (skippedPackagePaths.isNotEmpty) {
+      final skipLines = skippedPackagePaths
+          .map((e) => '  - ${e.repoRootRelativePath}: ${e.skipReason}');
+      stdout.writeln(
+        'Skipped ${skippedPackagePaths.length} package(s):\n'
+        '${skipLines.join('\n')}',
+      );
     }
 
     return results

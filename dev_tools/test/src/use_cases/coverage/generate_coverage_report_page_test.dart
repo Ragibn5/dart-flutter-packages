@@ -17,24 +17,29 @@ bool _toolNotAvailable(String tool) =>
     Process.runSync('which', [tool]).exitCode != 0;
 
 void main() {
-  const root = '/fake/root';
-
+  late Directory tempDir;
   late _MockFindProjectRoot findProjectRoot;
   late _MockCmdChecker cmdChecker;
 
   late GenerateCoverageReportPage sut;
 
   setUp(() {
+    tempDir = Directory.systemTemp
+        .createTempSync('generate_coverage_report_page_test');
     findProjectRoot = _MockFindProjectRoot();
     cmdChecker = _MockCmdChecker();
 
-    when(() => findProjectRoot()).thenAnswer((_) async => root);
+    when(() => findProjectRoot()).thenAnswer((_) async => tempDir.path);
     when(() => cmdChecker(any())).thenAnswer((_) async => true);
 
     sut = GenerateCoverageReportPage(
       findProjectRoot: findProjectRoot,
       cmdInstallationChecker: cmdChecker,
     );
+  });
+
+  tearDown(() {
+    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
   });
 
   test(
@@ -49,7 +54,29 @@ void main() {
   test(
     'should run genhtml when it is installed',
     () async {
+      Directory('${tempDir.path}/coverage').createSync(recursive: true);
+      // References a real, checked-in source file (relative to the package
+      // root, which is the test runner's cwd) so genhtml can read its
+      // content to annotate line coverage.
+      File('${tempDir.path}/coverage/lcov.info').writeAsStringSync(
+        'TN:\nSF:lib/src/models/release_issue.dart\nDA:1,1\nend_of_record\n',
+      );
+
       await expectLater(sut(), completes);
+    },
+    skip: _toolNotAvailable('genhtml') ? 'genhtml not available' : null,
+  );
+
+  test(
+    'should throw CoverageReportGenerationException when genhtml exits '
+    'non-zero',
+    () async {
+      // No coverage/lcov.info written, so genhtml has nothing to read.
+
+      await expectLater(
+        sut(),
+        throwsA(isA<CoverageReportGenerationException>()),
+      );
     },
     skip: _toolNotAvailable('genhtml') ? 'genhtml not available' : null,
   );

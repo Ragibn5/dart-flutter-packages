@@ -17,23 +17,27 @@ bool _toolNotAvailable(String tool) =>
     Process.runSync('which', [tool]).exitCode != 0;
 
 void main() {
-  const root = '/fake/root';
-
+  late Directory tempDir;
   late _MockFindProjectRoot findProjectRoot;
   late _MockCmdChecker cmdChecker;
 
   late ProcessCoverageDataWithLcov sut;
 
   setUp(() {
+    tempDir = Directory.systemTemp.createTempSync('process_coverage_data_test');
     findProjectRoot = _MockFindProjectRoot();
     cmdChecker = _MockCmdChecker();
 
-    when(() => findProjectRoot()).thenAnswer((_) async => root);
+    when(() => findProjectRoot()).thenAnswer((_) async => tempDir.path);
 
     sut = ProcessCoverageDataWithLcov(
       findProjectRoot: findProjectRoot,
       cmdInstallationChecker: cmdChecker,
     );
+  });
+
+  tearDown(() {
+    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
   });
 
   test(
@@ -49,8 +53,23 @@ void main() {
     'should run lcov when it is installed',
     () async {
       when(() => cmdChecker(any())).thenAnswer((_) async => true);
+      Directory('${tempDir.path}/coverage').createSync(recursive: true);
+      File('${tempDir.path}/coverage/lcov.info').writeAsStringSync(
+        'SF:lib/foo.dart\nDA:1,1\nend_of_record\n',
+      );
 
-      await expectLater(sut(exclusions: ['lib/generated/*']), completes);
+      await expectLater(sut(), completes);
+    },
+    skip: _toolNotAvailable('lcov') ? 'lcov not available' : null,
+  );
+
+  test(
+    'should throw LcovFilteringException when lcov exits non-zero',
+    () async {
+      when(() => cmdChecker(any())).thenAnswer((_) async => true);
+      // No coverage/lcov.info written, so lcov has nothing to read.
+
+      await expectLater(sut(), throwsA(isA<LcovFilteringException>()));
     },
     skip: _toolNotAvailable('lcov') ? 'lcov not available' : null,
   );
