@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/local_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/find_packages.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:test/test.dart';
 
 void main() {

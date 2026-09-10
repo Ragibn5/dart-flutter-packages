@@ -4,11 +4,11 @@ import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
-import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
-import 'package:dev_tools/src/use_cases/publish/verify_versioned_files.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -70,7 +70,7 @@ void main() {
     ).called(1);
   });
 
-  test('should throw PublishValidationException when already published',
+  test('should throw ReleaseValidationException when already published',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
@@ -82,7 +82,7 @@ void main() {
     await expectLater(
       sut(packagePath),
       throwsA(
-        isA<PublishValidationException>().having(
+        isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
           contains('foo@1.0.0 is already published on pub.dev.'),
@@ -91,7 +91,7 @@ void main() {
     );
   });
 
-  test('should throw PublishValidationException when the release is older',
+  test('should throw ReleaseValidationException when the release is older',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
@@ -103,7 +103,7 @@ void main() {
     await expectLater(
       sut(packagePath),
       throwsA(
-        isA<PublishValidationException>().having(
+        isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
           contains(
@@ -132,7 +132,7 @@ void main() {
     await expectLater(
       sut(packagePath),
       throwsA(
-        isA<PublishValidationException>().having(
+        isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
           contains(
@@ -157,7 +157,7 @@ void main() {
         ),
       ),
       throwsA(
-        isA<PublishValidationException>().having(
+        isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
           contains('foo@1.0.0 is already published on pub.dev.'),
@@ -168,7 +168,7 @@ void main() {
     verifyNever(() => fetchPublishedPackageVersions(any()));
   });
 
-  test('should wrap PubDevLookupException into PublishValidationException',
+  test('should wrap PubDevLookupException into ReleaseValidationException',
       () async {
     when(() => fetchPublishedPackageVersions(any())).thenThrow(
       const PubDevLookupException('connection timeout'),
@@ -177,7 +177,7 @@ void main() {
     await expectLater(
       sut(packagePath),
       throwsA(
-        isA<PublishValidationException>().having(
+        isA<ReleaseValidationException>().having(
           (e) => e.message,
           'message',
           contains('Could not reach pub.dev to verify foo: '
@@ -270,7 +270,7 @@ void main() {
       await expectLater(
         buildRealFilesSut()('${tempDir.path}/$pkgPath'),
         throwsA(
-          isA<PublishValidationException>().having(
+          isA<ReleaseValidationException>().having(
             (e) => e.message,
             'message',
             allOf(

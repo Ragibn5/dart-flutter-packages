@@ -1,9 +1,10 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
-import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
-import 'package:dev_tools/src/use_cases/release/validate_release_candidates.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:path/path.dart' as p;
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
 ///
@@ -12,17 +13,17 @@ import 'package:dev_tools/src/use_cases/release/validate_release_candidates.dart
 class ValidateReleaseMerge {
   final DetectChangesInFolder _detectChangesInFolder;
   final FindReleaseCandidatePackages _findReleaseCandidatePackages;
-  final ValidateReleaseCandidates _validateReleaseCandidates;
+  final VerifyReleaseCompleteness _verifyReleaseCompleteness;
 
   const ValidateReleaseMerge({
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
     FindReleaseCandidatePackages findReleaseCandidatePackages =
         const FindReleaseCandidatePackages(),
-    ValidateReleaseCandidates validateReleaseCandidates =
-        const ValidateReleaseCandidates(),
+    VerifyReleaseCompleteness verifyReleaseCompleteness =
+        const VerifyReleaseCompleteness(),
   })  : _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidatePackages = findReleaseCandidatePackages,
-        _validateReleaseCandidates = validateReleaseCandidates;
+        _verifyReleaseCompleteness = verifyReleaseCompleteness;
 
   /// Runs the MR gate.
   ///
@@ -33,8 +34,10 @@ class ValidateReleaseMerge {
   /// - `toBranch`: the MR's target branch, i.e. what it merges into
   ///   (e.g. `origin/main`, `origin/release`).
   ///
-  /// Notes: throws [PublishValidationException] aggregating the problems
+  /// Notes: throws [ReleaseValidationException] aggregating the problems
   /// from every failing candidate, if any did. Reports progress to stdout.
+  /// Runs the completeness check for every candidate rather than stopping
+  /// at the first failure.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,
@@ -63,9 +66,21 @@ class ValidateReleaseMerge {
       '${candidates.map((c) => c.packageIdentity.name).join(', ')}',
     );
 
-    await _validateReleaseCandidates(
-      repoRoot: repoRoot,
-      candidates: candidates,
-    );
+    final problems = <String>[];
+    for (final candidate in candidates) {
+      final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
+      try {
+        await _verifyReleaseCompleteness(
+          packagePath,
+          publishedPackageInfo: candidate.publishedPackageInfo,
+        );
+      } on ReleaseValidationException catch (e) {
+        problems.add(e.message);
+      }
+    }
+
+    if (problems.isNotEmpty) {
+      throw ReleaseValidationException(problems.join('\n\n'));
+    }
   }
 }

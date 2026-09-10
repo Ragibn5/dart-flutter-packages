@@ -1,4 +1,4 @@
-import 'package:dev_tools/src/use_cases/publish/parse_pubspec_content.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/parse_pubspec_content.dart';
 import 'package:test/test.dart';
 
 void main() {

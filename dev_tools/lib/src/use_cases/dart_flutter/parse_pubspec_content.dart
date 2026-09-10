@@ -2,15 +2,6 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:yaml/yaml.dart';
 
-/// Represents an exception related to a package's malformed or
-/// missing identity.
-class PackageIdentityException extends CommandExecutionException {
-  @override
-  final String message;
-
-  const PackageIdentityException(this.message);
-}
-
 class ParsePubspecContent {
   const ParsePubspecContent();
 
@@ -53,4 +44,13 @@ class ParsePubspecContent {
 
   static bool _flutterSdkReferenced(YamlMap map, String key) =>
       map[key] is YamlMap && (map[key] as YamlMap).containsKey('flutter');
+}
+
+/// Represents an exception related to a package's malformed or
+/// missing identity.
+class PackageIdentityException extends CommandExecutionException {
+  @override
+  final String message;
+
+  const PackageIdentityException(this.message);
 }

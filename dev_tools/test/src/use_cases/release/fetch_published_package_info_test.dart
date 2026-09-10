@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

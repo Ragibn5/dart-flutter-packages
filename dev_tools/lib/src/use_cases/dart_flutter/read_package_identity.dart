@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
-import 'package:dev_tools/src/use_cases/publish/parse_pubspec_content.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/parse_pubspec_content.dart';
 
-export 'package:dev_tools/src/use_cases/publish/parse_pubspec_content.dart'
+export 'package:dev_tools/src/use_cases/dart_flutter/parse_pubspec_content.dart'
     show PackageIdentityException;
 
 class ReadPackageIdentity {

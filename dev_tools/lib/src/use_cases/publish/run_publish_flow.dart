@@ -1,13 +1,14 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
-import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
-import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:path/path.dart' as p;
 
@@ -58,10 +59,11 @@ class RunPublishFlow {
   /// warned that the system-wide Dart/Flutter will be used. Warnings
   /// (system-wide toolchain, uncommitted changes) are confirmed with a
   /// single `Continue despite warnings?` prompt. Throws
-  /// [PublishValidationException] on invalid state, including incomplete
-  /// release references reported by [VerifyReleaseCompleteness]; dedicated
-  /// reader exceptions surface missing pubspecs or versioned files;
-  /// [PublishFailedException] is thrown when the dry run or publish fails.
+  /// [PublishValidationException] on an invalid package path;
+  /// [ReleaseValidationException] on incomplete release references reported
+  /// by [VerifyReleaseCompleteness]; dedicated reader exceptions surface
+  /// missing pubspecs or versioned files; [PublishFailedException] is thrown
+  /// when the dry run or publish fails.
   Future<void> call({
     required String repoRoot,
     required String pkgPath,

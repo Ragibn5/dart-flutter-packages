@@ -1,6 +1,6 @@
 import 'package:dev_tools/src/models/release_candidate_package.dart';
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/find_packages.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
 import 'package:path/path.dart' as p;
 
 /// Finds packages pending release among a set of changed files.
@@ -30,10 +30,6 @@ class FindReleaseCandidatePackages {
   ///   e.g. from `DetectChangesInFolder`.
   ///
   /// Returns: candidate packages, in no particular order.
-  ///
-  /// Notes: throws `PackageIdentityException` when a touched package's
-  /// pubspec is malformed, and `PubDevLookupException` when pub.dev cannot
-  /// be reached.
   Future<List<ReleaseCandidatePackage>> call({
     required String repoRoot,
     required List<String> changedFiles,

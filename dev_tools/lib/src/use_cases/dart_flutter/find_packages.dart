@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/local_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:path/path.dart' as p;
 
 /// Finds every package directory (one containing a `pubspec.yaml`) under a

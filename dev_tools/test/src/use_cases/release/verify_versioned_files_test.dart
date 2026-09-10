@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/publish/verify_versioned_files.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:test/test.dart';
 
 RegExp _containsVersionPattern(String name, String version) =>

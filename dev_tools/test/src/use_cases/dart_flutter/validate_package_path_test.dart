@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
-import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
 import 'package:test/test.dart';
 
 void main() {

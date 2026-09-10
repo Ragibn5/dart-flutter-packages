@@ -3,14 +3,14 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
-import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
-import 'package:dev_tools/src/use_cases/publish/validate_package_path.dart';
-import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -125,17 +125,17 @@ void main() {
   });
 
   test(
-    'should throw PublishValidationException when the release is incomplete',
+    'should throw ReleaseValidationException when the release is incomplete',
     () async {
       when(() => verifyReleaseCompleteness(any())).thenThrow(
-        const PublishValidationException(
+        const ReleaseValidationException(
           'Error: Release is incomplete for foo@1.0.0.',
         ),
       );
 
       await expectLater(
         sut(repoRoot: repoRoot, pkgPath: pkgPath),
-        throwsA(isA<PublishValidationException>()),
+        throwsA(isA<ReleaseValidationException>()),
       );
       expect(publishCalls, isEmpty);
     },

@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
-import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
-import 'package:dev_tools/src/use_cases/publish/read_package_identity.dart';
-import 'package:dev_tools/src/use_cases/publish/verify_versioned_files.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 /// Verifies that a package release is complete before publishing.
@@ -100,7 +100,7 @@ class VerifyReleaseCompleteness {
   ///
   /// Returns: nothing (void); reports progress to stdout.
   ///
-  /// Notes: throws [PublishValidationException] listing every missing
+  /// Notes: throws [ReleaseValidationException] listing every missing
   /// reference, and when pub.dev cannot be reached. A missing pubspec, or
   /// missing required versioned files, surface as their dedicated reader
   /// exceptions instead of aggregated problems.
@@ -126,7 +126,7 @@ class VerifyReleaseCompleteness {
     ];
 
     if (problems.isNotEmpty) {
-      throw PublishValidationException(
+      throw ReleaseValidationException(
         'Error: Release is incomplete for '
         '${identity.name}@${identity.version}:\n'
         '${problems.map((e) => '- $e').join('\n')}',
@@ -153,7 +153,7 @@ class VerifyReleaseCompleteness {
       try {
         info = await _fetchPublishedPackageVersions(name);
       } on PubDevLookupException catch (e) {
-        throw PublishValidationException(
+        throw ReleaseValidationException(
           'Error: Could not reach pub.dev to verify $name: ${e.message}',
         );
       }
