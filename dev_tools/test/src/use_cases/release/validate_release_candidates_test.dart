@@ -4,7 +4,7 @@ import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/verify_release_completeness.dart';
-import 'package:dev_tools/src/use_cases/validate_release_candidates.dart';
+import 'package:dev_tools/src/use_cases/release/validate_release_candidates.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

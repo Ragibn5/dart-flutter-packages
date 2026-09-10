@@ -25,7 +25,7 @@ void main() {
       _commitFile(repoDir, 'lib/a.txt', 'v1');
       _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-      final result = _parseResult(await _runGetChanged(repoDir, fromRef: base));
+      final result = _parseResult(await _runGetChanged(repoDir, baseRef: base));
       expect(result.toList()..sort(),
           <String>['docs/readme.md', 'lib/a.txt']..sort());
     },
@@ -38,7 +38,7 @@ void main() {
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
     final result = _parseResult(
-        await _runGetChanged(repoDir, fromRef: base, folder: 'lib'));
+        await _runGetChanged(repoDir, baseRef: base, folder: 'lib'));
     expect(result, ['lib/a.txt']);
   });
 
@@ -49,7 +49,7 @@ void main() {
     _commitFile(repoDir, 'lib/a.txt', 'v1');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = _parseResult(await _runGetChanged(repoDir, fromRef: base));
+    final result = _parseResult(await _runGetChanged(repoDir, baseRef: base));
     expect(result.toList()..sort(),
         <String>['docs/readme.md', 'lib/a.txt']..sort());
   });
@@ -64,7 +64,7 @@ void main() {
 
     for (final folder in const <String>['.', '..', '../..', '/']) {
       final result = _parseResult(
-          await _runGetChanged(repoDir, fromRef: base, folder: folder));
+          await _runGetChanged(repoDir, baseRef: base, folder: folder));
       expect(result, isEmpty, reason: 'folder: "$folder"');
     }
   });
@@ -79,7 +79,7 @@ void main() {
 
     final result = _parseResult(await _runGetChanged(
       repoDir,
-      fromRef: base,
+      baseRef: base,
       folder: '..',
       cwd: '${repoDir.path}/lib',
     ));
@@ -93,7 +93,7 @@ void main() {
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
     final result = _parseResult(
-        await _runGetChanged(repoDir, fromRef: base, folder: 'src'));
+        await _runGetChanged(repoDir, baseRef: base, folder: 'src'));
     expect(result, isEmpty);
   });
 
@@ -105,7 +105,7 @@ void main() {
 
     final result = _parseResult(await _runGetChanged(
       repoDir,
-      fromRef: base,
+      baseRef: base,
       cwd: '${repoDir.path}/lib',
     ));
     expect(result.toList()..sort(),
@@ -122,7 +122,7 @@ void main() {
 
     final result = _parseResult(await _runGetChanged(
       repoDir,
-      fromRef: base,
+      baseRef: base,
       folder: 'lib',
       cwd: '${repoDir.path}/docs',
     ));
@@ -134,7 +134,7 @@ void main() {
     final first = _revParse(repoDir, 'HEAD');
     _commitFile(repoDir, 'docs/readme.md', 'updated');
 
-    final result = _parseResult(await _runGetChanged(repoDir, fromRef: first));
+    final result = _parseResult(await _runGetChanged(repoDir, baseRef: first));
     expect(result, ['docs/readme.md']);
   });
 
@@ -145,7 +145,7 @@ void main() {
     });
 
     final error = _parseError(await _runGetChanged(nonRepo,
-        fromRef: 'HEAD~1')); // ignore: avoid_redundant_argument_values
+        baseRef: 'HEAD~1')); // ignore: avoid_redundant_argument_values
 
     expect(error, startsWith('Error: git diff failed.'));
   });
@@ -153,8 +153,8 @@ void main() {
 
 Future<String> _runGetChanged(
   Directory repoDir, {
-  String fromRef = 'HEAD~1',
-  String toRef = 'HEAD',
+  String baseRef = 'HEAD~1',
+  String compareRef = 'HEAD',
   String? folder,
   String? cwd,
 }) async {
@@ -167,11 +167,11 @@ Future<String> _runGetChanged(
   import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
   
   Future<void> main(List<String> args) async {
-    final fromRef = args[0];
-    final toRef = args[1];
+    final baseRef = args[0];
+    final compareRef = args[1];
     final folder = args.length > 2 ? args[2] : null;
     try {
-      final result = await const DetectChangesInFolder()(fromRef: fromRef, toRef: toRef, folder: folder);
+      final result = await const DetectChangesInFolder()(baseRef: baseRef, compareRef: compareRef, folder: folder);
       stdout.writeln('RESULT=${result.join('|')}');
     } on GitDiffingException catch (error) {
       stdout.writeln('ERROR=${error.message}');
@@ -182,7 +182,7 @@ Future<String> _runGetChanged(
     if (script.existsSync()) script.deleteSync();
   });
 
-  final args = <String>[fromRef, toRef];
+  final args = <String>[baseRef, compareRef];
   if (folder != null) args.add(folder);
   final proc = await Process.start(
     'dart',

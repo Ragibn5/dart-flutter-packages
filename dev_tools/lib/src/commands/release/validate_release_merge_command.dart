@@ -2,25 +2,25 @@ import 'dart:async';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
-import 'package:dev_tools/src/use_cases/validate_release_merge_request.dart';
+import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 
-class ValidateMergeRequestCommand extends Command<void> {
-  static const String commandName = 'validate-mr';
+class ValidateReleaseMergeCommand extends Command<void> {
+  static const String commandName = 'validate-release-mr';
   static const String commandDescription =
-      'Gate an MR into main: validates every release-candidate package '
-      'touched by the diff is complete and ready to publish.';
+      'Gate an MR into its target branch: validates every release-candidate '
+      'package touched by the diff is complete and ready to publish.';
   static const String fromOption = 'from';
   static const String toOption = 'to';
 
   final GetRepoRootPath _getRepoRootPath;
-  final ValidateReleaseMergeRequest _validateMergeRequest;
+  final ValidateReleaseMerge _validateReleaseMerge;
 
-  ValidateMergeRequestCommand({
+  ValidateReleaseMergeCommand({
     GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
-    ValidateReleaseMergeRequest validateMergeRequest =
-        const ValidateReleaseMergeRequest(),
+    ValidateReleaseMerge validateReleaseMergeRequest =
+        const ValidateReleaseMerge(),
   })  : _getRepoRootPath = getRepoRootPath,
-        _validateMergeRequest = validateMergeRequest {
+        _validateReleaseMerge = validateReleaseMergeRequest {
     argParser
       ..addOption(
         fromOption,
@@ -30,8 +30,9 @@ class ValidateMergeRequestCommand extends Command<void> {
       )
       ..addOption(
         toOption,
-        defaultsTo: 'origin/main',
-        help: "The MR's target branch, i.e. what it merges into.",
+        mandatory: true,
+        help: "The MR's target branch, i.e. what it merges into "
+            '(e.g. `origin/main``).',
       );
   }
 
@@ -44,7 +45,7 @@ class ValidateMergeRequestCommand extends Command<void> {
   @override
   FutureOr<void>? run() async {
     final repoRoot = await _getRepoRootPath();
-    await _validateMergeRequest(
+    await _validateReleaseMerge(
       repoRoot: repoRoot,
       fromBranch: argResults![fromOption] as String,
       toBranch: argResults![toOption] as String,

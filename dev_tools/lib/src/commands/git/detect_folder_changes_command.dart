@@ -45,8 +45,8 @@ class DetectFolderChangesCommand extends Command<void> {
   @override
   FutureOr<void>? run() async {
     final changes = await _getChangedFiles(
-      fromRef: argResults![fromOption] as String,
-      toRef: argResults![toOption] as String,
+      baseRef: argResults![fromOption] as String,
+      compareRef: argResults![toOption] as String,
       folder: argResults![folderOption] as String?,
     );
 

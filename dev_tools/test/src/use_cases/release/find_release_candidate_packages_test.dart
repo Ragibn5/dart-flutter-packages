@@ -1,9 +1,9 @@
 import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/use_cases/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/publish/fetch_published_package_info.dart';
 import 'package:dev_tools/src/use_cases/publish/find_packages.dart';
+import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

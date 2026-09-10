@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:path/path.dart' as p;
 
@@ -7,9 +8,13 @@ class DetectChangesInFolder {
 
   /// Lists the files changed between two refs, optionally scoped to a folder.
   ///
+  /// Uses git's triple-dot `baseRef...compareRef` syntax: the files changed
+  /// in `compareRef` since it diverged from `baseRef` (i.e. against their
+  /// merge base), not a straight two-ref diff.
+  ///
   /// Params:
-  /// - `fromRef`: source ref to diff from (branch or commit).
-  /// - `toRef`: target ref to diff against (branch or commit).
+  /// - `baseRef`: ref to diff from (branch or commit).
+  /// - `compareRef`: ref to diff against (branch or commit).
   /// - `folder`: path relative to the repository root to filter changes to.
   ///   When `null`, all changed files are returned.
   ///
@@ -17,13 +22,13 @@ class DetectChangesInFolder {
   ///
   /// Notes: throws [GitDiffingException] when `git diff` fails.
   Future<List<String>> call({
-    required String fromRef,
-    required String toRef,
+    required String baseRef,
+    required String compareRef,
     String? folder,
   }) async {
     final diffResult = await Process.run(
       'git',
-      ['diff', '--name-only', '$fromRef...$toRef'],
+      ['diff', '--name-only', '$baseRef...$compareRef'],
     );
     if (diffResult.exitCode != 0) {
       throw GitDiffingException(

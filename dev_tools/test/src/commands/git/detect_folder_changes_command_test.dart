@@ -14,8 +14,8 @@ void main() {
   setUp(() {
     getChangedFiles = _MockDetectChangesInFolder();
     when(() => getChangedFiles(
-          fromRef: any(named: 'fromRef'),
-          toRef: any(named: 'toRef'),
+          baseRef: any(named: 'baseRef'),
+          compareRef: any(named: 'compareRef'),
           folder: any(named: 'folder'),
         )).thenAnswer((_) async => <String>[]);
     sut = DetectFolderChangesCommand(getChangedFiles: getChangedFiles);
@@ -33,8 +33,8 @@ void main() {
     await _run(['--folder', 'lib'], sut);
 
     verify(() => getChangedFiles(
-          fromRef: 'HEAD~1',
-          toRef: 'HEAD',
+          baseRef: 'HEAD~1',
+          compareRef: 'HEAD',
           folder: 'lib',
         )).called(1);
   });
@@ -43,8 +43,8 @@ void main() {
     await _run(['--folder', 'lib', '--from', 'main', '--to', 'dev'], sut);
 
     verify(() => getChangedFiles(
-          fromRef: 'main',
-          toRef: 'dev',
+          baseRef: 'main',
+          compareRef: 'dev',
           folder: 'lib',
         )).called(1);
   });
@@ -53,8 +53,8 @@ void main() {
     await _run(const [], sut);
 
     verify(() => getChangedFiles(
-          fromRef: 'HEAD~1',
-          toRef: 'HEAD',
+          baseRef: 'HEAD~1',
+          compareRef: 'HEAD',
           folder: any(named: 'folder'),
         )).called(1);
   });

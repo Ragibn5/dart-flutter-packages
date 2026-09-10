@@ -5,8 +5,8 @@ import 'package:path/path.dart' as p;
 
 /// Runs the release-completeness gate over every release candidate.
 ///
-/// This is the MR-to-main check: a merge is blocked if any candidate
-/// package is not ready to be published.
+/// This is the MR-to-target-branch check: a merge is blocked if any
+/// candidate package is not ready to be published.
 class ValidateReleaseCandidates {
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
 
