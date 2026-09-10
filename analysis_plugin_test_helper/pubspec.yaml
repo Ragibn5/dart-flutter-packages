@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper
 
 # Library version
-version: 1.0.5
+version: 1.0.6
 
 # Range of compatible SDK versions
 environment:
