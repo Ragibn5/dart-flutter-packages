@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
@@ -117,7 +118,8 @@ void main() {
     when(() => buildPublishCommand(any())).thenAnswer(
       (_) async => const PublishTooling('fvm dart'),
     );
-    when(() => verifyReleaseCompleteness(any())).thenAnswer((_) async {});
+    when(() => verifyReleaseCompleteness(any()))
+        .thenAnswer((_) async => const <ReleaseIssue>[]);
     when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => true);
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
@@ -127,10 +129,10 @@ void main() {
   test(
     'should throw ReleaseValidationException when the release is incomplete',
     () async {
-      when(() => verifyReleaseCompleteness(any())).thenThrow(
-        const ReleaseValidationException(
-          'Error: Release is incomplete for foo@1.0.0.',
-        ),
+      when(() => verifyReleaseCompleteness(any())).thenAnswer(
+        (_) async => const [
+          ReleaseIssue('Error: Release is incomplete for foo@1.0.0.'),
+        ],
       );
 
       await expectLater(

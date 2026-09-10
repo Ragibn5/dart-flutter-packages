@@ -4,7 +4,6 @@ import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
-import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:path/path.dart' as p;
 
@@ -14,7 +13,7 @@ import 'package:path/path.dart' as p;
 /// changed files, and runs the release-completeness gate over them.
 class ValidateReleaseMerge {
   final DetectChangesInFolder _detectChangesInFolder;
-  final FindReleaseCandidatePackages _findReleaseCandidatePackages;
+  final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
 
   const ValidateReleaseMerge({
@@ -24,7 +23,7 @@ class ValidateReleaseMerge {
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
   })  : _detectChangesInFolder = detectChangesInFolder,
-        _findReleaseCandidatePackages = findReleaseCandidatePackages,
+        _findReleaseCandidates = findReleaseCandidatePackages,
         _verifyReleaseCompleteness = verifyReleaseCompleteness;
 
   /// Runs the MR gate.
@@ -36,14 +35,15 @@ class ValidateReleaseMerge {
   /// - `toBranch`: the MR's target branch, i.e. what it merges into
   ///   (e.g. `origin/main`, `origin/release`).
   ///
-  /// Returns: nothing (void).
+  /// Returns: nothing (void). The pass/fail status and issues for every
+  /// candidate are reported to stdout rather than returned or thrown.
   ///
   /// Throws:
-  /// - [ReleaseValidationException] aggregating the problems from every
-  ///   failing candidate, if any did.
   /// - [GitDiffingException] when `git diff` fails.
   /// - [PackageFinderException] or [PackageRegistryLookupException] while
   ///   finding candidates (see [FindReleaseCandidatePackages]).
+  /// - `PackageIdentityException` while checking a candidate's completeness
+  ///   (see [VerifyReleaseCompleteness]).
   ///
   /// Notes: runs the completeness check for every candidate rather than
   /// stopping at the first failure. Reports progress to stdout.
@@ -52,6 +52,8 @@ class ValidateReleaseMerge {
     required String fromBranch,
     required String toBranch,
   }) async {
+    stdout.writeln('Validating release merge...');
+
     // Diffs against the merge base of toBranch/fromBranch (git's `...`
     // syntax), so this yields exactly the changes fromBranch introduces on
     // top of toBranch — baseRef is the target, compareRef is the source.
@@ -60,36 +62,41 @@ class ValidateReleaseMerge {
       compareRef: fromBranch,
     );
 
-    final candidates = await _findReleaseCandidatePackages(
+    final candidates = await _findReleaseCandidates(
       repoRoot: repoRoot,
       changedFiles: changedFiles,
     );
-
     if (candidates.isEmpty) {
       stdout.writeln('No release candidates found; nothing to validate.');
       return;
     }
 
-    stdout.writeln(
-      'Found ${candidates.length} release candidate(s): '
-      '${candidates.map((c) => c.packageIdentity.name).join(', ')}',
-    );
-
-    final problems = <String>[];
+    final validPackages = <String>{};
+    final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
       final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
-      try {
-        await _verifyReleaseCompleteness(
-          packagePath,
-          publishedPackageInfo: candidate.publishedPackageInfo,
-        );
-      } on ReleaseValidationException catch (e) {
-        problems.add(e.message);
+      final packageReleaseIssues = await _verifyReleaseCompleteness(
+        packagePath,
+        publishedPackageInfo: candidate.publishedPackageInfo,
+      );
+      if (packageReleaseIssues.isNotEmpty) {
+        issuesMap[candidate.packageIdentity.name] =
+            packageReleaseIssues.map((i) => i.issueMessage).toList();
+      } else {
+        validPackages.add(candidate.packageIdentity.name);
       }
     }
 
-    if (problems.isNotEmpty) {
-      throw ReleaseValidationException(problems.join('\n\n'));
-    }
+    final summaryLines = [
+      for (final name in validPackages) '  - $name: OK',
+      for (final entry in issuesMap.entries) ...[
+        '  - ${entry.key}:',
+        for (final issue in entry.value) '      - $issue',
+      ],
+    ];
+    stdout.writeln(
+      '\nFound ${candidates.length} release candidate(s)\n'
+      '${summaryLines.join('\n')}',
+    );
   }
 }

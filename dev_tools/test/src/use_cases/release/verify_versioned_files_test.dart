@@ -58,7 +58,7 @@ void main() {
       packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
-      requiredVersionedFiles: versionFileChecks,
+      checks: versionFileChecks,
     );
 
     expect(problems, isEmpty);
@@ -72,7 +72,7 @@ void main() {
       packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
-      requiredVersionedFiles: versionFileChecks,
+      checks: versionFileChecks,
     );
 
     expect(problems, <String>['VERSION.txt lacks 2.0.0.']);
@@ -96,30 +96,54 @@ void main() {
       packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
-      requiredVersionedFiles: checks,
+      checks: checks,
     );
 
     expect(problems, <String>['NOTE.txt lacks 2.0.0.']);
   });
 
   test(
-    'should throw VersionedFileVerificationException when a checked file '
-    'is missing',
+    'should report a problem when a checked file is missing',
     () async {
-      await expectLater(
-        sut(
-          packagePath: '${tempDir.path}/$pkgPath',
-          name: 'foo',
-          version: '2.0.0',
-          requiredVersionedFiles: versionFileChecks,
+      final problems = await sut(
+        packagePath: '${tempDir.path}/$pkgPath',
+        name: 'foo',
+        version: '2.0.0',
+        checks: versionFileChecks,
+      );
+
+      expect(problems, <String>['VERSION.txt is missing.']);
+    },
+  );
+
+  test(
+    'should report a problem for each missing file and still check the '
+    'remaining files',
+    () async {
+      File('${tempDir.path}/$pkgPath/NOTE.txt').writeAsStringSync('old\n');
+
+      const checks = <String, VersionedFileCheck>{
+        ...versionFileChecks,
+        'note': VersionedFileCheck(
+          filePath: 'NOTE.txt',
+          pattern: _containsVersionPattern,
+          problem: _noteProblem,
         ),
-        throwsA(
-          isA<VersionedFileVerificationException>().having(
-            (e) => e.message,
-            'message',
-            'Error: VERSION.txt is missing.',
-          ),
-        ),
+      };
+
+      final problems = await sut(
+        packagePath: '${tempDir.path}/$pkgPath',
+        name: 'foo',
+        version: '2.0.0',
+        checks: checks,
+      );
+
+      expect(
+        problems,
+        containsAll(<String>[
+          'VERSION.txt is missing.',
+          'NOTE.txt lacks 2.0.0.',
+        ]),
       );
     },
   );
@@ -141,7 +165,7 @@ void main() {
       packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
-      requiredVersionedFiles: checks,
+      checks: checks,
     );
 
     expect(problems, isEmpty);
@@ -165,7 +189,7 @@ void main() {
       packagePath: '${tempDir.path}/$pkgPath',
       name: 'foo',
       version: '2.0.0',
-      requiredVersionedFiles: checks,
+      checks: checks,
     );
 
     expect(problems, isEmpty);

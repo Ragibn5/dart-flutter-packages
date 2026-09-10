@@ -10,7 +10,6 @@ import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
-import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:path/path.dart' as p;
 
@@ -62,9 +61,8 @@ class RunPublishFlow {
   ///   `name` or `version` (see [ReadPackageIdentity]).
   /// - [CommandNotFoundException] when neither fvm nor a system-wide
   ///   Dart/Flutter is installed (see [BuildPublishCommand]).
-  /// - [ReleaseValidationException] on incomplete release references, and
-  ///   [VersionedFileVerificationException] when a checked file does not
-  ///   exist (see [VerifyReleaseCompleteness]).
+  /// - [ReleaseValidationException] on incomplete release references (see
+  ///   [VerifyReleaseCompleteness]).
   /// - [PublishFailedException] when the dry run or publish fails.
   ///
   /// Notes: the dry run and publish run from the package root using the
@@ -91,7 +89,12 @@ class RunPublishFlow {
       ..writeln('Version: ${identity.version}')
       ..writeln();
 
-    await _verifyReleaseCompleteness(packagePath);
+    final releaseIssues = await _verifyReleaseCompleteness(packagePath);
+    if (releaseIssues.isNotEmpty) {
+      throw ReleaseValidationException(
+        releaseIssues.map((i) => i.issueMessage).join('\n'),
+      );
+    }
 
     if (!tooling.usesFvm) {
       warnings.add(

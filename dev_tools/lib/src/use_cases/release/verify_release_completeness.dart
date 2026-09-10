@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
-import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:pub_semver/pub_semver.dart';
 
@@ -12,7 +10,8 @@ import 'package:pub_semver/pub_semver.dart';
 ///
 /// Checks the pubspec against its package registry state and the files
 /// expected to reference the new version (CHANGELOG.md, README.md, and any
-/// additional versioned files).
+/// additional versioned files), returning a [ReleaseIssue] for each problem
+/// found rather than throwing.
 class VerifyReleaseCompleteness {
   static const _changelogPrefix = r'^#{1,6}\s*\[?';
   static const _changelogSuffix = r'\]?(\s+-.*)?\s*$';
@@ -95,22 +94,19 @@ class VerifyReleaseCompleteness {
   /// Params:
   /// - `packagePath`: absolute path to the package directory.
   /// - `publishedVersions`: known published versions of the package, or null.
-  /// - `requiredVersionedFiles`: the versioned file checks to run; defaults
+  /// - `checks`: the versioned file checks to run; defaults
   ///   to the standard CHANGELOG.md and README.md checks. Provide your own
   ///   map to replace them.
   ///
-  /// Returns: nothing (void).
+  /// Returns: a [ReleaseIssue] for every problem found (registry lookup
+  /// failures, an already-published or out-of-order version, and any
+  /// missing or out-of-date versioned-file references); empty when the
+  /// release is complete.
   ///
   /// Throws:
-  /// - [ReleaseValidationException] listing every missing reference, and
-  ///   when the package registry cannot be reached.
   /// - [PackageIdentityException] when the pubspec is missing or lacks a
   ///   `name` or `version` (see [ReadPackageIdentity]).
-  /// - [VersionedFileVerificationException] when a checked file does not
-  ///   exist (see [VerifyVersionedFiles]).
-  ///
-  /// Notes: reports progress to stdout.
-  Future<void> call(
+  Future<List<ReleaseIssue>> call(
     String packagePath, {
     PublishedPackageInfo? publishedPackageInfo,
     Map<String, VersionedFileCheck> checks = _standardChecks,
@@ -127,22 +123,11 @@ class VerifyReleaseCompleteness {
         packagePath: packagePath,
         name: identity.name,
         version: identity.version,
-        requiredVersionedFiles: checks,
+        checks: checks,
       ),
     ];
 
-    if (problems.isNotEmpty) {
-      throw ReleaseValidationException(
-        'Error: Release is incomplete for '
-        '${identity.name}@${identity.version}:\n'
-        '${problems.map((e) => '- $e').join('\n')}',
-      );
-    }
-
-    stdout.writeln(
-      'All release references are consistent for '
-      '${identity.name}@${identity.version}.',
-    );
+    return problems.map(ReleaseIssue.new).toList();
   }
 
   /// Collects registry-related problems: the version being released is
@@ -159,10 +144,9 @@ class VerifyReleaseCompleteness {
       try {
         info = await _packageRegistryClient(name);
       } on PackageRegistryLookupException catch (e) {
-        throw ReleaseValidationException(
-          'Error: Could not reach the package registry to verify $name: '
-          '${e.message}',
-        );
+        return [
+          'Could not reach the package registry to verify $name: ${e.message}'
+        ];
       }
     }
 
@@ -176,9 +160,10 @@ class VerifyReleaseCompleteness {
     if (newVersion != null &&
         latestVersion != null &&
         newVersion < latestVersion) {
-      final message = 'A newer version ($latest) is already published; '
-          '$version must be greater.';
-      return [message];
+      return [
+        // ignore: lines_longer_than_80_chars
+        'A newer version ($latest) is already published; $version must be greater.'
+      ];
     }
     return const [];
   }

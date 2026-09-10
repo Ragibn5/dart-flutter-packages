@@ -2,9 +2,9 @@ import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
+import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
-import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:mocktail/mocktail.dart';
@@ -55,7 +55,7 @@ void main() {
     when(() => verifyReleaseCompleteness(
           any(),
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
-        )).thenAnswer((_) async {});
+        )).thenAnswer((_) async => const <ReleaseIssue>[]);
 
     sut = ValidateReleaseMerge(
       detectChangesInFolder: detectChangesInFolder,
@@ -146,8 +146,9 @@ void main() {
         )).called(1);
   });
 
-  test('should throw aggregating problems from every failing candidate',
-      () async {
+  test(
+      'should complete without throwing and still verify every candidate '
+      'when some have issues', () async {
     when(() => findReleaseCandidatePackages(
           repoRoot: any(named: 'repoRoot'),
           changedFiles: any(named: 'changedFiles'),
@@ -158,42 +159,21 @@ void main() {
     when(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_a',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
-        )).thenThrow(const ReleaseValidationException('pkg_a is broken.'));
+        )).thenAnswer((_) async => const [ReleaseIssue('pkg_a is broken.')]);
     when(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
-        )).thenThrow(const ReleaseValidationException('pkg_b is broken.'));
+        )).thenAnswer((_) async => const [ReleaseIssue('pkg_b is broken.')]);
 
     await expectLater(
       sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          allOf(contains('pkg_a is broken.'), contains('pkg_b is broken.')),
-        ),
-      ),
+      completes,
     );
-  });
 
-  test('should still verify remaining candidates after an earlier failure',
-      () async {
-    when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [
-          candidate('pkg_a', 'pkg_a'),
-          candidate('pkg_b', 'pkg_b'),
-        ]);
-    when(() => verifyReleaseCompleteness(
+    verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_a',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
-        )).thenThrow(const ReleaseValidationException('pkg_a is broken.'));
-
-    await expectLater(
-      sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
-      throwsA(isA<ReleaseValidationException>()),
-    );
+        )).called(1);
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),

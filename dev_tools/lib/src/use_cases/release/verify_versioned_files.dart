@@ -1,15 +1,5 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
-
-/// Represents an exception when a file does not contain expected version info.
-class VersionedFileVerificationException extends CommandExecutionException {
-  @override
-  final String message;
-
-  const VersionedFileVerificationException(this.message);
-}
-
 /// A single check that a file references the new version.
 class VersionedFileCheck {
   /// Path of the file to check, relative to the package directory; may
@@ -36,7 +26,7 @@ class VersionedFileCheck {
 
 /// Verifies that a package's files reference the new version.
 ///
-/// The checks to run are fully injected via `requiredVersionedFiles`; no
+/// The checks to run are fully injected via `checks`; no
 /// checks are added implicitly.
 class VerifyVersionedFiles {
   const VerifyVersionedFiles();
@@ -47,26 +37,26 @@ class VerifyVersionedFiles {
   /// - `packagePath`: absolute path to the package directory.
   /// - `name`: package name.
   /// - `version`: package version, as read from the pubspec.
-  /// - `requiredVersionedFiles`: the complete set of checks to run; each
+  /// - `checks`: the complete set of checks to run; each
   ///   check's pattern must match its file for the release to be complete.
   ///
-  /// Returns: a list of problem descriptions, empty when every file
-  /// references [version].
-  ///
-  /// Throws:
-  /// - [VersionedFileVerificationException] when a checked file does not
-  ///   exist.
+  /// Returns: a list of problem descriptions, empty when every file exists
+  /// and references [version]; a missing file is reported as its own
+  /// problem rather than throwing.
   Future<List<String>> call({
     required String packagePath,
     required String name,
     required String version,
-    required Map<String, VersionedFileCheck> requiredVersionedFiles,
+    required Map<String, VersionedFileCheck> checks,
   }) async {
     final problems = <String>[];
-    for (final entry in requiredVersionedFiles.entries) {
+    for (final entry in checks.entries) {
       final check = entry.value;
       final file = File('$packagePath/${check.filePath}');
-      _requireExists(file, check.filePath);
+      if (!file.existsSync()) {
+        problems.add('${check.filePath} is missing.');
+        continue;
+      }
 
       final pattern = check.pattern(name, version);
       final regex =
@@ -78,13 +68,5 @@ class VerifyVersionedFiles {
     }
 
     return problems;
-  }
-
-  void _requireExists(File file, String relPath) {
-    if (!file.existsSync()) {
-      throw VersionedFileVerificationException(
-        'Error: $relPath is missing.',
-      );
-    }
   }
 }

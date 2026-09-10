@@ -6,7 +6,6 @@ import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
-import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:mocktail/mocktail.dart';
@@ -46,7 +45,7 @@ void main() {
         packagePath: any(named: 'packagePath'),
         name: any(named: 'name'),
         version: any(named: 'version'),
-        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+        checks: any(named: 'checks'),
       ),
     ).thenAnswer((_) async => <String>[]);
     when(() => packageRegistryClient(any())).thenAnswer(
@@ -65,13 +64,12 @@ void main() {
         packagePath: packagePath,
         name: 'foo',
         version: '1.0.0',
-        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+        checks: any(named: 'checks'),
       ),
     ).called(1);
   });
 
-  test('should throw ReleaseValidationException when already published',
-      () async {
+  test('should report an issue when already published', () async {
     when(() => packageRegistryClient(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '1.0.0',
@@ -79,20 +77,15 @@ void main() {
       ),
     );
 
-    await expectLater(
-      sut(packagePath),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          contains('foo@1.0.0 is already published.'),
-        ),
-      ),
+    final issues = await sut(packagePath);
+
+    expect(
+      issues.map((i) => i.issueMessage),
+      contains('foo@1.0.0 is already published.'),
     );
   });
 
-  test('should throw ReleaseValidationException when the release is older',
-      () async {
+  test('should report an issue when the release is older', () async {
     when(() => packageRegistryClient(any())).thenAnswer(
       (_) async => const PublishedPackageInfo(
         latestVersion: '2.0.0',
@@ -100,91 +93,71 @@ void main() {
       ),
     );
 
-    await expectLater(
-      sut(packagePath),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          contains(
-            'A newer version (2.0.0) is already published; '
-            '1.0.0 must be greater.',
-          ),
-        ),
+    final issues = await sut(packagePath);
+
+    expect(
+      issues.map((i) => i.issueMessage),
+      contains(
+        'A newer version (2.0.0) is already published; '
+        '1.0.0 must be greater.',
       ),
     );
   });
 
-  test('should aggregate versioned file problems with a bullet prefix',
-      () async {
+  test('should return an issue for each versioned file problem', () async {
     when(
       () => verifyVersionedFiles(
         packagePath: any(named: 'packagePath'),
         name: any(named: 'name'),
         version: any(named: 'version'),
-        requiredVersionedFiles: any(named: 'requiredVersionedFiles'),
+        checks: any(named: 'checks'),
       ),
     ).thenAnswer((_) async => <String>[
           'CHANGELOG.md has no entry for 1.0.0.',
           'README.md does not reference foo-1.0.0 (git install).',
         ]);
 
-    await expectLater(
-      sut(packagePath),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          contains(
-            'Error: Release is incomplete for foo@1.0.0:\n'
-            '- CHANGELOG.md has no entry for 1.0.0.\n'
-            '- README.md does not reference foo-1.0.0 (git install).',
-          ),
-        ),
-      ),
+    final issues = await sut(packagePath);
+
+    expect(
+      issues.map((i) => i.issueMessage),
+      containsAll([
+        'CHANGELOG.md has no entry for 1.0.0.',
+        'README.md does not reference foo-1.0.0 (git install).',
+      ]),
     );
   });
 
   test(
       'should use the injected publishedVersions instead of fetching from '
       'the registry', () async {
-    await expectLater(
-      sut(
-        packagePath,
-        publishedPackageInfo: const PublishedPackageInfo(
-          latestVersion: '1.0.0',
-          versions: ['1.0.0'],
-        ),
-      ),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          contains('foo@1.0.0 is already published.'),
-        ),
+    final issues = await sut(
+      packagePath,
+      publishedPackageInfo: const PublishedPackageInfo(
+        latestVersion: '1.0.0',
+        versions: ['1.0.0'],
       ),
     );
 
+    expect(
+      issues.map((i) => i.issueMessage),
+      contains('foo@1.0.0 is already published.'),
+    );
     verifyNever(() => packageRegistryClient(any()));
   });
 
-  test(
-      'should wrap PackageRegistryLookupException into '
-      'ReleaseValidationException', () async {
+  test('should report an issue when the package registry cannot be reached',
+      () async {
     when(() => packageRegistryClient(any())).thenThrow(
       const PackageRegistryLookupException('connection timeout'),
     );
 
-    await expectLater(
-      sut(packagePath),
-      throwsA(
-        isA<ReleaseValidationException>().having(
-          (e) => e.message,
-          'message',
-          contains('Could not reach the package registry to verify foo: '
-              'connection timeout'),
-        ),
-      ),
+    final issues = await sut(packagePath);
+
+    expect(
+      issues.map((i) => i.issueMessage),
+      contains('Could not reach the package registry to verify foo: '
+          'connection timeout'),
     );
   });
 
@@ -199,8 +172,7 @@ void main() {
     );
   });
 
-  test('should pass injected requiredVersionedFiles to VerifyVersionedFiles',
-      () async {
+  test('should pass injected checks to VerifyVersionedFiles', () async {
     final customChecks = <String, VersionedFileCheck>{
       'install': VersionedFileCheck(
         filePath: 'docs/install.md',
@@ -219,7 +191,7 @@ void main() {
         packagePath: packagePath,
         name: 'foo',
         version: '1.0.0',
-        requiredVersionedFiles: customChecks,
+        checks: customChecks,
       ),
     ).called(1);
   });
@@ -268,23 +240,15 @@ void main() {
         'foo-1.0.0-1\n\nInstall with `foo: ^0.9.0`.',
       );
 
-      await expectLater(
-        buildRealFilesSut()('${tempDir.path}/$pkgPath'),
-        throwsA(
-          isA<ReleaseValidationException>().having(
-            (e) => e.message,
-            'message',
-            allOf(
-              contains('CHANGELOG.md has no entry for 1.0.0.'),
-              contains(
-                'README.md does not reference foo-1.0.0 (git install).',
-              ),
-              contains(
-                'README.md does not reference foo: ^1.0.0 (registry install).',
-              ),
-            ),
-          ),
-        ),
+      final issues = await buildRealFilesSut()('${tempDir.path}/$pkgPath');
+
+      expect(
+        issues.map((i) => i.issueMessage),
+        containsAll([
+          'CHANGELOG.md has no entry for 1.0.0.',
+          'README.md does not reference foo-1.0.0 (git install).',
+          'README.md does not reference foo: ^1.0.0 (registry install).',
+        ]),
       );
     });
   });
