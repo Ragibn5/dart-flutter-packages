@@ -10,10 +10,11 @@ class ValidatePackagePath {
   /// Params:
   /// - `packagePath`: absolute path to the package directory.
   ///
-  /// Returns: nothing (void) when the path is valid.
+  /// Returns: nothing (void).
   ///
-  /// Notes: throws [PublishValidationException] when the directory or its
-  /// pubspec.yaml is missing.
+  /// Throws:
+  /// - [PublishValidationException] when the directory or its pubspec.yaml
+  ///   is missing.
   void call(String packagePath) {
     final full = Directory(packagePath);
     if (!full.existsSync()) {

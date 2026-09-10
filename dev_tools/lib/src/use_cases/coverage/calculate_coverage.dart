@@ -19,8 +19,11 @@ class CalculateCoverage {
   ///
   /// Returns: the rounded line coverage percentage.
   ///
-  /// Notes: throws [CoverageCalculationException] when the file is missing
-  /// or its summary cannot be parsed.
+  /// Throws:
+  /// - [CoverageCalculationException] when the file is missing or its
+  ///   summary cannot be parsed.
+  /// - [ProjectRootNotFoundException] when `projectRoot` is omitted and no
+  ///   project root can be found.
   Future<int> call(String lcovFile, [String? projectRoot]) async {
     final root = projectRoot ?? await _findProjectRoot();
     final file = File('$root/$lcovFile');

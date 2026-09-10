@@ -9,6 +9,13 @@ class FindFvmAwareDartCommand {
         const CmdInstallationChecker(),
   }) : _cmdInstallationChecker = cmdInstallationChecker;
 
+  /// Resolves the Dart command to run, preferring an fvm-scoped Dart.
+  ///
+  /// Returns: `'fvm dart'` when fvm is installed, else `'dart'` when the
+  /// system-wide Dart is installed.
+  ///
+  /// Throws:
+  /// - [CommandNotFoundException] when neither is installed.
   Future<String> call() async {
     if (await _cmdInstallationChecker('fvm')) {
       return 'fvm dart';

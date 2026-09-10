@@ -12,6 +12,10 @@ class GetCurrentDartPackage {
   ///   project root resolved from the current directory).
   ///
   /// Returns: the package name, or null when pubspec.yaml is missing.
+  ///
+  /// Throws:
+  /// - [ProjectRootNotFoundException] when `projectRoot` is omitted and no
+  ///   project root can be found.
   Future<String?> call([String? projectRoot]) async {
     final root = projectRoot ?? await const FindProjectRoot()();
     final pubspecFile = File('$root/pubspec.yaml');

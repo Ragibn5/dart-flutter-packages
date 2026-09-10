@@ -12,8 +12,9 @@ class ParsePubspecContent {
   ///
   /// Returns: a [PackageIdentity].
   ///
-  /// Notes: throws [PackageIdentityException] when the content lacks a
-  /// `name` or `version`.
+  /// Throws:
+  /// - [PackageIdentityException] when the content lacks a `name` or
+  ///   `version`.
   PackageIdentity call(String pubspecContent) {
     final pubspec = loadYaml(pubspecContent);
     final map = pubspec as YamlMap;

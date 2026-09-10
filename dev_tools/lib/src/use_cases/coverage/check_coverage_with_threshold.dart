@@ -30,8 +30,12 @@ class EnforceCoverageThreshold {
   ///
   /// Returns: nothing (void); writes the result to stdout.
   ///
-  /// Notes: throws [EnforceCoverageThresholdException] when coverage is
-  /// below the required threshold.
+  /// Throws:
+  /// - [EnforceCoverageThresholdException] when coverage is below the
+  ///   required threshold.
+  /// - [ProjectRootNotFoundException] when no project root can be found.
+  /// - [CoverageCalculationException] when `lcovFile` is missing or
+  ///   unparsable (see [CalculateCoverage]).
   Future<void> call({
     String lcovFile = 'coverage/lcov.info',
     double threshold = 100,

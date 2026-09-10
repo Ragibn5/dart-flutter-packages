@@ -31,6 +31,12 @@ class ReplaceTextInScope {
   ///
   /// Returns: the number of occurrences replaced (or found, when the
   /// change is declined or interactive is false).
+  ///
+  /// Throws:
+  /// - [ArgumentError] when `srcText` or `targetText` is empty.
+  ///
+  /// Notes: an individual file that can't be read as text (binary,
+  /// non-UTF-8, permission errors) is skipped, not thrown for.
   Future<int> call({
     required String srcText,
     required String targetText,

@@ -30,6 +30,10 @@ class FindReleaseCandidatePackages {
   ///   e.g. from `DetectChangesInFolder`.
   ///
   /// Returns: candidate packages, in no particular order.
+  ///
+  /// Throws:
+  /// - [PackageFinderException] when `repoRoot` does not exist.
+  /// - [PubDevLookupException] when pub.dev cannot be reached.
   Future<List<ReleaseCandidatePackage>> call({
     required String repoRoot,
     required List<String> changedFiles,

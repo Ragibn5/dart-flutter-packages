@@ -20,8 +20,9 @@ class FetchPublishedPackageInfo {
   /// Returns: a [PublishedPackageInfo]; empty when the package has never been
   /// published.
   ///
-  /// Notes: throws [PubDevLookupException] when the pub.dev API cannot be
-  /// queried or returns an unexpected status.
+  /// Throws:
+  /// - [PubDevLookupException] when the pub.dev API cannot be queried or
+  ///   returns an unexpected status.
   Future<PublishedPackageInfo> call(String packageName) async {
     final client = HttpClient();
     try {

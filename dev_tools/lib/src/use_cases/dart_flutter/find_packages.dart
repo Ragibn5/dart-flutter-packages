@@ -32,6 +32,20 @@ class FindPackages {
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
   }) : _readPackageIdentity = readPackageIdentity;
 
+  /// Finds every package under [repoRoot] matching [filter].
+  ///
+  /// Params:
+  /// - `repoRoot`: absolute path to the repository root to scan.
+  /// - `filter`: predicate a package's [LocalPackageInfo] must satisfy to be
+  ///   included; only applied to packages whose pubspec was readable.
+  ///
+  /// Returns: matching packages, in no particular order.
+  ///
+  /// Throws:
+  /// - [PackageFinderException] when `repoRoot` does not exist.
+  ///
+  /// Notes: a package whose pubspec can't be read (see class docs) is
+  /// skipped, not thrown for.
   Future<List<LocalPackageInfo>> call({
     required String repoRoot,
     required bool Function(LocalPackageInfo localPackageInfo) filter,

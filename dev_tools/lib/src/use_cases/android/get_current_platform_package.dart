@@ -12,6 +12,10 @@ class GetCurrentPlatformPackage {
   ///   project root resolved from the current directory).
   ///
   /// Returns: the applicationId, or null when build.gradle.kts is missing.
+  ///
+  /// Throws:
+  /// - [ProjectRootNotFoundException] when `projectRoot` is omitted and no
+  ///   project root can be found.
   Future<String?> call([String? projectRoot]) async {
     final root = projectRoot ?? await const FindProjectRoot()();
     final gradle = File('$root/android/app/build.gradle.kts');

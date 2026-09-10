@@ -13,7 +13,8 @@ class FindProjectRoot {
   ///
   /// Returns: the absolute path of the nearest project root.
   ///
-  /// Notes: throws [ProjectRootNotFoundException] when no root is found.
+  /// Throws:
+  /// - [ProjectRootNotFoundException] when no root is found.
   Future<String> call([String? start]) async {
     final dir = Directory(start ?? Directory.current.path).absolute;
 

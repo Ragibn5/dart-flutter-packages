@@ -1,4 +1,5 @@
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
+import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
@@ -24,8 +25,12 @@ class RunFlutterTestWithCoverage {
   ///
   /// Returns: nothing (void) when the tests pass.
   ///
-  /// Notes: throws [FlutterTestWithCoverageException] when the command exits
-  /// with a non-zero code.
+  /// Throws:
+  /// - [FlutterTestWithCoverageException] when the command exits with a
+  ///   non-zero code.
+  /// - [ProjectRootNotFoundException] when no project root can be found.
+  /// - [CommandNotFoundException] when neither fvm nor a system-wide
+  ///   Flutter is installed.
   Future<void> call({String lcovFile = 'coverage/lcov.info'}) async {
     final projectRoot = await _findProjectRoot();
     final flutterCmd = await _findFlutterCommand();

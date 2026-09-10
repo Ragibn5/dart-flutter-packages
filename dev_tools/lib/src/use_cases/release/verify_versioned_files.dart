@@ -52,6 +52,10 @@ class VerifyVersionedFiles {
   ///
   /// Returns: a list of problem descriptions, empty when every file
   /// references [version].
+  ///
+  /// Throws:
+  /// - [VersionedFileVerificationException] when a checked file does not
+  ///   exist.
   Future<List<String>> call({
     required String packagePath,
     required String name,

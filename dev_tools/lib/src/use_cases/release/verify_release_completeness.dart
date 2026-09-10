@@ -98,12 +98,17 @@ class VerifyReleaseCompleteness {
   ///   to the standard CHANGELOG.md and README.md checks. Provide your own
   ///   map to replace them.
   ///
-  /// Returns: nothing (void); reports progress to stdout.
+  /// Returns: nothing (void).
   ///
-  /// Notes: throws [ReleaseValidationException] listing every missing
-  /// reference, and when pub.dev cannot be reached. A missing pubspec, or
-  /// missing required versioned files, surface as their dedicated reader
-  /// exceptions instead of aggregated problems.
+  /// Throws:
+  /// - [ReleaseValidationException] listing every missing reference, and
+  ///   when pub.dev cannot be reached.
+  /// - [PackageIdentityException] when the pubspec is missing or lacks a
+  ///   `name` or `version` (see [ReadPackageIdentity]).
+  /// - [VersionedFileVerificationException] when a checked file does not
+  ///   exist (see [VerifyVersionedFiles]).
+  ///
+  /// Notes: reports progress to stdout.
   Future<void> call(
     String packagePath, {
     PublishedPackageInfo? publishedPackageInfo,

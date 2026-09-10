@@ -20,7 +20,8 @@ class DetectChangesInFolder {
   ///
   /// Returns: repository-root-relative paths of the changed files.
   ///
-  /// Notes: throws [GitDiffingException] when `git diff` fails.
+  /// Throws:
+  /// - [GitDiffingException] when `git diff` fails.
   Future<List<String>> call({
     required String baseRef,
     required String compareRef,

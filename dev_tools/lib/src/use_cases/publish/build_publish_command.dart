@@ -1,3 +1,4 @@
+import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
@@ -38,6 +39,10 @@ class BuildPublishCommand {
   ///   between the Flutter and Dart fvm-aware finders.
   ///
   /// Returns: the [PublishTooling] for the package.
+  ///
+  /// Throws:
+  /// - [CommandNotFoundException] when neither fvm nor a system-wide
+  ///   Dart/Flutter is installed.
   Future<PublishTooling> call(PackageIdentity identity) async {
     final command = identity.isFlutterPackage
         ? await _findFlutterCommand()

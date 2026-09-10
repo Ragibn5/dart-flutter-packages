@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_published_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
@@ -34,10 +36,17 @@ class ValidateReleaseMerge {
   /// - `toBranch`: the MR's target branch, i.e. what it merges into
   ///   (e.g. `origin/main`, `origin/release`).
   ///
-  /// Notes: throws [ReleaseValidationException] aggregating the problems
-  /// from every failing candidate, if any did. Reports progress to stdout.
-  /// Runs the completeness check for every candidate rather than stopping
-  /// at the first failure.
+  /// Returns: nothing (void).
+  ///
+  /// Throws:
+  /// - [ReleaseValidationException] aggregating the problems from every
+  ///   failing candidate, if any did.
+  /// - [GitDiffingException] when `git diff` fails.
+  /// - [PackageFinderException] or [PubDevLookupException] while finding
+  ///   candidates (see [FindReleaseCandidatePackages]).
+  ///
+  /// Notes: runs the completeness check for every candidate rather than
+  /// stopping at the first failure. Reports progress to stdout.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,

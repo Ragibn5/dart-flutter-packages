@@ -15,6 +15,17 @@ class GenerateCoverageReportPage {
   })  : _findProjectRoot = findProjectRoot,
         _cmdInstallationChecker = cmdInstallationChecker;
 
+  /// Generates an HTML coverage report from lcov data.
+  ///
+  /// Params:
+  /// - `exclusions`: unused; accepted for parity with the other coverage
+  ///   commands.
+  ///
+  /// Returns: nothing (void); writes the report to `coverage/html/`.
+  ///
+  /// Throws:
+  /// - [CommandNotFoundException] when genhtml is not installed.
+  /// - [ProjectRootNotFoundException] when no project root can be found.
   Future<void> call({List<String> exclusions = const []}) async {
     final root = await _findProjectRoot();
     if (!await _cmdInstallationChecker('genhtml')) {

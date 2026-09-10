@@ -9,6 +9,13 @@ class FindFvmAwareFlutterCommand {
         const CmdInstallationChecker(),
   }) : _cmdInstallationChecker = cmdInstallationChecker;
 
+  /// Resolves the Flutter command to run, preferring an fvm-scoped Flutter.
+  ///
+  /// Returns: `'fvm flutter'` when fvm is installed, else `'flutter'` when
+  /// the system-wide Flutter is installed.
+  ///
+  /// Throws:
+  /// - [CommandNotFoundException] when neither is installed.
   Future<String> call() async {
     if (await _cmdInstallationChecker('fvm')) {
       return 'fvm flutter';
