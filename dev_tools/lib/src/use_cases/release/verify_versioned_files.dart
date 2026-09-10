@@ -40,9 +40,7 @@ class VerifyVersionedFiles {
   /// - `checks`: the complete set of checks to run; each
   ///   check's pattern must match its file for the release to be complete.
   ///
-  /// Returns: a list of problem descriptions, empty when every file exists
-  /// and references [version]; a missing file is reported as its own
-  /// problem rather than throwing.
+  /// Returns: a list of problems, or empty when there are no issues.
   Future<List<String>> call({
     required String packagePath,
     required String name,
