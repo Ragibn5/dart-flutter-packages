@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
@@ -12,13 +13,11 @@ const _greenTick = '\x1B[32m✓\x1B[0m';
 const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
-///
-/// Diffs `fromBranch`/`toBranch`, finds release-candidate packages among the
-/// changed files, and runs the release-completeness gate over them.
 class ValidateReleaseMerge {
   final DetectChangesInFolder _detectChangesInFolder;
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
+  final TagExists _tagExists;
 
   const ValidateReleaseMerge({
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
@@ -26,9 +25,11 @@ class ValidateReleaseMerge {
         const FindReleaseCandidatePackages(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
+    TagExists tagExists = const TagExists(),
   })  : _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidates = findReleaseCandidatePackages,
-        _verifyReleaseCompleteness = verifyReleaseCompleteness;
+        _verifyReleaseCompleteness = verifyReleaseCompleteness,
+        _tagExists = tagExists;
 
   /// Runs the MR gate.
   ///
@@ -45,6 +46,8 @@ class ValidateReleaseMerge {
   /// - [GitDiffingException] when `git diff` fails.
   /// - [PackageFinderException] or [PackageRegistryLookupException] while
   ///   finding candidates (see [FindReleaseCandidatePackages]).
+  /// - [TagLookupException] when a tag lookup fails for a reason other than
+  ///   the tag not existing (see [TagExists]).
   /// - `PackageIdentityException` while checking a candidate's completeness
   ///   (see [VerifyReleaseCompleteness]).
   /// - [ReleaseValidationException] listing every candidate with issues,
@@ -80,15 +83,22 @@ class ValidateReleaseMerge {
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
       final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
-      final packageReleaseIssues = await _verifyReleaseCompleteness(
+      final identity = candidate.packageIdentity;
+      final tag = identity.releaseTag;
+      final tagAlreadyExists = await _tagExists(tag, repoRoot: repoRoot);
+      final completenessIssues = await _verifyReleaseCompleteness(
         packagePath,
         publishedPackageInfo: candidate.publishedPackageInfo,
       );
-      if (packageReleaseIssues.isNotEmpty) {
-        issuesMap[candidate.packageIdentity.name] =
-            packageReleaseIssues.map((i) => i.issueMessage).toList();
+      final issues = <String>[
+        if (tagAlreadyExists) 'Tag $tag already exists.',
+        ...completenessIssues.map((i) => i.issueMessage),
+      ];
+
+      if (issues.isNotEmpty) {
+        issuesMap[identity.name] = issues;
       } else {
-        validPackages.add(candidate.packageIdentity.name);
+        validPackages.add(identity.name);
       }
     }
 

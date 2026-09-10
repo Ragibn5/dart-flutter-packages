@@ -1,3 +1,4 @@
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
@@ -34,12 +35,13 @@ class VerifyReleaseCompleteness {
   /// characters, so similar strings inside docs or other references (e.g.
   /// `dev_tools: ^1.0.0`) are not counted as a reference.
   static RegExp _gitInstallPattern(String name, String version) {
-    final escaped = RegExp.escape('$name-$version');
+    final escaped = RegExp.escape(PackageIdentity.gitTag(name, version));
     return RegExp('$_boundaryOpen$escaped$_boundaryClose');
   }
 
   static String _gitInstallProblem(String name, String version) {
-    return 'README.md does not reference $name-$version (git install).';
+    final tag = PackageIdentity.gitTag(name, version);
+    return 'README.md does not reference $tag (git install).';
   }
 
   /// Matches the pub registry install form `<package>: ^<version>` only

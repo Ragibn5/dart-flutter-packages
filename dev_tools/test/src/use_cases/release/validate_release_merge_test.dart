@@ -4,6 +4,7 @@ import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
@@ -20,6 +21,8 @@ class _MockFindReleaseCandidatePackages extends Mock
 class _MockVerifyReleaseCompleteness extends Mock
     implements VerifyReleaseCompleteness {}
 
+class _MockTagExists extends Mock implements TagExists {}
+
 void main() {
   const repoRoot = '/fake/repo';
   const changedFiles = ['pkg_a/pubspec.yaml'];
@@ -28,6 +31,7 @@ void main() {
   late _MockDetectChangesInFolder detectChangesInFolder;
   late _MockFindReleaseCandidatePackages findReleaseCandidatePackages;
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
+  late _MockTagExists tagExists;
   late ValidateReleaseMerge sut;
 
   ReleaseCandidatePackage candidate(String path, String name) =>
@@ -58,10 +62,15 @@ void main() {
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
         )).thenAnswer((_) async => const <ReleaseIssue>[]);
 
+    tagExists = _MockTagExists();
+    when(() => tagExists(any(), repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => false);
+
     sut = ValidateReleaseMerge(
       detectChangesInFolder: detectChangesInFolder,
       findReleaseCandidatePackages: findReleaseCandidatePackages,
       verifyReleaseCompleteness: verifyReleaseCompleteness,
+      tagExists: tagExists,
     );
   });
 
@@ -176,6 +185,38 @@ void main() {
         )).called(1);
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
+          publishedPackageInfo: any(named: 'publishedPackageInfo'),
+        )).called(1);
+  });
+
+  test('should check whether the version has already been tagged', () async {
+    when(() => findReleaseCandidatePackages(
+          repoRoot: any(named: 'repoRoot'),
+          changedFiles: any(named: 'changedFiles'),
+        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+
+    await sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main');
+
+    verify(() => tagExists('pkg_a-1.0.0', repoRoot: repoRoot)).called(1);
+  });
+
+  test('should throw when the version has already been tagged', () async {
+    when(() => findReleaseCandidatePackages(
+          repoRoot: any(named: 'repoRoot'),
+          changedFiles: any(named: 'changedFiles'),
+        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+    when(() => tagExists(any(), repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => true);
+
+    await expectLater(
+      sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
+      throwsA(isA<ReleaseValidationException>()),
+    );
+
+    // The completeness check still runs, so every issue for a candidate is
+    // reported at once rather than stopping at the first one found.
+    verify(() => verifyReleaseCompleteness(
+          any(),
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
         )).called(1);
   });
