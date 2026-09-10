@@ -4,8 +4,12 @@ import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:path/path.dart' as p;
+
+const _greenTick = '\x1B[32m✓\x1B[0m';
+const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
 ///
@@ -35,8 +39,7 @@ class ValidateReleaseMerge {
   /// - `toBranch`: the MR's target branch, i.e. what it merges into
   ///   (e.g. `origin/main`, `origin/release`).
   ///
-  /// Returns: nothing (void). The pass/fail status and issues for every
-  /// candidate are reported to stdout rather than returned or thrown.
+  /// Returns: nothing (void) when every candidate is complete.
   ///
   /// Throws:
   /// - [GitDiffingException] when `git diff` fails.
@@ -44,6 +47,8 @@ class ValidateReleaseMerge {
   ///   finding candidates (see [FindReleaseCandidatePackages]).
   /// - `PackageIdentityException` while checking a candidate's completeness
   ///   (see [VerifyReleaseCompleteness]).
+  /// - [ReleaseValidationException] listing every candidate with issues,
+  ///   once all candidates have been checked, so the MR gate fails.
   ///
   /// Notes: runs the completeness check for every candidate rather than
   /// stopping at the first failure. Reports progress to stdout.
@@ -87,16 +92,24 @@ class ValidateReleaseMerge {
       }
     }
 
+    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
+    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
     final summaryLines = [
-      for (final name in validPackages) '  - $name: OK',
+      for (final name in validPackages) '  $tick $name: OK',
       for (final entry in issuesMap.entries) ...[
-        '  - ${entry.key}:',
+        '  $cross ${entry.key}:',
         for (final issue in entry.value) '      - $issue',
       ],
     ];
     stdout.writeln(
-      '\nFound ${candidates.length} release candidate(s)\n'
+      'Found ${candidates.length} release candidate(s)\n'
       '${summaryLines.join('\n')}',
     );
+
+    if (issuesMap.isNotEmpty) {
+      throw ReleaseValidationException(
+        'Error: ${issuesMap.length} release candidate(s) are incomplete.',
+      );
+    }
   }
 }

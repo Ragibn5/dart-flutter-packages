@@ -5,6 +5,7 @@ import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:mocktail/mocktail.dart';
@@ -146,9 +147,8 @@ void main() {
         )).called(1);
   });
 
-  test(
-      'should complete without throwing and still verify every candidate '
-      'when some have issues', () async {
+  test('should throw after checking every candidate when some have issues',
+      () async {
     when(() => findReleaseCandidatePackages(
           repoRoot: any(named: 'repoRoot'),
           changedFiles: any(named: 'changedFiles'),
@@ -167,7 +167,7 @@ void main() {
 
     await expectLater(
       sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
-      completes,
+      throwsA(isA<ReleaseValidationException>()),
     );
 
     verify(() => verifyReleaseCompleteness(
@@ -178,5 +178,17 @@ void main() {
           '/fake/repo/pkg_b',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
         )).called(1);
+  });
+
+  test('should not throw when every candidate is complete', () async {
+    when(() => findReleaseCandidatePackages(
+          repoRoot: any(named: 'repoRoot'),
+          changedFiles: any(named: 'changedFiles'),
+        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+
+    await expectLater(
+      sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
+      completes,
+    );
   });
 }
