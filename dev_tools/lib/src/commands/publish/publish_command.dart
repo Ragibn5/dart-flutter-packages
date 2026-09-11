@@ -3,12 +3,19 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
+import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:path/path.dart' as p;
 
 class PublishCommand extends Command<void> {
   static const String commandName = 'publish';
-  static const String commandDescription = 'Validate and publish a package.';
+  static const String commandDescription = 'Validate and publish a package.\n\n'
+      'Notes:\n'
+      '- Tag style defaults to "${ResolveGitTagFormat.defaultGitTagFormat}".\n'
+      // ignore: lines_longer_than_80_chars
+      '  To customize, override the ${ResolveGitTagFormat.gitTagFormatEnvVar} env var.\n'
+      '  Supported placeholders are "{name}" & "{version}".'
+      '  For example, a custom override might be "{name}@{version}".';
   static const String pathOption = 'path';
 
   final RunPublishFlow _runPublishFlow;
