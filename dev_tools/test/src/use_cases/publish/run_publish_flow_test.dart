@@ -7,6 +7,7 @@ import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
+import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
@@ -33,6 +34,8 @@ class _MockBuildPublishCommand extends Mock implements BuildPublishCommand {}
 
 class _MockPackageRegistryClient extends Mock
     implements PackageRegistryClient {}
+
+class _MockResolveGitTagFormat extends Mock implements ResolveGitTagFormat {}
 
 class PublishAttempt {
   final String repoRoot;
@@ -95,6 +98,7 @@ void main() {
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
   late _MockBuildPublishCommand buildPublishCommand;
   late _MockPackageRegistryClient packageRegistryClient;
+  late _MockResolveGitTagFormat resolveGitTagFormat;
 
   late List<PublishAttempt> publishCalls;
   late PublishProcessRunner publish;
@@ -108,6 +112,7 @@ void main() {
         verifyReleaseCompleteness: verifyReleaseCompleteness,
         buildPublishCommand: buildPublishCommand,
         packageRegistryClient: packageRegistryClient,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
         publish: publish,
       );
 
@@ -119,6 +124,8 @@ void main() {
     verifyReleaseCompleteness = _MockVerifyReleaseCompleteness();
     buildPublishCommand = _MockBuildPublishCommand();
     packageRegistryClient = _MockPackageRegistryClient();
+    resolveGitTagFormat = _MockResolveGitTagFormat();
+    when(() => resolveGitTagFormat()).thenReturn('{name}-{version}');
     publishCalls = <PublishAttempt>[];
     publish = _okPublish(publishCalls);
 
@@ -369,6 +376,7 @@ void main() {
         verifyReleaseCompleteness: verifyReleaseCompleteness,
         buildPublishCommand: buildPublishCommand,
         packageRegistryClient: packageRegistryClient,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
       );
 
       await expectLater(
@@ -406,6 +414,7 @@ void main() {
       verifyReleaseCompleteness: verifyReleaseCompleteness,
       buildPublishCommand: buildPublishCommand,
       packageRegistryClient: packageRegistryClient,
+      gitTagFormat: GetTagFormat(resolveGitTagFormat),
     );
 
     await expectLater(

@@ -4,6 +4,7 @@ import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
@@ -24,6 +25,8 @@ class _MockVerifyReleaseCompleteness extends Mock
 
 class _MockTagExists extends Mock implements TagExists {}
 
+class _MockResolveGitTagFormat extends Mock implements ResolveGitTagFormat {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(const PublishedPackageInfo());
@@ -38,6 +41,7 @@ void main() {
   late _MockFindReleaseCandidatePackages findReleaseCandidatePackages;
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
   late _MockTagExists tagExists;
+  late _MockResolveGitTagFormat resolveGitTagFormat;
   late ValidateReleaseMerge sut;
 
   ReleaseCandidatePackage candidate(String path, String name) =>
@@ -73,11 +77,15 @@ void main() {
     when(() => tagExists(any(), repoRoot: any(named: 'repoRoot')))
         .thenAnswer((_) async => false);
 
+    resolveGitTagFormat = _MockResolveGitTagFormat();
+    when(() => resolveGitTagFormat()).thenReturn('{name}-{version}');
+
     sut = ValidateReleaseMerge(
       detectChangesInFolder: detectChangesInFolder,
       findReleaseCandidatePackages: findReleaseCandidatePackages,
       verifyReleaseCompleteness: verifyReleaseCompleteness,
       tagExists: tagExists,
+      gitTagFormat: GetTagFormat(resolveGitTagFormat),
     );
   });
 
