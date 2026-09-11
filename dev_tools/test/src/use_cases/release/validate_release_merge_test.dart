@@ -9,6 +9,7 @@ import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -24,6 +25,11 @@ class _MockVerifyReleaseCompleteness extends Mock
 class _MockTagExists extends Mock implements TagExists {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const PublishedPackageInfo());
+    registerFallbackValue(const <String, VersionedFileCheck>{});
+  });
+
   const repoRoot = '/fake/repo';
   const changedFiles = ['pkg_a/pubspec.yaml'];
   const publishedVersions = PublishedPackageInfo(versions: ['0.9.0']);
@@ -60,6 +66,7 @@ void main() {
     when(() => verifyReleaseCompleteness(
           any(),
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).thenAnswer((_) async => const <ReleaseIssue>[]);
 
     tagExists = _MockTagExists();
@@ -114,6 +121,7 @@ void main() {
     verifyNever(() => verifyReleaseCompleteness(
           any(),
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         ));
   });
 
@@ -132,10 +140,12 @@ void main() {
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_a',
           publishedPackageInfo: publishedVersions,
+          checks: any(named: 'checks'),
         )).called(1);
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
           publishedPackageInfo: publishedVersions,
+          checks: any(named: 'checks'),
         )).called(1);
   });
 
@@ -153,6 +163,7 @@ void main() {
     verify(() => verifyReleaseCompleteness(
           any(),
           publishedPackageInfo: publishedVersions,
+          checks: any(named: 'checks'),
         )).called(1);
   });
 
@@ -168,10 +179,12 @@ void main() {
     when(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_a',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).thenAnswer((_) async => const [ReleaseIssue('pkg_a is broken.')]);
     when(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).thenAnswer((_) async => const [ReleaseIssue('pkg_b is broken.')]);
 
     await expectLater(
@@ -182,10 +195,12 @@ void main() {
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_a',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).called(1);
     verify(() => verifyReleaseCompleteness(
           '/fake/repo/pkg_b',
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).called(1);
   });
 
@@ -218,6 +233,7 @@ void main() {
     verify(() => verifyReleaseCompleteness(
           any(),
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
         )).called(1);
   });
 

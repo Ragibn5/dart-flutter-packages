@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:path/path.dart' as p;
 
@@ -18,6 +20,8 @@ class ValidateReleaseMerge {
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
   final TagExists _tagExists;
+  final GetTagFormat _gitTagFormat;
+  final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
 
   const ValidateReleaseMerge({
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
@@ -26,10 +30,15 @@ class ValidateReleaseMerge {
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
     TagExists tagExists = const TagExists(),
+    GetTagFormat gitTagFormat = const GetTagFormat(),
+    BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
+        const BuildStandardReleaseChecksBuilder(),
   })  : _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
-        _tagExists = tagExists;
+        _tagExists = tagExists,
+        _gitTagFormat = gitTagFormat,
+        _buildStandardReleaseChecks = buildStandardReleaseChecks;
 
   /// Runs the MR gate.
   ///
@@ -79,16 +88,18 @@ class ValidateReleaseMerge {
       return;
     }
 
+    final checks = _buildStandardReleaseChecks.build(_gitTagFormat);
     final validPackages = <String>{};
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
       final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
       final identity = candidate.packageIdentity;
-      final tag = identity.releaseTag;
+      final tag = _gitTagFormat(name: identity.name, version: identity.version);
       final tagAlreadyExists = await _tagExists(tag, repoRoot: repoRoot);
       final completenessIssues = await _verifyReleaseCompleteness(
         packagePath,
         publishedPackageInfo: candidate.publishedPackageInfo,
+        checks: checks,
       );
       final issues = <String>[
         if (tagAlreadyExists) 'Tag $tag already exists.',

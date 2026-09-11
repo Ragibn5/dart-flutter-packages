@@ -15,14 +15,6 @@ class PackageIdentity {
     this.isFlutterPackage = false,
   });
 
-  /// The git-install reference for a package release (e.g. `foo-1.0.0`):
-  /// the name of the git tag a release creates, and the exact form its
-  /// README's git-install snippet is expected to reference.
-  static String gitTag(String name, String version) => '$name-$version';
-
-  /// [gitTag] for this identity's own [name] and [version].
-  String get releaseTag => gitTag(name, version);
-
   @override
   bool operator ==(Object other) =>
       other is PackageIdentity &&

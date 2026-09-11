@@ -4,11 +4,15 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
+import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
+import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:path/path.dart' as p;
@@ -27,6 +31,9 @@ class RunPublishFlow {
   final ReadPackageIdentity _readPackageIdentity;
   final BuildPublishCommand _buildPublishCommand;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
+  final PackageRegistryClient _packageRegistryClient;
+  final GetTagFormat _gitTagFormat;
+  final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
   final PublishProcessRunner? _publish;
 
   const RunPublishFlow({
@@ -37,6 +44,11 @@ class RunPublishFlow {
     BuildPublishCommand buildPublishCommand = const BuildPublishCommand(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
+    PackageRegistryClient packageRegistryClient =
+        const FetchPubDevPackageInfo(),
+    GetTagFormat gitTagFormat = const GetTagFormat(),
+    BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
+        const BuildStandardReleaseChecksBuilder(),
     PublishProcessRunner? publish,
   })  : _confirmYesNo = confirmYesNo,
         _hasCleanWorkingTree = hasCleanWorkingTree,
@@ -44,6 +56,9 @@ class RunPublishFlow {
         _readPackageIdentity = readPackageIdentity,
         _buildPublishCommand = buildPublishCommand,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
+        _packageRegistryClient = packageRegistryClient,
+        _gitTagFormat = gitTagFormat,
+        _buildStandardReleaseChecks = buildStandardReleaseChecks,
         _publish = publish;
 
   /// Validates and publishes a package.
@@ -61,6 +76,8 @@ class RunPublishFlow {
   ///   `name` or `version` (see [ReadPackageIdentity]).
   /// - [CommandNotFoundException] when neither fvm nor a system-wide
   ///   Dart/Flutter is installed (see [BuildPublishCommand]).
+  /// - [PackageRegistryLookupException] when the package registry cannot
+  ///   be reached.
   /// - [ReleaseValidationException] on incomplete release references (see
   ///   [VerifyReleaseCompleteness]).
   /// - [PublishFailedException] when the dry run or publish fails.
@@ -89,7 +106,12 @@ class RunPublishFlow {
       ..writeln('Version: ${identity.version}')
       ..writeln();
 
-    final releaseIssues = await _verifyReleaseCompleteness(packagePath);
+    final publishedPackageInfo = await _packageRegistryClient(identity.name);
+    final releaseIssues = await _verifyReleaseCompleteness(
+      packagePath,
+      publishedPackageInfo: publishedPackageInfo,
+      checks: _buildStandardReleaseChecks.build(_gitTagFormat),
+    );
     if (releaseIssues.isNotEmpty) {
       throw ReleaseValidationException(
         releaseIssues.map((i) => i.issueMessage).join('\n'),

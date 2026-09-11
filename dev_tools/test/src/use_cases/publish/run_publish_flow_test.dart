@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
@@ -10,8 +11,10 @@ import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -27,6 +30,9 @@ class _MockVerifyReleaseCompleteness extends Mock
     implements VerifyReleaseCompleteness {}
 
 class _MockBuildPublishCommand extends Mock implements BuildPublishCommand {}
+
+class _MockPackageRegistryClient extends Mock
+    implements PackageRegistryClient {}
 
 class PublishAttempt {
   final String repoRoot;
@@ -78,6 +84,8 @@ void main() {
     registerFallbackValue(
       const PackageIdentity(name: 'foo', version: '1.0.0'),
     );
+    registerFallbackValue(const PublishedPackageInfo());
+    registerFallbackValue(const <String, VersionedFileCheck>{});
   });
 
   late _MockValidatePackagePath validatePackagePath;
@@ -86,6 +94,7 @@ void main() {
   late _MockConfirmYesNo confirmYesNo;
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
   late _MockBuildPublishCommand buildPublishCommand;
+  late _MockPackageRegistryClient packageRegistryClient;
 
   late List<PublishAttempt> publishCalls;
   late PublishProcessRunner publish;
@@ -98,6 +107,7 @@ void main() {
         confirmYesNo: confirmYesNo,
         verifyReleaseCompleteness: verifyReleaseCompleteness,
         buildPublishCommand: buildPublishCommand,
+        packageRegistryClient: packageRegistryClient,
         publish: publish,
       );
 
@@ -108,6 +118,7 @@ void main() {
     confirmYesNo = _MockConfirmYesNo();
     verifyReleaseCompleteness = _MockVerifyReleaseCompleteness();
     buildPublishCommand = _MockBuildPublishCommand();
+    packageRegistryClient = _MockPackageRegistryClient();
     publishCalls = <PublishAttempt>[];
     publish = _okPublish(publishCalls);
 
@@ -118,8 +129,14 @@ void main() {
     when(() => buildPublishCommand(any())).thenAnswer(
       (_) async => const PublishTooling('fvm dart'),
     );
-    when(() => verifyReleaseCompleteness(any()))
-        .thenAnswer((_) async => const <ReleaseIssue>[]);
+    when(() => packageRegistryClient(any())).thenAnswer(
+      (_) async => const PublishedPackageInfo(),
+    );
+    when(() => verifyReleaseCompleteness(
+          any(),
+          publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
+        )).thenAnswer((_) async => const <ReleaseIssue>[]);
     when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => true);
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
@@ -129,7 +146,11 @@ void main() {
   test(
     'should throw ReleaseValidationException when the release is incomplete',
     () async {
-      when(() => verifyReleaseCompleteness(any())).thenAnswer(
+      when(() => verifyReleaseCompleteness(
+            any(),
+            publishedPackageInfo: any(named: 'publishedPackageInfo'),
+            checks: any(named: 'checks'),
+          )).thenAnswer(
         (_) async => const [
           ReleaseIssue('Error: Release is incomplete for foo@1.0.0.'),
         ],
@@ -138,6 +159,22 @@ void main() {
       await expectLater(
         sut(repoRoot: repoRoot, pkgPath: pkgPath),
         throwsA(isA<ReleaseValidationException>()),
+      );
+      expect(publishCalls, isEmpty);
+    },
+  );
+
+  test(
+    'should throw PackageRegistryLookupException when the registry cannot '
+    'be reached',
+    () async {
+      when(() => packageRegistryClient(any())).thenThrow(
+        const PackageRegistryLookupException('connection timeout'),
+      );
+
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        throwsA(isA<PackageRegistryLookupException>()),
       );
       expect(publishCalls, isEmpty);
     },
@@ -285,7 +322,11 @@ void main() {
       (repoRoot, pkgPath, 'fvm dart', true),
       (repoRoot, pkgPath, 'fvm dart', false),
     ]);
-    verify(() => verifyReleaseCompleteness(packagePath)).called(1);
+    verify(() => verifyReleaseCompleteness(
+          packagePath,
+          publishedPackageInfo: any(named: 'publishedPackageInfo'),
+          checks: any(named: 'checks'),
+        )).called(1);
     verify(() => confirmYesNo(publishPrompt)).called(1);
   });
 
@@ -327,6 +368,7 @@ void main() {
         confirmYesNo: confirmYesNo,
         verifyReleaseCompleteness: verifyReleaseCompleteness,
         buildPublishCommand: buildPublishCommand,
+        packageRegistryClient: packageRegistryClient,
       );
 
       await expectLater(
@@ -363,6 +405,7 @@ void main() {
       confirmYesNo: confirmYesNo,
       verifyReleaseCompleteness: verifyReleaseCompleteness,
       buildPublishCommand: buildPublishCommand,
+      packageRegistryClient: packageRegistryClient,
     );
 
     await expectLater(
