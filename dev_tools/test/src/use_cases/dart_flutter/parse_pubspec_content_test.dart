@@ -1,0 +1,115 @@
+import 'package:dev_tools/src/use_cases/dart_flutter/parse_pubspec_content.dart';
+import 'package:test/test.dart';
+
+void main() {
+  late ParsePubspecContent sut;
+
+  setUp(() {
+    sut = const ParsePubspecContent();
+  });
+
+  test('should return the package identity from pubspec.yaml content', () {
+    final identity = sut('name: foo\nversion: 1.0.0\n');
+
+    expect(identity.name, 'foo');
+    expect(identity.version, '1.0.0');
+    expect(identity.isFlutterPackage, isFalse);
+  });
+
+  test('should mark a package as Flutter from an environment.flutter row', () {
+    final identity = sut('''
+name: foo
+version: 1.0.0
+environment:
+  sdk: ^3.0.0
+  flutter: ">=3.3.0"
+''');
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test('should mark a package as Flutter from a dependency on the flutter SDK',
+      () {
+    final identity = sut('''
+name: foo
+version: 1.0.0
+dependencies:
+  flutter:
+    sdk: flutter
+''');
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test(
+      'should mark a package as Flutter from a dev_dependency on the '
+      'flutter SDK', () {
+    final identity = sut('''
+    name: foo
+    version: 1.0.0
+    dev_dependencies:
+      flutter:
+        sdk: flutter
+    ''');
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test('should mark a package as Flutter from a top-level flutter section', () {
+    final identity = sut('''
+name: foo
+version: 1.0.0
+flutter:
+  plugin: true
+''');
+
+    expect(identity.isFlutterPackage, isTrue);
+  });
+
+  test('should mark a package as publishable by default', () {
+    final identity = sut('name: foo\nversion: 1.0.0\n');
+
+    expect(identity.isPublishable, isTrue);
+  });
+
+  test('should mark a package as not publishable when publish_to is none', () {
+    final identity = sut('name: foo\nversion: 1.0.0\npublish_to: none\n');
+
+    expect(identity.isPublishable, isFalse);
+  });
+
+  test('should mark a package as publishable when publish_to is a registry',
+      () {
+    final identity = sut(
+      'name: foo\nversion: 1.0.0\npublish_to: https://example.com\n',
+    );
+
+    expect(identity.isPublishable, isTrue);
+  });
+
+  test('should throw PackageIdentityException when pubspec has no name', () {
+    expect(
+      () => sut('version: 1.0.0\n'),
+      throwsA(
+        isA<PackageIdentityException>().having(
+          (e) => e.message,
+          'message',
+          'Error: pubspec.yaml has no name.',
+        ),
+      ),
+    );
+  });
+
+  test('should throw PackageIdentityException when pubspec has no version', () {
+    expect(
+      () => sut('name: foo\n'),
+      throwsA(
+        isA<PackageIdentityException>().having(
+          (e) => e.message,
+          'message',
+          'Error: pubspec.yaml has no version.',
+        ),
+      ),
+    );
+  });
+}

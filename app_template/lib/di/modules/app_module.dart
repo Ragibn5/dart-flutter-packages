@@ -487,13 +487,14 @@ abstract class AppModule {
   @singleton
   Rover getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
+    AppLogger logger,
     IsAuthedUseCase isAuthedUseCase,
   ) {
     return RoverFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
       routes: getAppRouteDefs(isAuthedUseCase),
-      guards: [RouterLogger()],
+      guards: [RouterLogger(logger)],
     );
   }
 }

@@ -34,9 +34,7 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [profile];
 }
 
-class AppAssets {
-  const AppAssets._();
-
+abstract final class AppAssets {
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
 }

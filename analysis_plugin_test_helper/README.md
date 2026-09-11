@@ -199,4 +199,4 @@ This is the shape most plugin tests take: Resolve → pull nodes → assert. No 
 
 ## 🧪 Example
 
-See [`example.dart`](example/example.dart) and [tests](test) for a complete demonstration.
+See [`example/README.md`](example/README.md) for a complete demonstration.

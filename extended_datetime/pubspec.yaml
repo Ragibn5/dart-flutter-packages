@@ -23,3 +23,5 @@ dev_dependencies:
   test: ^1.25.5
   lints: ^3.0.0
   very_good_analysis: ^5.1.0
+  dev_tools:
+    path: ../dev_tools

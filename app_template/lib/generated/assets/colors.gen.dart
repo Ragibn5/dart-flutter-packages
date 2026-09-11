@@ -11,9 +11,7 @@
 import 'package:flutter/painting.dart';
 import 'package:flutter/material.dart';
 
-class AppColors {
-  AppColors._();
-
+abstract final class AppColors {
   /// Color: #FF4081
   static const Color accent = Color(0xFFFF4081);
 
