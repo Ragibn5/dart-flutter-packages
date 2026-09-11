@@ -14,6 +14,7 @@ import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:dev_tools/src/utils/buffer_sink.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:path/path.dart' as p;
 
@@ -67,6 +68,14 @@ class RunPublishFlow {
   /// - `repoRoot`: absolute path to the repository root.
   /// - `pkgPath`: package directory relative to [repoRoot].
   /// - `dryRunOnly`: skip the actual publish after a successful dry run.
+  /// - `interactive`: when false, skip both confirmation prompts (warnings
+  ///   are still logged, just not gated on); for unattended/CI callers that
+  ///   have already decided this candidate should be published.
+  /// - `verbose`: when false, suppress all progress output (package/version,
+  ///   warnings, dry-run/publish progress) — including `dart pub publish`'s
+  ///   own console output, captured and only printed if it actually fails;
+  ///   for batch callers that only want to know about failures, reporting
+  ///   their own progress (or none) at a coarser level.
   ///
   /// Returns: nothing (void).
   ///
@@ -84,27 +93,33 @@ class RunPublishFlow {
   ///
   /// Notes: the dry run and publish run from the package root using the
   /// tooling in [PublishTooling]; without a scoped fvm version the user is
-  /// warned that the system-wide Dart/Flutter will be used. Warnings
-  /// (system-wide toolchain, uncommitted changes) are confirmed with a
-  /// single `Continue despite warnings?` prompt. Reports progress to
-  /// stdout.
+  /// warned that the system-wide Dart/Flutter will be used. When
+  /// `interactive` is true (the default), warnings (system-wide toolchain,
+  /// uncommitted changes) are confirmed with a single `Continue despite
+  /// warnings?` prompt, and the actual publish requires a final
+  /// confirmation. When `verbose`, reports one line per step (package,
+  /// warnings if any, dry-run, publish) — no empty sections, no shouting.
   Future<void> call({
     required String repoRoot,
     required String pkgPath,
-    bool dryRunOnly = false,
+    bool dryRunOnly = true,
+    bool interactive = true,
+    bool verbose = true,
   }) async {
+    void log(String message) {
+      if (verbose) stdout.writeln(message);
+    }
+
     final packagePath = p.join(repoRoot, pkgPath);
     _validatePackagePath(packagePath);
 
     final warnings = <String>[];
-    final publish = _publish ?? _defaultPublish;
+    final publish = _publish ?? (verbose ? _defaultPublish : _silentPublish);
     final identity = await _readPackageIdentity(packagePath);
     final tooling = await _buildPublishCommand(identity);
+    final label = '${identity.name}@${identity.version}';
 
-    stdout
-      ..writeln('Package: ${identity.name}')
-      ..writeln('Version: ${identity.version}')
-      ..writeln();
+    log('Publishing $label');
 
     final publishedPackageInfo = await _packageRegistryClient(identity.name);
     final releaseIssues = await _verifyReleaseCompleteness(
@@ -126,47 +141,45 @@ class RunPublishFlow {
     if (!await _hasCleanWorkingTree(repoRoot)) {
       warnings.add('You have uncommitted changes.');
     }
-    stdout.writeln('\nWarnings:');
-    for (final e in warnings) {
-      stdout.writeln('  - $e');
+    for (final w in warnings) {
+      log('  Warning: $w');
     }
-    stdout.writeln();
 
-    if (warnings.isNotEmpty &&
+    if (interactive &&
+        warnings.isNotEmpty &&
         !await _confirmYesNo('Continue despite warnings?')) {
-      stdout.writeln('Cancelled.');
+      log('  Cancelled.');
       return;
     }
 
-    stdout.writeln('\nDRY-RUN PUBLISH');
     final dryExit =
         await publish(repoRoot, pkgPath, tooling: tooling, dryRun: true);
-    stdout.writeln('DRY-RUN COMPLETE\n');
     if (dryExit != 0) {
       throw const PublishFailedException(
         'Error: Dry-run failed. Fix issues before publishing.',
       );
     }
+    log('  Dry-run publish passed.');
 
     if (dryRunOnly) {
-      stdout.writeln('Dry-run complete. Skipping actual publish.');
+      log('  Skipping actual publish (dry-run only).');
       return;
     }
 
-    final confirmed =
-        await _confirmYesNo('Publish ${identity.name}@${identity.version}?');
-    if (!confirmed) {
-      stdout.writeln('Cancelled.');
-      return;
+    if (interactive) {
+      final confirmed = await _confirmYesNo('Publish $label?');
+      if (!confirmed) {
+        log('  Cancelled.');
+        return;
+      }
     }
 
-    stdout.writeln('\nPUBLISHING');
     final exitCode =
         await publish(repoRoot, pkgPath, tooling: tooling, dryRun: false);
     if (exitCode != 0) {
       throw const PublishFailedException('Error: Publishing failed.');
     }
-    stdout.writeln('Successfully published!');
+    log('  Published.');
   }
 
   static Future<int> _defaultPublish(
@@ -174,17 +187,60 @@ class RunPublishFlow {
     String pkgPath, {
     required PublishTooling tooling,
     required bool dryRun,
+  }) {
+    return _runPubPublish(repoRoot, pkgPath, tooling: tooling, dryRun: dryRun);
+  }
+
+  /// Same as [_defaultPublish], but captures `dart pub publish`'s own
+  /// console output instead of letting it print — surfaced only if the
+  /// process actually fails, so a quiet batch run stays quiet on success.
+  static Future<int> _silentPublish(
+    String repoRoot,
+    String pkgPath, {
+    required PublishTooling tooling,
+    required bool dryRun,
   }) async {
+    final out = BufferSink();
+    final err = BufferSink();
+    final exitCode = await _runPubPublish(
+      repoRoot,
+      pkgPath,
+      tooling: tooling,
+      dryRun: dryRun,
+      stdOut: out,
+      stdErr: err,
+    );
+    if (exitCode != 0) {
+      stdout.write(out.contents);
+      stderr.write(err.contents);
+    }
+    return exitCode;
+  }
+
+  static Future<int> _runPubPublish(
+    String repoRoot,
+    String pkgPath, {
+    required PublishTooling tooling,
+    required bool dryRun,
+    IOSink? stdOut,
+    IOSink? stdErr,
+  }) {
     final args = [
       ...tooling.prefix,
       'pub',
       'publish',
       if (dryRun) '--dry-run',
+      // Our own flow already gates the decision to publish (interactively
+      // or not), so skip pub's own "are you sure?" prompt — it would hang
+      // forever in a non-interactive (CI) run.
+      if (!dryRun) '--force',
     ];
     final runner = InteractiveProcessRunner(
       executable: args.first,
       arguments: args.sublist(1),
       workingDirectory: '$repoRoot/$pkgPath',
+      stdOut: stdOut,
+      stdErr: stdErr,
     );
     return runner.run();
   }

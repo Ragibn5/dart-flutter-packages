@@ -40,6 +40,8 @@ void main() {
           repoRoot: any(named: 'repoRoot'),
           pkgPath: any(named: 'pkgPath'),
           dryRunOnly: any(named: 'dryRunOnly'),
+          interactive: any(named: 'interactive'),
+          verbose: any(named: 'verbose'),
         )).thenAnswer((_) async {});
 
     await _run(
@@ -50,6 +52,9 @@ void main() {
     verify(() => flow(
           repoRoot: fakeRepoRoot,
           pkgPath: 'foo',
+          dryRunOnly: false,
+          interactive: any(named: 'interactive'),
+          verbose: any(named: 'verbose'),
         )).called(1);
   });
 
@@ -61,6 +66,8 @@ void main() {
             repoRoot: any(named: 'repoRoot'),
             pkgPath: any(named: 'pkgPath'),
             dryRunOnly: any(named: 'dryRunOnly'),
+            interactive: any(named: 'interactive'),
+            verbose: any(named: 'verbose'),
           )).thenAnswer((_) async {});
 
       await _run(
@@ -71,6 +78,9 @@ void main() {
       verify(() => flow(
             repoRoot: fakeRepoRoot,
             pkgPath: p.relative(Directory.current.path, from: fakeRepoRoot),
+            dryRunOnly: false,
+            interactive: any(named: 'interactive'),
+            verbose: any(named: 'verbose'),
           )).called(1);
     },
   );
@@ -81,6 +91,8 @@ void main() {
           repoRoot: any(named: 'repoRoot'),
           pkgPath: any(named: 'pkgPath'),
           dryRunOnly: any(named: 'dryRunOnly'),
+          interactive: any(named: 'interactive'),
+          verbose: any(named: 'verbose'),
         )).thenAnswer((_) async {});
 
     await _run(
@@ -92,6 +104,8 @@ void main() {
           repoRoot: fakeRepoRoot,
           pkgPath: 'foo',
           dryRunOnly: true,
+          interactive: any(named: 'interactive'),
+          verbose: any(named: 'verbose'),
         )).called(1);
   });
 }

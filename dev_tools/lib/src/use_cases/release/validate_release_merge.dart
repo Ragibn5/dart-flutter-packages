@@ -129,7 +129,7 @@ class ValidateReleaseMerge {
 
     if (issuesMap.isNotEmpty) {
       throw ReleaseValidationException(
-        'Error: ${issuesMap.length} release candidate(s) are incomplete.',
+        '${issuesMap.length} release candidate(s) are incomplete.',
       );
     }
   }

@@ -214,7 +214,7 @@ void main() {
           .thenAnswer((_) async => true);
 
       await expectLater(
-        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
         completes,
       );
 
@@ -232,7 +232,7 @@ void main() {
           .thenAnswer((_) async => const PublishTooling('fvm flutter'));
 
       await expectLater(
-        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
         completes,
       );
 
@@ -269,13 +269,52 @@ void main() {
           .thenAnswer((_) async => true);
 
       await expectLater(
-        sut(repoRoot: repoRoot, pkgPath: pkgPath),
+        sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
         completes,
       );
 
       expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
         (repoRoot, pkgPath, 'fvm dart', true),
         (repoRoot, pkgPath, 'fvm dart', false),
+      ]);
+    },
+  );
+
+  test('should skip both confirmation prompts when interactive is false',
+      () async {
+    when(() => hasCleanWorkingTree(any())).thenAnswer((_) async => false);
+    when(() => buildPublishCommand(any()))
+        .thenAnswer((_) async => const PublishTooling('dart'));
+
+    await expectLater(
+      sut(
+        repoRoot: repoRoot,
+        pkgPath: pkgPath,
+        dryRunOnly: false,
+        interactive: false,
+      ),
+      completes,
+    );
+
+    verifyNever(() => confirmYesNo(any()));
+    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+      (repoRoot, pkgPath, 'dart', true),
+      (repoRoot, pkgPath, 'dart', false),
+    ]);
+  });
+
+  test(
+    'should stop after the dry run when interactive is false and '
+    'dryRunOnly is left at its default',
+    () async {
+      await expectLater(
+        sut(repoRoot: repoRoot, pkgPath: pkgPath, interactive: false),
+        completes,
+      );
+
+      verifyNever(() => confirmYesNo(any()));
+      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
+        (repoRoot, pkgPath, 'fvm dart', true),
       ]);
     },
   );
@@ -310,7 +349,7 @@ void main() {
         .thenAnswer((_) async => false);
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
       completes,
     );
 
@@ -321,7 +360,7 @@ void main() {
 
   test('should publish successfully end to end', () async {
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
       completes,
     );
 
@@ -344,7 +383,7 @@ void main() {
     sut = buildSut();
 
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
       throwsA(isA<PublishFailedException>()),
     );
     expect(publishCalls.map((call) => call.dryRun), <bool>[true, false]);
@@ -380,12 +419,12 @@ void main() {
       );
 
       await expectLater(
-        sut(repoRoot: tempDir.path, pkgPath: 'pkg'),
+        sut(repoRoot: tempDir.path, pkgPath: 'pkg', dryRunOnly: false),
         completes,
       );
 
       final lines = File(logFile).readAsStringSync().trim().split('\n');
-      expect(lines, <String>['pub publish --dry-run', 'pub publish']);
+      expect(lines, <String>['pub publish --dry-run', 'pub publish --force']);
     },
   );
 
