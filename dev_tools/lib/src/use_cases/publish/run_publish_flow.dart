@@ -46,7 +46,7 @@ class RunPublishFlow {
         const VerifyReleaseCompleteness(),
     PackageRegistryClient packageRegistryClient =
         const FetchPubDevPackageInfo(),
-    GetTagFormat gitTagFormat = const GetTagFormat(),
+    GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
     PublishProcessRunner? publish,

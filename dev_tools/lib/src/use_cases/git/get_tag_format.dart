@@ -1,33 +1,35 @@
 import 'dart:io';
 
-/// The default git-tag naming template (e.g. `foo-1.0.0`): the name of the
-/// git tag a release creates, and the exact form its README's git-install
-/// snippet is expected to reference.
-///
-/// Projects with their own tagging convention (e.g. `{name}@{version}`, a
-/// `v{version}` suffix, ...) can pass a different template wherever a git
-/// tag format is accepted, instead of this default.
-const defaultGitTagFormat = '{name}-{version}';
-
-/// The environment variable CI can set to override [defaultGitTagFormat]
-/// without needing to write Dart code (see [ResolveGitTagFormat]).
-const gitTagFormatEnvVar = 'DEV_TOOLS_GIT_TAG_FORMAT';
-
 /// Builds a git tag/git-install reference for a package release by
 /// substituting `{name}`/`{version}` placeholders into a format template.
 class GetTagFormat {
-  final String _format;
+  final ResolveGitTagFormat _resolveGitTagFormat;
 
-  const GetTagFormat([this._format = defaultGitTagFormat]);
+  const GetTagFormat(this._resolveGitTagFormat);
 
   /// Substitutes [name] and [version] into this instance's format template.
   String call({required String name, required String version}) {
-    return _format.replaceAll('{name}', name).replaceAll('{version}', version);
+    return _resolveGitTagFormat()
+        .replaceAll('{name}', name)
+        .replaceAll('{version}', version);
   }
 }
 
 /// Resolves which git-tag format template to use.
 class ResolveGitTagFormat {
+  /// The default git-tag naming template (e.g. `foo-1.0.0`): the name of the
+  /// git tag a release creates, and the exact form its README's git-install
+  /// snippet is expected to reference.
+  ///
+  /// Projects with their own tagging convention (e.g. `{name}@{version}`, a
+  /// `v{version}` suffix, ...) can pass a different template wherever a git
+  /// tag format is accepted, instead of this default.
+  static const defaultGitTagFormat = '{name}-{version}';
+
+  /// The environment variable CI can set to override [defaultGitTagFormat]
+  /// without needing to write Dart code (see [ResolveGitTagFormat]).
+  static const gitTagFormatEnvVar = 'DEV_TOOLS_GIT_TAG_FORMAT';
+
   const ResolveGitTagFormat();
 
   /// Resolves the git-tag format: the [gitTagFormatEnvVar] environment

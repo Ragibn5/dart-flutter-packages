@@ -16,21 +16,21 @@ const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
 class ValidateReleaseMerge {
+  final TagExists _tagExists;
+  final GetTagFormat _gitTagFormat;
   final DetectChangesInFolder _detectChangesInFolder;
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
-  final TagExists _tagExists;
-  final GetTagFormat _gitTagFormat;
   final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
 
   const ValidateReleaseMerge({
+    TagExists tagExists = const TagExists(),
+    GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
     FindReleaseCandidatePackages findReleaseCandidatePackages =
         const FindReleaseCandidatePackages(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
-    TagExists tagExists = const TagExists(),
-    GetTagFormat gitTagFormat = const GetTagFormat(),
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
   })  : _detectChangesInFolder = detectChangesInFolder,

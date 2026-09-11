@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
-import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 
 class ValidateReleaseMergeCommand extends Command<void> {
@@ -10,9 +9,9 @@ class ValidateReleaseMergeCommand extends Command<void> {
   static const String commandDescription =
       'Gate a release MR into its target branch: '
       'validates that every release-candidate packages touched by the diff '
-      'is complete and ready to be published. The git tag naming '
-      'convention can be overridden via the $gitTagFormatEnvVar '
-      'environment variable (default: "$defaultGitTagFormat").';
+      'is complete and ready to be published. Uses the shared git-tag '
+      "naming convention — see 'dev_tools git --help'.";
+
   static const String fromOption = 'from';
   static const String toOption = 'to';
 
@@ -21,10 +20,10 @@ class ValidateReleaseMergeCommand extends Command<void> {
 
   ValidateReleaseMergeCommand({
     GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
-    ValidateReleaseMerge? validateReleaseMergeRequest,
+    ValidateReleaseMerge validateReleaseMergeRequest =
+        const ValidateReleaseMerge(),
   })  : _getRepoRootPath = getRepoRootPath,
-        _validateReleaseMerge =
-            validateReleaseMergeRequest ?? _buildDefaultValidateReleaseMerge() {
+        _validateReleaseMerge = validateReleaseMergeRequest {
     argParser
       ..addOption(
         fromOption,
@@ -53,15 +52,6 @@ class ValidateReleaseMergeCommand extends Command<void> {
       repoRoot: repoRoot,
       fromBranch: argResults![fromOption] as String,
       toBranch: argResults![toOption] as String,
-    );
-  }
-
-  /// Resolves the git-tag format once, so it's used consistently for both
-  /// the README-reference check ([ValidateReleaseMerge] builds the
-  /// standard checks from it) and the tag-existence check.
-  static ValidateReleaseMerge _buildDefaultValidateReleaseMerge() {
-    return ValidateReleaseMerge(
-      gitTagFormat: GetTagFormat(const ResolveGitTagFormat()()),
     );
   }
 }

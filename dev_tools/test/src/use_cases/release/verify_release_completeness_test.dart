@@ -19,8 +19,8 @@ class _MockVerifyVersionedFiles extends Mock implements VerifyVersionedFiles {}
 void main() {
   const packagePath = '/fake/repo/pkg';
   const publishedInfo = PublishedPackageInfo();
-  final checks =
-      const BuildStandardReleaseChecksBuilder().build(const GetTagFormat());
+  final checks = const BuildStandardReleaseChecksBuilder()
+      .build(const GetTagFormat(ResolveGitTagFormat()));
 
   late _MockReadPackageIdentity readPackageIdentity;
   late _MockVerifyVersionedFiles verifyVersionedFiles;
